@@ -6,6 +6,8 @@ fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let paths: Vec<PathBuf> = if args.is_empty() {
         default_target_files()
+    } else if args == ["--all"] {
+        all_files()
     } else {
         args.into_iter().map(PathBuf::from).collect()
     };
@@ -93,4 +95,19 @@ fn default_target_files() -> Vec<PathBuf> {
         .into_iter()
         .map(|f| base.join(f))
         .collect()
+}
+
+/// Every `.c`/`.h` file in `linuxdoom-1.10/`, sorted for deterministic
+/// output. Used by `--all`.
+fn all_files() -> Vec<PathBuf> {
+    let base = Path::new("linuxdoom-1.10");
+    let entries = std::fs::read_dir(base)
+        .unwrap_or_else(|e| panic!("failed to read {}: {e}", base.display()));
+    let mut files: Vec<PathBuf> = entries
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|p| matches!(p.extension().and_then(|e| e.to_str()), Some("c") | Some("h")))
+        .collect();
+    files.sort();
+    files
 }
