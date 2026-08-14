@@ -36,5 +36,31 @@ pub fn banner_doc(comments: &[Comment]) -> Option<String> {
     Some(lines[1].to_string())
 }
 
+/// If `src` begins with the id Software license/RCS banner comment - not to
+/// be confused with `banner_doc`'s per-function `//`/`// Name`/`//` banner
+/// above - returns `src` with that leading comment (and the blank lines
+/// woven through it) removed. Otherwise returns `src` unchanged.
+///
+/// The banner's body text (the `DESCRIPTION:` section) differs per file, so
+/// it's identified structurally: a leading run of blank lines and `//` line
+/// comments, confirmed to be *this* banner by its distinctive, verbatim-
+/// identical-in-all-124-files first line.
+pub fn strip_leading_banner(src: &str) -> &str {
+    const MARKER: &str = "Emacs style mode select";
+    if !src.lines().next().is_some_and(|l| l.contains(MARKER)) {
+        return src;
+    }
+    let mut end = 0;
+    for line in src.split_inclusive('\n') {
+        let trimmed = line.trim();
+        if trimmed.is_empty() || trimmed.starts_with("//") {
+            end += line.len();
+        } else {
+            break;
+        }
+    }
+    &src[end..]
+}
+
 #[cfg(test)]
 mod tests;

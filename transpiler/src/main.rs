@@ -15,6 +15,7 @@ fn main() {
             Ok(file) => {
                 let rebuilt = file.render();
                 let original = std::fs::read_to_string(&path).unwrap_or_default();
+                let original = trivia::strip_leading_banner(&original);
                 let round_trips = rebuilt == original;
                 println!("==== {} ====", path.display());
                 println!(
