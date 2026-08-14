@@ -137,10 +137,7 @@ fn drain_leading_comments(unit: &mut [Chunk]) -> Vec<Comment> {
 fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
     let leading = drain_leading_comments(&mut unit);
     let raw: String = unit.iter().map(Chunk::render).collect();
-    let trivia = Trivia {
-        leading,
-        trailing: None,
-    };
+    let trivia = Trivia { leading };
 
     if let [Chunk::Flat(toks)] = unit.as_slice() {
         let mut directives = toks

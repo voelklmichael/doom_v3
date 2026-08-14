@@ -129,12 +129,10 @@ impl Comment {
     }
 }
 
-/// Comments attached to an item. `trailing` is unused by v1 (see record.rs
-/// module docs) but kept for future same-line-comment attachment.
+/// Comments attached to an item.
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct Trivia {
     pub leading: Vec<Comment>,
-    pub trailing: Option<Comment>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -239,9 +237,6 @@ impl File {
                 out.push_str(c.text());
             }
             out.push_str(&item.raw);
-            if let Some(c) = &trivia.trailing {
-                out.push_str(c.text());
-            }
         }
         out
     }
