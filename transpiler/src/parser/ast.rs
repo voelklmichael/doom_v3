@@ -1,3 +1,4 @@
+use serde::Serialize;
 use std::path::PathBuf;
 
 /// A position in the *original* source file. Column counting assumes one
@@ -114,7 +115,7 @@ pub fn render_tokens(tokens: &[RawToken]) -> String {
     tokens.iter().map(RawToken::text).collect()
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Comment {
     Line(String),
     Block(String),
@@ -130,19 +131,19 @@ impl Comment {
 
 /// Comments attached to an item. `trailing` is unused by v1 (see record.rs
 /// module docs) but kept for future same-line-comment attachment.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct Trivia {
     pub leading: Vec<Comment>,
     pub trailing: Option<Comment>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum RecordKind {
     Struct,
     Union,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Field {
     pub ty: String,
     pub name: String,
@@ -150,7 +151,7 @@ pub struct Field {
     pub bitfield: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct RecordDecl {
     pub kind: RecordKind,
     pub tag: Option<String>,
@@ -161,7 +162,7 @@ pub struct RecordDecl {
     pub typedef_name: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct EnumDecl {
     pub tag: Option<String>,
     pub variants: Vec<(String, Option<String>)>,
@@ -169,19 +170,19 @@ pub struct EnumDecl {
     pub typedef_name: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct TypedefDecl {
     pub underlying: String,
     pub name: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Init {
     Braced(String),
     Expr(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ConstDecl {
     pub storage: Vec<String>,
     pub ty: String,
@@ -190,7 +191,7 @@ pub struct ConstDecl {
     pub initializer: Option<Init>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FnSig {
     pub storage: Vec<String>,
     pub ret_ty: String,
@@ -198,7 +199,7 @@ pub struct FnSig {
     pub params_raw: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum ItemKind {
     Preproc(super::preproc::Directive),
     Record(RecordDecl),
@@ -214,7 +215,7 @@ pub enum ItemKind {
     Raw,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Item {
     pub kind: ItemKind,
     /// Exact original text of this item, excluding its leading/trailing
@@ -223,7 +224,7 @@ pub struct Item {
     pub raw: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct File {
     pub path: PathBuf,
     pub items: Vec<(Item, Trivia)>,

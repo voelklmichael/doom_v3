@@ -30,9 +30,10 @@ fn main() {
                         None => println!("  {kind:<14}"),
                     }
                 }
-                println!();
-                println!("{:#?}", file);
-                println!();
+                match write_json(&file) {
+                    Ok(out_path) => println!("wrote {}\n", out_path.display()),
+                    Err(e) => eprintln!("failed to write JSON for {}: {e}\n", path.display()),
+                }
             }
             Err(e) => eprintln!("failed to parse {}: {e}", path.display()),
         }
@@ -69,6 +70,20 @@ fn directive_label(d: &preproc::Directive) -> &'static str {
         Error(_) => "error",
         Other(_) => "other",
     }
+}
+
+/// Serializes `file`'s AST to `target/parsed/<file_name>.json` (relative to
+/// the current directory) and returns the path written.
+fn write_json(file: &ast::File) -> std::io::Result<PathBuf> {
+    let out_dir = Path::new("target/parsed");
+    std::fs::create_dir_all(out_dir)?;
+    let file_name = file.path.file_name().ok_or_else(|| {
+        std::io::Error::new(std::io::ErrorKind::InvalidInput, "path has no file name")
+    })?;
+    let out_path = out_dir.join(format!("{}.json", file_name.to_string_lossy()));
+    let json = serde_json::to_string_pretty(file)?;
+    std::fs::write(&out_path, json)?;
+    Ok(out_path)
 }
 
 fn default_target_files() -> Vec<PathBuf> {

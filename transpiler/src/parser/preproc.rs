@@ -4,7 +4,7 @@
 //! initializer-list, so branch-scoping can't assume `#if`/`#endif` cleanly
 //! bracket whole declarations. That's left for a later step.
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub enum Directive {
     Include {
         path: String,
