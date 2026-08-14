@@ -35,7 +35,11 @@ pub fn group_braces(tokens: Vec<RawToken>) -> Vec<Chunk> {
                     let piece = &text[seg_start..i];
                     let piece_start = pos;
                     pos = pos.advance(piece);
-                    let code_tok = RawToken::Code(Span { start: piece_start, end: pos, text: piece.to_string() });
+                    let code_tok = RawToken::Code(Span {
+                        start: piece_start,
+                        end: pos,
+                        text: piece.to_string(),
+                    });
                     if depth == 0 {
                         flat.push(code_tok);
                     } else {
@@ -46,7 +50,11 @@ pub fn group_braces(tokens: Vec<RawToken>) -> Vec<Chunk> {
                 let brace_start = pos;
                 let brace_str = &text[i..i + 1];
                 pos = pos.advance(brace_str);
-                let brace_span = Span { start: brace_start, end: pos, text: brace_str.to_string() };
+                let brace_span = Span {
+                    start: brace_start,
+                    end: pos,
+                    text: brace_str.to_string(),
+                };
 
                 if b == b'{' {
                     if depth == 0 {
@@ -62,7 +70,11 @@ pub fn group_braces(tokens: Vec<RawToken>) -> Vec<Chunk> {
                     depth = depth.saturating_sub(1);
                     if depth == 0 {
                         let open = group_open.take().unwrap_or_else(|| brace_span.clone());
-                        top.push(Chunk::Group { open, close: brace_span, inner: std::mem::take(&mut inner) });
+                        top.push(Chunk::Group {
+                            open,
+                            close: brace_span,
+                            inner: std::mem::take(&mut inner),
+                        });
                     } else {
                         inner.push(RawToken::Code(brace_span));
                     }
@@ -72,7 +84,11 @@ pub fn group_braces(tokens: Vec<RawToken>) -> Vec<Chunk> {
 
             if seg_start < bytes.len() {
                 let piece = &text[seg_start..];
-                let code_tok = RawToken::Code(Span { start: pos, end: span.end, text: piece.to_string() });
+                let code_tok = RawToken::Code(Span {
+                    start: pos,
+                    end: span.end,
+                    text: piece.to_string(),
+                });
                 if depth == 0 {
                     flat.push(code_tok);
                 } else {
@@ -92,7 +108,11 @@ pub fn group_braces(tokens: Vec<RawToken>) -> Vec<Chunk> {
     // Unclosed group at EOF (malformed input): surface what we have instead
     // of silently dropping it.
     if let Some(open) = group_open {
-        top.push(Chunk::Group { open: open.clone(), close: open, inner });
+        top.push(Chunk::Group {
+            open: open.clone(),
+            close: open,
+            inner,
+        });
     }
     top
 }

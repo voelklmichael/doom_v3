@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
-use transpiler::parser::{ast, preproc, trivia};
 use transpiler::parse_file;
+use transpiler::parser::{ast, preproc, trivia};
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -17,7 +17,11 @@ fn main() {
                 let original = std::fs::read_to_string(&path).unwrap_or_default();
                 let round_trips = rebuilt == original;
                 println!("==== {} ====", path.display());
-                println!("items: {}, round-trip exact: {}", file.items.len(), round_trips);
+                println!(
+                    "items: {}, round-trip exact: {}",
+                    file.items.len(),
+                    round_trips
+                );
                 for (item, trivia) in &file.items {
                     let kind = kind_label(&item.kind);
                     let doc = trivia::banner_doc(&trivia.leading);

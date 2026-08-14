@@ -22,7 +22,11 @@ pub fn banner_doc(comments: &[Comment]) -> Option<String> {
     let mut lines = Vec::with_capacity(3);
     for c in last3 {
         match c {
-            Comment::Line(s) => lines.push(s.trim_end_matches(['\n', '\r']).trim_start_matches("//").trim()),
+            Comment::Line(s) => lines.push(
+                s.trim_end_matches(['\n', '\r'])
+                    .trim_start_matches("//")
+                    .trim(),
+            ),
             Comment::Block(_) => return None,
         }
     }

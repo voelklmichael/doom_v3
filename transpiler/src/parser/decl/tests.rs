@@ -12,7 +12,8 @@ fn rcsid_style() {
 
 #[test]
 fn braced_array_style() {
-    let cd = try_parse_const_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", "{ /* ... */ }").unwrap();
+    let cd =
+        try_parse_const_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", "{ /* ... */ }").unwrap();
     assert_eq!(cd.ty, "mobjinfo_t");
     assert_eq!(cd.name, "mobjinfo");
     assert_eq!(cd.array_dims, vec![Some("NUMMOBJTYPES".to_string())]);

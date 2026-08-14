@@ -21,7 +21,10 @@ struct Cursor<'a> {
 
 impl<'a> Cursor<'a> {
     fn new(src: &'a str) -> Self {
-        Cursor { bytes: src.as_bytes(), pos: Pos::start() }
+        Cursor {
+            bytes: src.as_bytes(),
+            pos: Pos::start(),
+        }
     }
 
     fn eof(&self) -> bool {
@@ -102,7 +105,11 @@ struct Scanner<'a> {
 
 impl<'a> Scanner<'a> {
     fn new(src: &'a str) -> Self {
-        Scanner { src, cur: Cursor::new(src), bol: true }
+        Scanner {
+            src,
+            cur: Cursor::new(src),
+            bol: true,
+        }
     }
 
     fn slice(&self, start: usize, end: usize) -> String {
@@ -170,7 +177,11 @@ impl<'a> Scanner<'a> {
                 let start = self.pos();
                 self.bump_through_eol();
                 let end = self.pos();
-                tokens.push(RawToken::PreprocLine(Span { start, end, text: self.slice(start.byte, end.byte) }));
+                tokens.push(RawToken::PreprocLine(Span {
+                    start,
+                    end,
+                    text: self.slice(start.byte, end.byte),
+                }));
                 continue;
             }
             if c == b'/' && self.peek2() == Some(b'/') {
@@ -178,7 +189,11 @@ impl<'a> Scanner<'a> {
                 let start = self.pos();
                 self.bump_through_eol();
                 let end = self.pos();
-                tokens.push(RawToken::LineComment(Span { start, end, text: self.slice(start.byte, end.byte) }));
+                tokens.push(RawToken::LineComment(Span {
+                    start,
+                    end,
+                    text: self.slice(start.byte, end.byte),
+                }));
                 continue;
             }
             if c == b'/' && self.peek2() == Some(b'*') {
@@ -200,7 +215,11 @@ impl<'a> Scanner<'a> {
                     }
                 }
                 let end = self.pos();
-                tokens.push(RawToken::BlockComment(Span { start, end, text: self.slice(start.byte, end.byte) }));
+                tokens.push(RawToken::BlockComment(Span {
+                    start,
+                    end,
+                    text: self.slice(start.byte, end.byte),
+                }));
                 continue;
             }
             if c == b'"' {
@@ -225,7 +244,11 @@ impl<'a> Scanner<'a> {
                     }
                 }
                 let end = self.pos();
-                tokens.push(RawToken::StringLit(Span { start, end, text: self.slice(start.byte, end.byte) }));
+                tokens.push(RawToken::StringLit(Span {
+                    start,
+                    end,
+                    text: self.slice(start.byte, end.byte),
+                }));
                 continue;
             }
             if c == b'\'' {
@@ -250,7 +273,11 @@ impl<'a> Scanner<'a> {
                     }
                 }
                 let end = self.pos();
-                tokens.push(RawToken::CharLit(Span { start, end, text: self.slice(start.byte, end.byte) }));
+                tokens.push(RawToken::CharLit(Span {
+                    start,
+                    end,
+                    text: self.slice(start.byte, end.byte),
+                }));
                 continue;
             }
             // Otherwise: part of a Code run.

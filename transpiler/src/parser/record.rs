@@ -18,9 +18,12 @@
 //! produces a less useful `ItemKind`.
 
 use super::ast::{
-    render_tokens, Chunk, Comment, EnumDecl, Field, FnSig, Item, ItemKind, RawToken, RecordDecl, RecordKind, Trivia,
+    Chunk, Comment, EnumDecl, Field, FnSig, Item, ItemKind, RawToken, RecordDecl, RecordKind,
+    Trivia, render_tokens,
 };
-use super::decl::{parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat};
+use super::decl::{
+    parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat,
+};
 use super::preproc::parse_directive;
 
 pub fn build_items(tokens: Vec<RawToken>) -> Vec<(Item, Trivia)> {
@@ -82,14 +85,22 @@ fn split_into_pieces(toks: Vec<RawToken>) -> (Vec<Vec<RawToken>>, Vec<RawToken>)
                         let piece_text = &rest[..=i];
                         let piece_start = pos;
                         pos = pos.advance(piece_text);
-                        cur.push(RawToken::Code(super::ast::Span { start: piece_start, end: pos, text: piece_text.to_string() }));
+                        cur.push(RawToken::Code(super::ast::Span {
+                            start: piece_start,
+                            end: pos,
+                            text: piece_text.to_string(),
+                        }));
                         pieces.push(std::mem::take(&mut cur));
                         rest = &rest[i + 1..];
                     } else {
                         if !rest.is_empty() {
                             let piece_start = pos;
                             pos = pos.advance(rest);
-                            cur.push(RawToken::Code(super::ast::Span { start: piece_start, end: pos, text: rest.to_string() }));
+                            cur.push(RawToken::Code(super::ast::Span {
+                                start: piece_start,
+                                end: pos,
+                                text: rest.to_string(),
+                            }));
                         }
                         break;
                     }
@@ -126,15 +137,30 @@ fn drain_leading_comments(unit: &mut [Chunk]) -> Vec<Comment> {
 fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
     let leading = drain_leading_comments(&mut unit);
     let raw: String = unit.iter().map(Chunk::render).collect();
-    let trivia = Trivia { leading, trailing: None };
+    let trivia = Trivia {
+        leading,
+        trailing: None,
+    };
 
     if let [Chunk::Flat(toks)] = unit.as_slice() {
-        let mut directives = toks.iter().filter(|t| matches!(t, RawToken::PreprocLine(_)));
+        let mut directives = toks
+            .iter()
+            .filter(|t| matches!(t, RawToken::PreprocLine(_)));
         let only_directive = directives.next();
-        if directives.next().is_none() && toks.iter().all(|t| matches!(t, RawToken::PreprocLine(_)) || is_trivial(t)) {
+        if directives.next().is_none()
+            && toks
+                .iter()
+                .all(|t| matches!(t, RawToken::PreprocLine(_)) || is_trivial(t))
+        {
             if let Some(RawToken::PreprocLine(s)) = only_directive {
                 let d = parse_directive(&s.text);
-                return (Item { kind: ItemKind::Preproc(d), raw }, trivia);
+                return (
+                    Item {
+                        kind: ItemKind::Preproc(d),
+                        raw,
+                    },
+                    trivia,
+                );
             }
         }
     }
@@ -148,7 +174,11 @@ fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
         ItemKind::Typedef(td)
     } else if let Some(cd) = try_parse_const_flat(&raw) {
         ItemKind::Const(cd)
-    } else if let Some(sig) = raw.trim().strip_suffix(';').and_then(|h| try_parse_fn_sig(h.trim())) {
+    } else if let Some(sig) = raw
+        .trim()
+        .strip_suffix(';')
+        .and_then(|h| try_parse_fn_sig(h.trim()))
+    {
         ItemKind::FunctionDecl(sig)
     } else {
         ItemKind::Raw
@@ -163,7 +193,9 @@ fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
     };
     let header: String = unit[..gi].iter().map(Chunk::render).collect();
     let (inner, open_text, close_text) = match &unit[gi] {
-        Chunk::Group { inner, open, close } => (inner.clone(), open.text.clone(), close.text.clone()),
+        Chunk::Group { inner, open, close } => {
+            (inner.clone(), open.text.clone(), close.text.clone())
+        }
         _ => unreachable!(),
     };
     let trailing: String = unit[gi + 1..].iter().map(Chunk::render).collect();
@@ -222,24 +254,57 @@ fn is_ident_byte(b: u8) -> bool {
 }
 
 fn split_names(trailing: &str) -> Vec<String> {
-    trailing.split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect()
+    trailing
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
 }
 
-fn classify_record_or_enum(header: &str, kw: &str, kw_pos: usize, inner: Vec<RawToken>, trailing: &str) -> ItemKind {
+fn classify_record_or_enum(
+    header: &str,
+    kw: &str,
+    kw_pos: usize,
+    inner: Vec<RawToken>,
+    trailing: &str,
+) -> ItemKind {
     let before_kw = header[..kw_pos].trim();
     let is_typedef = find_word(before_kw, "typedef").is_some();
     let after_kw = header[kw_pos + kw.len()..].trim();
-    let tag = if after_kw.is_empty() { None } else { Some(after_kw.to_string()) };
+    let tag = if after_kw.is_empty() {
+        None
+    } else {
+        Some(after_kw.to_string())
+    };
     let names = split_names(trailing);
-    let typedef_name = if is_typedef { names.first().cloned() } else { None };
+    let typedef_name = if is_typedef {
+        names.first().cloned()
+    } else {
+        None
+    };
 
     if kw == "enum" {
         let variants = parse_enum_variants(&inner);
-        ItemKind::Enum(EnumDecl { tag, variants, names, typedef_name })
+        ItemKind::Enum(EnumDecl {
+            tag,
+            variants,
+            names,
+            typedef_name,
+        })
     } else {
-        let kind = if kw == "union" { RecordKind::Union } else { RecordKind::Struct };
+        let kind = if kw == "union" {
+            RecordKind::Union
+        } else {
+            RecordKind::Struct
+        };
         let fields = parse_fields(&inner);
-        ItemKind::Record(RecordDecl { kind, tag, fields, names, typedef_name })
+        ItemKind::Record(RecordDecl {
+            kind,
+            tag,
+            fields,
+            names,
+            typedef_name,
+        })
     }
 }
 
@@ -289,7 +354,12 @@ fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
                 // Nested anonymous struct/union: not descended into in v1,
                 // kept as one field with its raw text as the "type".
                 let raw = format!("{}{}{}", open.text, render_tokens(&inner), close.text);
-                fields.push(Field { ty: raw, name: String::new(), array_dims: Vec::new(), bitfield: None });
+                fields.push(Field {
+                    ty: raw,
+                    name: String::new(),
+                    array_dims: Vec::new(),
+                    bitfield: None,
+                });
             }
         }
     }
@@ -308,7 +378,12 @@ fn parse_field(decl_text: &str) -> Option<Field> {
     if !storage.is_empty() {
         ty = format!("{} {}", storage.join(" "), ty);
     }
-    Some(Field { ty, name, array_dims, bitfield })
+    Some(Field {
+        ty,
+        name,
+        array_dims,
+        bitfield,
+    })
 }
 
 /// Splits `s` on top-level occurrences of `sep`, treating `(...)`, `[...]`
@@ -373,7 +448,12 @@ fn try_parse_fn_sig(header: &str) -> Option<FnSig> {
         }
     }
     let ret_ty = ty_parts.join(" ");
-    Some(FnSig { storage, ret_ty, name, params_raw })
+    Some(FnSig {
+        storage,
+        ret_ty,
+        name,
+        params_raw,
+    })
 }
 
 fn matching_open_paren(s: &str) -> Option<usize> {

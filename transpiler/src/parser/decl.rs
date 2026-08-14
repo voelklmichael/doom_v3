@@ -18,7 +18,13 @@ pub fn try_parse_const_flat(stmt: &str) -> Option<ConstDecl> {
     let s = s.strip_suffix(';').unwrap_or(s).trim();
     let (decl_part, init_part) = split_top_level_eq(s)?;
     let (storage, ty, name, array_dims) = parse_declarator(decl_part.trim())?;
-    Some(ConstDecl { storage, ty, name, array_dims, initializer: Some(Init::Expr(init_part.trim().to_string())) })
+    Some(ConstDecl {
+        storage,
+        ty,
+        name,
+        array_dims,
+        initializer: Some(Init::Expr(init_part.trim().to_string())),
+    })
 }
 
 /// Parses the `TYPE NAME[dims] =` header preceding a brace-initializer
@@ -27,7 +33,13 @@ pub fn try_parse_const_flat(stmt: &str) -> Option<ConstDecl> {
 pub fn try_parse_const_braced(header: &str, group_raw: &str) -> Option<ConstDecl> {
     let decl_part = header.trim().strip_suffix('=')?.trim();
     let (storage, ty, name, array_dims) = parse_declarator(decl_part)?;
-    Some(ConstDecl { storage, ty, name, array_dims, initializer: Some(Init::Braced(group_raw.to_string())) })
+    Some(ConstDecl {
+        storage,
+        ty,
+        name,
+        array_dims,
+        initializer: Some(Init::Braced(group_raw.to_string())),
+    })
 }
 
 /// Parses a plain, brace-free `typedef TYPE NAME;`, e.g.
@@ -61,8 +73,22 @@ fn split_top_level_eq(s: &str) -> Option<(&str, &str)> {
         if bytes[i] == b'=' {
             let prev = if i > 0 { Some(bytes[i - 1]) } else { None };
             let next = bytes.get(i + 1).copied();
-            let compound_prev =
-                matches!(prev, Some(b'=' | b'!' | b'<' | b'>' | b'+' | b'-' | b'*' | b'/' | b'%' | b'&' | b'|' | b'^'));
+            let compound_prev = matches!(
+                prev,
+                Some(
+                    b'=' | b'!'
+                        | b'<'
+                        | b'>'
+                        | b'+'
+                        | b'-'
+                        | b'*'
+                        | b'/'
+                        | b'%'
+                        | b'&'
+                        | b'|'
+                        | b'^'
+                )
+            );
             if next == Some(b'=') || compound_prev {
                 i += 1;
                 continue;
@@ -78,7 +104,9 @@ fn split_top_level_eq(s: &str) -> Option<(&str, &str)> {
 /// Not a full C grammar - good enough to pull apart the shapes actually
 /// used in the target files without parsing expressions or function
 /// pointer declarators.
-pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<String>, String, String, Vec<Option<String>>)> {
+pub(crate) fn parse_declarator(
+    s: &str,
+) -> Option<(Vec<String>, String, String, Vec<Option<String>>)> {
     let s = s.trim();
     if s.is_empty() {
         return None;
@@ -88,7 +116,11 @@ pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<String>, String, String, 
     while base.ends_with(']') {
         let open = base.rfind('[')?;
         let dim = base[open + 1..base.len() - 1].trim();
-        dims.push(if dim.is_empty() { None } else { Some(dim.to_string()) });
+        dims.push(if dim.is_empty() {
+            None
+        } else {
+            Some(dim.to_string())
+        });
         base = base[..open].trim_end();
     }
     dims.reverse();

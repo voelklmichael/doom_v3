@@ -20,7 +20,10 @@ fn nested_braces_stay_opaque_but_matched() {
     let chunks = group_braces(toks);
     assert_eq!(render_chunks(&chunks), src);
     // exactly one top-level group (the nested one is swallowed into `inner`)
-    let groups = chunks.iter().filter(|c| matches!(c, Chunk::Group { .. })).count();
+    let groups = chunks
+        .iter()
+        .filter(|c| matches!(c, Chunk::Group { .. }))
+        .count();
     assert_eq!(groups, 1);
 }
 
@@ -31,7 +34,10 @@ fn brace_inside_block_comment_does_not_confuse_grouping() {
     let toks = scan(src);
     let chunks = group_braces(toks);
     assert_eq!(render_chunks(&chunks), src);
-    let groups: Vec<&Chunk> = chunks.iter().filter(|c| matches!(c, Chunk::Group { .. })).collect();
+    let groups: Vec<&Chunk> = chunks
+        .iter()
+        .filter(|c| matches!(c, Chunk::Group { .. }))
+        .collect();
     assert_eq!(groups.len(), 1);
 }
 

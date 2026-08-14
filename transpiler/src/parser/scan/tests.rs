@@ -23,7 +23,12 @@ fn classifies_kinds() {
             RawToken::Code(_) => "code",
         })
         .collect();
-    assert_eq!(kinds, vec!["line", "pp", "code", "str", "code", "char", "code", "block", "code"]);
+    assert_eq!(
+        kinds,
+        vec![
+            "line", "pp", "code", "str", "code", "char", "code", "block", "code"
+        ]
+    );
 }
 
 #[test]

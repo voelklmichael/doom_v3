@@ -12,7 +12,11 @@ pub struct Pos {
 
 impl Pos {
     pub fn start() -> Self {
-        Pos { line: 1, col: 1, byte: 0 }
+        Pos {
+            line: 1,
+            col: 1,
+            byte: 0,
+        }
     }
 
     /// Advance this position by the raw text `s` (which must be the exact

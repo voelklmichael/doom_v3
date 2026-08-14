@@ -25,8 +25,14 @@ fn object_like_macro_with_space_before_paren_is_not_function_like() {
 
 #[test]
 fn ifdef_ifndef_else_endif() {
-    assert!(matches!(parse_directive("#ifdef LINUX\n"), Directive::IfDef { negate: false, .. }));
-    assert!(matches!(parse_directive("#ifndef __DOOMTYPE__\n"), Directive::IfDef { negate: true, .. }));
+    assert!(matches!(
+        parse_directive("#ifdef LINUX\n"),
+        Directive::IfDef { negate: false, .. }
+    ));
+    assert!(matches!(
+        parse_directive("#ifndef __DOOMTYPE__\n"),
+        Directive::IfDef { negate: true, .. }
+    ));
     assert!(matches!(parse_directive("#else\n"), Directive::Else));
     assert!(matches!(parse_directive("#endif\n"), Directive::Endif));
 }
