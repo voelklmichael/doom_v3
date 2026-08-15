@@ -1,5 +1,6 @@
 use super::*;
 use crate::parser::ast::Init;
+use crate::parser::preproc::Directive;
 use crate::parser::scan::scan;
 
 fn build(src: &str) -> Vec<(Item, Trivia)> {
@@ -80,6 +81,33 @@ fn braced_array_const() {
         }
         other => panic!("expected Const, got {other:?}"),
     }
+}
+
+#[test]
+fn function_body_does_not_absorb_what_follows_it() {
+    // Same shape as m_misc.c: a function definition immediately followed
+    // (after only blank lines and a comment) by a standalone directive. A
+    // function body never has trailing `;`-terminated content, unlike a
+    // struct/enum/braced-const-initializer unit, so `build_items` must
+    // flush right after the closing `}` instead of waiting for one and
+    // absorbing whatever comes next into this item's `raw`.
+    let src = "int\nfoo\n( void )\n{\n    return 0;\n}\n\n\n//\n// bar\n//\n#ifndef X\n#define X 1\n#endif\n\nint\nbar\n( void )\n{\n    return 1;\n}\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDef(sig, _) => {
+            assert_eq!(sig.name, "foo");
+            assert!(items[0].0.raw.trim_end().ends_with('}'));
+        }
+        other => panic!("expected FunctionDef, got {other:?}"),
+    }
+    assert!(
+        items.iter().any(|(item, _)| matches!(
+            &item.kind,
+            ItemKind::Preproc(Directive::IfDef { name, .. }) if name == "X"
+        )),
+        "expected #ifndef X to be its own item, not absorbed into `foo`"
+    );
 }
 
 #[test]

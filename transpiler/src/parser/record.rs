@@ -33,7 +33,23 @@ pub fn build_items(tokens: Vec<RawToken>) -> Vec<(Item, Trivia)> {
 
     for chunk in chunks {
         match chunk {
-            Chunk::Group { .. } => unit.push(chunk),
+            Chunk::Group { .. } => {
+                // A function body never has trailing content (no `;` ever
+                // follows a function's closing `}`), unlike a struct/enum
+                // body or a braced const initializer, which need to keep
+                // `unit` open to pick up their trailing `;`/names. Detecting
+                // that here (by re-using the same header check
+                // `classify_group_unit` will apply later) and flushing
+                // immediately stops whatever follows - typically a comment
+                // and the next declaration - from being silently absorbed
+                // into this function's `raw`.
+                let header: String = unit.iter().map(Chunk::render).collect();
+                unit.push(chunk);
+                if try_parse_fn_sig(header.trim()).is_some() {
+                    let finished = std::mem::take(&mut unit);
+                    items.push(lower_unit(finished));
+                }
+            }
             Chunk::Flat(toks) => {
                 let (pieces, leftover) = split_into_pieces(toks);
                 for piece in pieces {
