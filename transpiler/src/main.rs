@@ -1,9 +1,10 @@
 use std::path::{Path, PathBuf};
 use transpiler::parse_file;
-use transpiler::parser::{ast, preproc, trivia};
+use transpiler::parser::{ast, cond, preproc, trivia};
 
 fn main() {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    let strip_guards = take_flag(&mut args, "--strip-guards");
     let paths: Vec<PathBuf> = if args.is_empty() {
         default_target_files()
     } else if args == ["--all"] {
@@ -14,17 +15,29 @@ fn main() {
 
     for path in paths {
         match parse_file(&path) {
-            Ok(file) => {
-                let rebuilt = file.render();
+            Ok(mut file) => {
                 let original = std::fs::read_to_string(&path).unwrap_or_default();
-                let original = trivia::strip_leading_banner(&original);
-                let round_trips = rebuilt == original;
+                let original = trivia::strip_leading_banner(&original).to_string();
+                // Compare round-trip against the pre-strip AST: stripping
+                // guards is a real, intentional content removal, so a
+                // stripped file is expected to no longer round-trip exact.
+                let round_trips = file.render() == original;
+
+                let stripped_guard = if strip_guards {
+                    cond::strip_include_guard(&mut file)
+                } else {
+                    None
+                };
+
                 println!("==== {} ====", path.display());
                 println!(
                     "items: {}, round-trip exact: {}",
                     file.items.len(),
                     round_trips
                 );
+                if let Some(name) = &stripped_guard {
+                    println!("stripped include guard: {name}");
+                }
                 for (item, trivia) in &file.items {
                     let kind = kind_label(&item.kind);
                     let doc = trivia::banner_doc(&trivia.leading);
@@ -43,6 +56,18 @@ fn main() {
     }
 }
 
+/// Removes the first occurrence of `flag` from `args` (if present) and
+/// reports whether it was found.
+fn take_flag(args: &mut Vec<String>, flag: &str) -> bool {
+    match args.iter().position(|a| a == flag) {
+        Some(i) => {
+            args.remove(i);
+            true
+        }
+        None => false,
+    }
+}
+
 fn kind_label(kind: &ast::ItemKind) -> String {
     use ast::ItemKind::*;
     match kind {
@@ -53,6 +78,7 @@ fn kind_label(kind: &ast::ItemKind) -> String {
         Const(_) => "const".to_string(),
         FunctionDecl(_) => "fn-decl".to_string(),
         FunctionDef(..) => "fn-def".to_string(),
+        Conditional(g) => format!("conditional:{}", directive_label(&g.branches[0].directive)),
         Raw => "raw".to_string(),
     }
 }
@@ -106,7 +132,12 @@ fn all_files() -> Vec<PathBuf> {
     let mut files: Vec<PathBuf> = entries
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
-        .filter(|p| matches!(p.extension().and_then(|e| e.to_str()), Some("c") | Some("h")))
+        .filter(|p| {
+            matches!(
+                p.extension().and_then(|e| e.to_str()),
+                Some("c") | Some("h")
+            )
+        })
         .collect();
     files.sort();
     files
