@@ -69,6 +69,23 @@ fn function_body_stays_opaque() {
 }
 
 #[test]
+fn doc_comment_mentioning_struct_does_not_misclassify_a_function() {
+    // Same shape as i_sound.c's I_StartSound: a blank line before the doc
+    // comment stops `drain_leading_comments` from stripping it out first,
+    // so the comment text used to leak into the header used for
+    // struct/union/enum keyword detection. A comment saying "struct" must
+    // never turn a function into a Record.
+    let src =
+        "\n// The SFX info struct contains a pointer.\nint\nfoo\n( int x )\n{\n    return x;\n}\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDef(sig, _) => assert_eq!(sig.name, "foo"),
+        other => panic!("expected FunctionDef, got {other:?}"),
+    }
+}
+
+#[test]
 fn braced_array_const() {
     let src = "default_t defaults[] =\n{\n    {\"a\", &a, 1},\n};\n";
     round_trip(src);

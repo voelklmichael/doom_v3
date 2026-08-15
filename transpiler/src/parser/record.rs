@@ -183,12 +183,31 @@ fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
     (Item { kind, raw }, trivia)
 }
 
+/// Renders `chunks` for classification purposes only: comments are dropped
+/// so a doc comment that happens to contain a word like `struct` can never
+/// be mistaken for part of the declarator. `Item.raw` (the round-trip
+/// source of truth) is built separately via `Chunk::render` and is
+/// unaffected by this - this only feeds keyword/signature detection.
+fn declarator_text(chunks: &[Chunk]) -> String {
+    chunks
+        .iter()
+        .map(|c| match c {
+            Chunk::Flat(toks) => toks
+                .iter()
+                .filter(|t| !matches!(t, RawToken::LineComment(_) | RawToken::BlockComment(_)))
+                .map(RawToken::text)
+                .collect::<String>(),
+            other => other.render(),
+        })
+        .collect()
+}
+
 fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
     let gi = match unit.iter().position(|c| matches!(c, Chunk::Group { .. })) {
         Some(i) => i,
         None => return ItemKind::Raw,
     };
-    let header: String = unit[..gi].iter().map(Chunk::render).collect();
+    let header: String = declarator_text(&unit[..gi]);
     let (inner, open_text, close_text) = match &unit[gi] {
         Chunk::Group { inner, open, close } => {
             (inner.clone(), open.text.clone(), close.text.clone())
