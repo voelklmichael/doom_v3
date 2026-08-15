@@ -197,6 +197,25 @@ pub struct FnSig {
     pub params_raw: String,
 }
 
+/// One `#if`/`#ifdef`/`#ifndef` branch (or a following `#elif`): the
+/// directive that opened it, plus the (recursively folded) items in its body.
+#[derive(Debug, Clone, Serialize)]
+pub struct CondBranch {
+    pub directive: super::preproc::Directive,
+    pub body: Vec<(Item, Trivia)>,
+}
+
+/// A folded `#if...#endif` run. `branches[0]` is the opening `#if`/`#ifdef`/
+/// `#ifndef`; any further entries are `#elif`s. `else_body` is the `#else`
+/// body, if present. The matching `#endif` itself isn't modeled separately -
+/// it's implicit in where the group ends, and its exact text (like
+/// everything else in the group) lives in the containing `Item.raw`.
+#[derive(Debug, Clone, Serialize)]
+pub struct CondGroup {
+    pub branches: Vec<CondBranch>,
+    pub else_body: Option<Vec<(Item, Trivia)>>,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub enum ItemKind {
     Preproc(super::preproc::Directive),
@@ -208,6 +227,8 @@ pub enum ItemKind {
     /// Signature + fully opaque, never-descended-into body text (including
     /// the surrounding braces).
     FunctionDef(FnSig, String),
+    /// A folded `#if`/`#ifdef`/`#ifndef` ... `#endif` run. See `cond.rs`.
+    Conditional(CondGroup),
     /// Fallback for anything v1 doesn't structurally recognize yet. `raw`
     /// (on the containing `Item`) already holds the exact text.
     Raw,
@@ -231,13 +252,20 @@ pub struct File {
 impl File {
     /// Reconstructs the exact original file text from the AST.
     pub fn render(&self) -> String {
-        let mut out = String::new();
-        for (item, trivia) in &self.items {
-            for c in &trivia.leading {
-                out.push_str(c.text());
-            }
-            out.push_str(&item.raw);
-        }
-        out
+        render_items(&self.items)
     }
+}
+
+/// Reconstructs the exact original text spanned by `items` (leading trivia +
+/// raw text of each, in order). Used both by `File::render` and by `cond.rs`
+/// to rebuild a folded conditional group's own `raw` text.
+pub fn render_items(items: &[(Item, Trivia)]) -> String {
+    let mut out = String::new();
+    for (item, trivia) in items {
+        for c in &trivia.leading {
+            out.push_str(c.text());
+        }
+        out.push_str(&item.raw);
+    }
+    out
 }

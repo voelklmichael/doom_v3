@@ -11,6 +11,7 @@ pub fn parse_file(path: &Path) -> std::io::Result<File> {
     let src = parser::trivia::strip_leading_banner(&src);
     let tokens = parser::scan::scan(src);
     let items = parser::record::build_items(tokens);
+    let items = parser::cond::fold_conditionals(items);
     Ok(File {
         path: path.to_path_buf(),
         items,

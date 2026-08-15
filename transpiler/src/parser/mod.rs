@@ -5,6 +5,7 @@
 
 pub mod ast;
 pub mod brace;
+pub mod cond;
 pub mod decl;
 pub mod preproc;
 pub mod record;
