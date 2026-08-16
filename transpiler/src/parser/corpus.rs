@@ -23,7 +23,7 @@
 //! one of `paths` are ignored - they contribute no names (best-effort, not
 //! a real preprocessor).
 
-use super::ast::{CondGroup, File, Item, ItemKind, Trivia};
+use super::ast::{CondGroup, File, Item, ItemKind, Trivia, Type};
 use super::preproc::Directive;
 use super::stmt::expr::KnownTypeNames;
 use std::collections::{HashMap, HashSet};
@@ -90,6 +90,94 @@ pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeN
         }
     }
     visible
+}
+
+/// Parses every file in `paths` and computes each one's own precise
+/// global-variable environment (`file name -> {global var name -> Type}`),
+/// using the exact same per-file `#include`-visibility machinery as
+/// `compute_known_type_names` (same graph, same SCC-based dependency
+/// ordering, same "only skip an unparseable file or unresolved include"
+/// best-effort behavior) - just harvesting `ItemKind::Var` instead of
+/// typedef/tag names. Needed so `stmt::scope::Scope` can resolve a bare
+/// global identifier (not a parameter or local) to its declared `Type`.
+pub fn compute_known_globals(paths: &[PathBuf]) -> HashMap<String, HashMap<String, Type>> {
+    let files: HashMap<String, File> = paths
+        .iter()
+        .filter_map(|p| {
+            let file = crate::parse_file(p).ok()?;
+            let name = p.file_name()?.to_str()?.to_string();
+            Some((name, file))
+        })
+        .collect();
+
+    let own: HashMap<String, HashMap<String, Type>> = files
+        .iter()
+        .map(|(name, file)| (name.clone(), own_global_types(&file.items)))
+        .collect();
+
+    let local_includes: HashMap<String, Vec<String>> = files
+        .iter()
+        .map(|(name, file)| {
+            let mut incs = Vec::new();
+            collect_local_includes(&file.items, &files, &mut incs);
+            (name.clone(), incs)
+        })
+        .collect();
+
+    let sccs = tarjan_scc(&local_includes);
+
+    let mut visible: HashMap<String, HashMap<String, Type>> = HashMap::new();
+    for scc in sccs {
+        let scc_set: HashSet<&str> = scc.iter().map(String::as_str).collect();
+
+        let mut combined: HashMap<String, Type> = HashMap::new();
+        for member in &scc {
+            if let Some(o) = own.get(member) {
+                combined.extend(o.iter().map(|(k, v)| (k.clone(), v.clone())));
+            }
+        }
+        for member in &scc {
+            for dep in local_includes.get(member).into_iter().flatten() {
+                if scc_set.contains(dep.as_str()) {
+                    continue;
+                }
+                if let Some(dep_visible) = visible.get(dep) {
+                    combined.extend(dep_visible.iter().map(|(k, v)| (k.clone(), v.clone())));
+                }
+            }
+        }
+        for member in scc {
+            visible.insert(member, combined.clone());
+        }
+    }
+    visible
+}
+
+fn own_global_types(items: &[(Item, Trivia)]) -> HashMap<String, Type> {
+    let mut globals = HashMap::new();
+    collect_global_types(items, &mut globals);
+    globals
+}
+
+fn collect_global_types(items: &[(Item, Trivia)], globals: &mut HashMap<String, Type>) {
+    for (item, _) in items {
+        match &item.kind {
+            ItemKind::Var(vd) => {
+                globals.insert(vd.name.clone(), vd.ty.clone());
+            }
+            ItemKind::Conditional(cg) => collect_global_types_cond(cg, globals),
+            _ => {}
+        }
+    }
+}
+
+fn collect_global_types_cond(cg: &CondGroup, globals: &mut HashMap<String, Type>) {
+    for branch in &cg.branches {
+        collect_global_types(&branch.body, globals);
+    }
+    if let Some(else_body) = &cg.else_body {
+        collect_global_types(else_body, globals);
+    }
 }
 
 fn own_type_names(items: &[(Item, Trivia)]) -> KnownTypeNames {
