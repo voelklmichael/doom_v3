@@ -4,7 +4,7 @@ use crate::parser::scan::scan;
 #[test]
 fn rcsid_style() {
     let cd = try_parse_const_flat("static const char rcsid[] = \"$Id$\";").unwrap();
-    assert_eq!(cd.storage, vec!["static", "const"]);
+    assert_eq!(cd.storage, vec![Storage::Static, Storage::Const]);
     assert_eq!(
         cd.ty,
         Type::Array(Box::new(Type::Named("char".to_string())), None)
@@ -197,7 +197,7 @@ fn fnptr_array_declarator_with_unsized_dim() {
         &scan(" wipe_initColorXForm, wipe_doColorXForm "),
     )
     .unwrap();
-    assert_eq!(cd.storage, vec!["static"]);
+    assert_eq!(cd.storage, vec![Storage::Static]);
     assert_eq!(cd.name, "wipes");
     assert_eq!(
         cd.ty,

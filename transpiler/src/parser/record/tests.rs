@@ -185,6 +185,27 @@ fn function_pointer_parameter_is_parsed_via_declarator() {
 }
 
 #[test]
+fn function_storage_keeps_static_extern_inline_but_not_const() {
+    // A `const` before a function's return type qualifies the *return
+    // type*, not the function itself (unlike a plain declarator, where
+    // `const` is a real storage-class/qualifier keyword) - it must stay
+    // part of ret_ty, not leak into FnSig::storage.
+    let src = "static const char *M_Foo(void);\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert_eq!(sig.storage, vec![Storage::Static]);
+            assert_eq!(
+                sig.ret_ty,
+                Type::Pointer(Box::new(Type::Named("const char".to_string())))
+            );
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
+    }
+}
+
+#[test]
 fn doc_comment_mentioning_struct_does_not_misclassify_a_function() {
     // Same shape as i_sound.c's I_StartSound: a blank line before the doc
     // comment stops `drain_leading_comments` from stripping it out first,

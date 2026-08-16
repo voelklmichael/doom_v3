@@ -19,7 +19,7 @@
 
 use super::ast::{
     Chunk, Comment, EnumDecl, EnumVariant, Field, FnSig, Item, ItemKind, Param, RawToken,
-    RecordDecl, RecordKind, Span, Trivia, Type, render_tokens, render_tokens_no_comments,
+    RecordDecl, RecordKind, Span, Storage, Trivia, Type, render_tokens, render_tokens_no_comments,
     split_top_level,
 };
 use super::decl::{
@@ -825,14 +825,20 @@ fn try_parse_fn_sig(header: &str) -> Option<FnSig> {
     }
     let ret_raw = before_paren[..name_start].trim();
     let tokens: Vec<&str> = ret_raw.split_whitespace().collect();
-    const STORAGE_KW: &[&str] = &["static", "extern", "inline"];
+    // Unlike a plain declarator, a function signature's storage set doesn't
+    // include const/register/volatile - `const char *foo()`'s "const"
+    // qualifies the *return type*, not the function itself, so it's left in
+    // `ty_parts` (part of `ret_ty`) rather than pulled into `storage` here.
     let mut storage = Vec::new();
     let mut ty_parts = Vec::new();
     for t in tokens {
-        if STORAGE_KW.contains(&t) && ty_parts.is_empty() {
-            storage.push(t.to_string());
-        } else {
-            ty_parts.push(t);
+        match Storage::from_keyword(t) {
+            Some(kw @ (Storage::Static | Storage::Extern | Storage::Inline))
+                if ty_parts.is_empty() =>
+            {
+                storage.push(kw);
+            }
+            _ => ty_parts.push(t),
         }
     }
     let ret_ty = parse_type_text(&ty_parts.join(" "));

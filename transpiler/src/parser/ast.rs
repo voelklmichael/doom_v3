@@ -184,13 +184,44 @@ pub enum RecordKind {
     Union,
 }
 
+/// A storage-class specifier or type qualifier keyword preceding a
+/// declarator (`static`, `extern`, `const`, `register`, `volatile`) or a
+/// function signature's return type (`static`, `extern`, `inline`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum Storage {
+    Static,
+    Extern,
+    Const,
+    Register,
+    Volatile,
+    Inline,
+}
+
+impl Storage {
+    /// Recognizes one storage-class/qualifier keyword, e.g. `"static"` ->
+    /// `Some(Storage::Static)`. Returns `None` for anything else - not an
+    /// error, callers use this to decide whether a leading token is a
+    /// storage keyword or the start of the actual type/name.
+    pub fn from_keyword(word: &str) -> Option<Storage> {
+        Some(match word {
+            "static" => Storage::Static,
+            "extern" => Storage::Extern,
+            "const" => Storage::Const,
+            "register" => Storage::Register,
+            "volatile" => Storage::Volatile,
+            "inline" => Storage::Inline,
+            _ => return None,
+        })
+    }
+}
+
 /// A declarator's type, recursively structured instead of kept as raw text.
 /// No qualifiers (`const`/`volatile`) live here - those are storage-class
-/// keywords, kept in whichever `storage: Vec<String>` field sits alongside
+/// keywords, kept in whichever `storage: Vec<Storage>` field sits alongside
 /// a `Type` (this parser doesn't distinguish `const` applying to the
 /// pointer vs. the pointee - `const char *` and `char * const` both just
-/// contribute "const" to the same flat `storage` list, same as before this
-/// type existed).
+/// contribute `Storage::Const` to the same flat `storage` list, same as
+/// before this type existed).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum Type {
     /// A base type name, e.g. `"int"`, `"mobj_t"`, `"struct foo"` (the
@@ -225,7 +256,7 @@ pub struct Field {
     /// `volatile`, ...) - almost always empty for a struct/union field, but
     /// kept for parity with `ConstDecl`/`FnSig`/`Param` rather than
     /// silently dropped or glued into `ty`'s text the way it used to be.
-    pub storage: Vec<String>,
+    pub storage: Vec<Storage>,
     pub bitfield: Option<String>,
     /// Set when this field is itself an anonymous nested struct/union (a
     /// literal `{ ... }` body with no `typedef`, e.g. `union { ... } d;`
@@ -291,7 +322,7 @@ pub enum Init {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ConstDecl {
-    pub storage: Vec<String>,
+    pub storage: Vec<Storage>,
     pub ty: Type,
     pub name: String,
     pub initializer: Option<Init>,
@@ -307,12 +338,12 @@ pub struct ConstDecl {
 pub struct Param {
     pub ty: Type,
     pub name: String,
-    pub storage: Vec<String>,
+    pub storage: Vec<Storage>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct FnSig {
-    pub storage: Vec<String>,
+    pub storage: Vec<Storage>,
     pub ret_ty: Type,
     pub name: String,
     /// The parameter list, split on top-level `,`. Empty for both `()`

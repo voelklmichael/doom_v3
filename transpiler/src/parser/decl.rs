@@ -11,7 +11,8 @@
 //! opaque string, because step 1 already found the matching `{`/`}`.
 
 use super::ast::{
-    Chunk, ConstDecl, Init, RawToken, Type, TypedefDecl, render_tokens_no_comments, split_top_level,
+    Chunk, ConstDecl, Init, RawToken, Storage, Type, TypedefDecl, render_tokens_no_comments,
+    split_top_level,
 };
 
 /// Parses a plain `;`-terminated statement with no top-level brace group,
@@ -156,7 +157,7 @@ fn split_top_level_eq(s: &str) -> Option<(&str, &str)> {
 /// the target files without parsing expressions. Array dims and pointer
 /// stars are folded into the returned `Type` (`Array`/`Pointer` wrapping a
 /// base `Named`) rather than returned as separate fields.
-pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<String>, Type, String)> {
+pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> {
     let s = s.trim();
     if s.is_empty() {
         return None;
@@ -200,14 +201,12 @@ pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<String>, Type, String)> {
         return None;
     }
 
-    const STORAGE_KW: &[&str] = &["static", "extern", "const", "register", "volatile"];
     let mut storage = Vec::new();
     let mut ty_parts: Vec<&str> = Vec::new();
     for t in &tokens[..tokens.len() - 1] {
-        if STORAGE_KW.contains(t) && ty_parts.is_empty() {
-            storage.push((*t).to_string());
-        } else {
-            ty_parts.push(t);
+        match Storage::from_keyword(t) {
+            Some(kw) if ty_parts.is_empty() => storage.push(kw),
+            _ => ty_parts.push(t),
         }
     }
     let ty_text = ty_parts.join(" ");
@@ -234,7 +233,7 @@ pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<String>, Type, String)> {
 /// `parse_type_text` read if it has no name, e.g. `traverser_t`'s
 /// `intercept_t *in` *does* have a name "in" that gets discarded here -
 /// `Type::FunctionPointer::params` is types only, see its doc comment).
-fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, Type, String)> {
+fn parse_fnptr_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> {
     let params_open = matching_open_paren(s)?;
     let params_text = s[params_open + 1..s.len() - 1].trim();
     let before_params = s[..params_open].trim();
@@ -266,14 +265,12 @@ fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, Type, String)> {
 
     let ret_raw = before_params[..name_open].trim();
     let tokens: Vec<&str> = ret_raw.split_whitespace().collect();
-    const STORAGE_KW: &[&str] = &["static", "extern", "const", "register", "volatile"];
     let mut storage = Vec::new();
     let mut ty_parts = Vec::new();
     for t in &tokens {
-        if STORAGE_KW.contains(t) && ty_parts.is_empty() {
-            storage.push((*t).to_string());
-        } else {
-            ty_parts.push(*t);
+        match Storage::from_keyword(t) {
+            Some(kw) if ty_parts.is_empty() => storage.push(kw),
+            _ => ty_parts.push(*t),
         }
     }
     let ret_text = ty_parts.join(" ");
