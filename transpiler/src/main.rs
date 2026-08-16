@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
-use transpiler::parse_file;
+use transpiler::parse_file_with_types;
+use transpiler::parser::corpus::compute_known_type_names;
 use transpiler::parser::{ast, cond, preproc, trivia};
 
 fn main() {
@@ -13,8 +14,22 @@ fn main() {
         args.into_iter().map(PathBuf::from).collect()
     };
 
+    // Cast-vs-parenthesized-expression disambiguation inside function
+    // bodies needs to know about typedefs/tags a file's `#include`s make
+    // visible, which can live outside `paths` itself (e.g. a single target
+    // `.c` file's own headers) - so this always scans the *whole* corpus,
+    // not just `paths`, regardless of which files are the actual output
+    // targets.
+    let known_types = compute_known_type_names(&all_files());
+
     for path in paths {
-        match parse_file(&path) {
+        let known = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .and_then(|n| known_types.get(n))
+            .cloned()
+            .unwrap_or_default();
+        match parse_file_with_types(&path, &known) {
             Ok(mut file) => {
                 let original = std::fs::read_to_string(&path).unwrap_or_default();
                 let original = trivia::strip_leading_banner(&original).to_string();
