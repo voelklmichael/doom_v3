@@ -1,10 +1,15 @@
 use std::path::{Path, PathBuf};
 use transpiler::parse_file_with_types;
 use transpiler::parser::corpus::compute_known_type_names;
+use transpiler::parser::evidence::{collect_evidence, summarize};
 use transpiler::parser::{ast, cond, preproc, trivia};
 
 fn main() {
     let mut args: Vec<String> = std::env::args().skip(1).collect();
+    if take_flag(&mut args, "--array-evidence") {
+        print_array_evidence();
+        return;
+    }
     let strip_guards = take_flag(&mut args, "--strip-guards");
     let paths: Vec<PathBuf> = if args.is_empty() {
         default_target_files()
@@ -68,6 +73,33 @@ fn main() {
             }
             Err(e) => eprintln!("failed to parse {}: {e}", path.display()),
         }
+    }
+}
+
+/// `--array-evidence`: runs the call-site evidence pass (see
+/// `parser::evidence`) over the whole corpus and prints the aggregated
+/// per-`(function, param)` summary, sorted by array-evidence strength.
+/// Best-effort/heuristic - see `EvidenceKind`'s own doc comment for what
+/// this can and can't tell you.
+fn print_array_evidence() {
+    let paths = all_files();
+    let evidence = collect_evidence(&paths);
+    let summary = summarize(&evidence);
+    println!(
+        "{} call-site evidence hits across {} (function, param) pairs\n",
+        evidence.len(),
+        summary.len()
+    );
+    for s in &summary {
+        let verdict = match (s.array_hits, s.single_object_hits) {
+            (0, _) => continue,
+            (_, 0) => "array",
+            _ => "MIXED",
+        };
+        println!(
+            "{:<28} {:<16} array={:<3} single={:<3} {verdict}",
+            s.function, s.param_name, s.array_hits, s.single_object_hits
+        );
     }
 }
 

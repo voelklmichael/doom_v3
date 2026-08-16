@@ -189,3 +189,44 @@ fn mutually_including_files_share_their_globals() {
     let r_data = globals_for(&map, "r_data.h");
     assert!(r_data.contains_key("colormaps"));
 }
+
+fn functions_for(
+    map: &HashMap<String, HashMap<String, FnSig>>,
+    file: &str,
+) -> HashMap<String, FnSig> {
+    map.get(file).cloned().unwrap_or_default()
+}
+
+#[test]
+fn harvests_function_signature() {
+    let map = compute_known_functions(&[corpus_path("i_system.h")]);
+    let sigs = functions_for(&map, "i_system.h");
+    let sig = sigs.get("I_Tactile").expect("expected I_Tactile");
+    assert_eq!(sig.params.len(), 3);
+    assert_eq!(sig.ret_ty, Type::Named("void".to_string()));
+}
+
+#[test]
+fn harvests_variadic_function_signature() {
+    let map = compute_known_functions(&[corpus_path("i_system.h")]);
+    let sigs = functions_for(&map, "i_system.h");
+    let sig = sigs.get("I_Error").expect("expected I_Error");
+    assert!(sig.variadic);
+}
+
+#[test]
+fn unrelated_files_do_not_see_each_others_functions() {
+    let map = compute_known_functions(&[corpus_path("d_think.h"), corpus_path("i_system.h")]);
+    let d_think = functions_for(&map, "d_think.h");
+    assert!(!d_think.contains_key("I_Tactile"));
+}
+
+#[test]
+fn sees_functions_transitively_included() {
+    // g_game.c directly `#include`s i_system.h - its function signatures
+    // should be visible from g_game.c without g_game.c declaring them
+    // itself, mirroring the type/global transitive-visibility tests.
+    let map = compute_known_functions(&[corpus_path("g_game.c"), corpus_path("i_system.h")]);
+    let sigs = functions_for(&map, "g_game.c");
+    assert!(sigs.contains_key("I_GetTime"));
+}
