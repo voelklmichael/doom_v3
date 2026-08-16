@@ -116,3 +116,76 @@ fn mutually_including_files_share_their_types() {
     assert!(r_data.contains("player_t"));
     assert!(r_state.contains("player_t"));
 }
+
+fn globals_for(map: &HashMap<String, HashMap<String, Type>>, file: &str) -> HashMap<String, Type> {
+    map.get(file).cloned().unwrap_or_default()
+}
+
+#[test]
+fn harvests_plain_global() {
+    let map = compute_known_globals(&[corpus_path("doomstat.h")]);
+    let globals = globals_for(&map, "doomstat.h");
+    assert_eq!(
+        globals.get("nomonsters"),
+        Some(&Type::Named("boolean".to_string()))
+    );
+}
+
+#[test]
+fn harvests_array_global() {
+    // `extern player_t players[MAXPLAYERS];` - array-ness must survive into
+    // the harvested `Type`, not just the scalar base type.
+    let map = compute_known_globals(&[corpus_path("doomstat.h")]);
+    let globals = globals_for(&map, "doomstat.h");
+    assert_eq!(
+        globals.get("players"),
+        Some(&Type::Array(
+            Box::new(Type::Named("player_t".to_string())),
+            Some("MAXPLAYERS".to_string())
+        ))
+    );
+}
+
+#[test]
+fn unrelated_identifiers_are_not_known_globals() {
+    let map = compute_known_globals(&[corpus_path("doomstat.h")]);
+    let globals = globals_for(&map, "doomstat.h");
+    assert!(!globals.contains_key("some_totally_unrelated_name"));
+}
+
+#[test]
+fn skips_unreadable_paths_without_failing_globals() {
+    let map = compute_known_globals(&[PathBuf::from("/nonexistent/path/does_not_exist.h")]);
+    assert!(map.is_empty());
+}
+
+#[test]
+fn sees_globals_transitively_included() {
+    // i_sound.h directly `#include`s doomstat.h - its own globals should be
+    // visible from i_sound.h without i_sound.h declaring or including them
+    // itself, mirroring `sees_types_transitively_included` one layer up.
+    let map = compute_known_globals(&[corpus_path("i_sound.h"), corpus_path("doomstat.h")]);
+    let globals = globals_for(&map, "i_sound.h");
+    assert!(globals.contains_key("nomonsters"));
+}
+
+#[test]
+fn unrelated_files_do_not_see_each_others_globals() {
+    // d_think.h is a real corpus leaf (zero local #includes, zero own
+    // globals) that never includes doomstat.h - a flat corpus-wide union
+    // would incorrectly make it "see" doomstat.h's globals; per-file
+    // visibility must not.
+    let map = compute_known_globals(&[corpus_path("d_think.h"), corpus_path("doomstat.h")]);
+    let d_think = globals_for(&map, "d_think.h");
+    assert!(!d_think.contains_key("nomonsters"));
+}
+
+#[test]
+fn mutually_including_files_share_their_globals() {
+    // r_data.h and r_state.h #include each other (the corpus's one real
+    // #include cycle) - r_state.h's own globals (r_data.h declares none of
+    // its own) should still be visible from r_data.h via the cycle.
+    let map = compute_known_globals(&[corpus_path("r_data.h"), corpus_path("r_state.h")]);
+    let r_data = globals_for(&map, "r_data.h");
+    assert!(r_data.contains_key("colormaps"));
+}
