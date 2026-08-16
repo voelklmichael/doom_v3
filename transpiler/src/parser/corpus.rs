@@ -23,20 +23,28 @@
 //! one of `paths` are ignored - they contribute no names (best-effort, not
 //! a real preprocessor).
 
-use super::ast::{CondGroup, File, Item, ItemKind, Trivia, Type};
+use super::ast::{CondGroup, File, FnSig, Item, ItemKind, Trivia, Type};
 use super::preproc::Directive;
 use super::stmt::expr::KnownTypeNames;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
-/// Parses every file in `paths` (via the existing `parse_file` pipeline) and
-/// computes each one's own precise `KnownTypeNames`, keyed by file name
-/// (`path.file_name()` - matches how a `#include "foo.h"` directive spells
-/// its target). A file that fails to parse, or a `#include` target not
-/// present in `paths`, is skipped rather than treated as an error - this is
-/// a best-effort disambiguation aid, not a correctness-critical pass in its
-/// own right.
-pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeNames> {
+/// The shared machinery behind `compute_known_type_names`,
+/// `compute_known_globals`, and `compute_known_functions`: parse every file
+/// in `paths` once, build the local `#include` graph, then combine each
+/// SCC's own harvested value (via `merge`) with everything transitively
+/// visible through `#include` from outside that SCC - the one real cycle
+/// in this corpus (`r_data.h`/`r_state.h`) collapses to a single shared
+/// unit rather than breaking the dependency ordering (see `tarjan_scc`). A
+/// file that fails to parse, or a `#include` target not present in
+/// `paths`, is skipped rather than treated as an error - this is a
+/// best-effort analysis aid, not a correctness-critical pass in its own
+/// right.
+fn compute_per_file_env<V: Clone + Default>(
+    paths: &[PathBuf],
+    harvest: impl Fn(&[(Item, Trivia)]) -> V,
+    merge: impl Fn(&mut V, &V),
+) -> HashMap<String, V> {
     let files: HashMap<String, File> = paths
         .iter()
         .filter_map(|p| {
@@ -46,9 +54,9 @@ pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeN
         })
         .collect();
 
-    let own: HashMap<String, KnownTypeNames> = files
+    let own: HashMap<String, V> = files
         .iter()
-        .map(|(name, file)| (name.clone(), own_type_names(&file.items)))
+        .map(|(name, file)| (name.clone(), harvest(&file.items)))
         .collect();
 
     let local_includes: HashMap<String, Vec<String>> = files
@@ -65,14 +73,14 @@ pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeN
     // needs, no separate topological-sort pass required.
     let sccs = tarjan_scc(&local_includes);
 
-    let mut visible: HashMap<String, KnownTypeNames> = HashMap::new();
+    let mut visible: HashMap<String, V> = HashMap::new();
     for scc in sccs {
         let scc_set: HashSet<&str> = scc.iter().map(String::as_str).collect();
 
-        let mut combined = KnownTypeNames::new();
+        let mut combined = V::default();
         for member in &scc {
             if let Some(o) = own.get(member) {
-                combined.extend(o);
+                merge(&mut combined, o);
             }
         }
         for member in &scc {
@@ -81,7 +89,7 @@ pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeN
                     continue; // already folded in via `combined` above
                 }
                 if let Some(dep_visible) = visible.get(dep) {
-                    combined.extend(dep_visible);
+                    merge(&mut combined, dep_visible);
                 }
             }
         }
@@ -92,65 +100,39 @@ pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeN
     visible
 }
 
-/// Parses every file in `paths` and computes each one's own precise
-/// global-variable environment (`file name -> {global var name -> Type}`),
-/// using the exact same per-file `#include`-visibility machinery as
-/// `compute_known_type_names` (same graph, same SCC-based dependency
-/// ordering, same "only skip an unparseable file or unresolved include"
-/// best-effort behavior) - just harvesting `ItemKind::Var` instead of
-/// typedef/tag names. Needed so `stmt::scope::Scope` can resolve a bare
-/// global identifier (not a parameter or local) to its declared `Type`.
+/// Computes each file's own precise `KnownTypeNames`, keyed by file name
+/// (`path.file_name()` - matches how a `#include "foo.h"` directive spells
+/// its target). Each file gets its own precise set: its own declarations,
+/// plus whatever its (transitive) local `#include`s make visible - not a
+/// blanket union of every typedef in the corpus, which would be unsound
+/// (an identifier that's a typedef in one header could coincidentally be
+/// an ordinary variable/function name in an unrelated file that never
+/// includes that header).
+pub fn compute_known_type_names(paths: &[PathBuf]) -> HashMap<String, KnownTypeNames> {
+    compute_per_file_env(paths, own_type_names, KnownTypeNames::extend)
+}
+
+fn merge_map<V: Clone>(into: &mut HashMap<String, V>, from: &HashMap<String, V>) {
+    into.extend(from.iter().map(|(k, v)| (k.clone(), v.clone())));
+}
+
+/// Computes each file's own precise global-variable environment
+/// (`global var name -> Type`), using the exact same per-file
+/// `#include`-visibility machinery as `compute_known_type_names` - just
+/// harvesting `ItemKind::Var` instead of typedef/tag names. Needed so
+/// `stmt::scope::Scope` can resolve a bare global identifier (not a
+/// parameter or local) to its declared `Type`.
 pub fn compute_known_globals(paths: &[PathBuf]) -> HashMap<String, HashMap<String, Type>> {
-    let files: HashMap<String, File> = paths
-        .iter()
-        .filter_map(|p| {
-            let file = crate::parse_file(p).ok()?;
-            let name = p.file_name()?.to_str()?.to_string();
-            Some((name, file))
-        })
-        .collect();
+    compute_per_file_env(paths, own_global_types, merge_map)
+}
 
-    let own: HashMap<String, HashMap<String, Type>> = files
-        .iter()
-        .map(|(name, file)| (name.clone(), own_global_types(&file.items)))
-        .collect();
-
-    let local_includes: HashMap<String, Vec<String>> = files
-        .iter()
-        .map(|(name, file)| {
-            let mut incs = Vec::new();
-            collect_local_includes(&file.items, &files, &mut incs);
-            (name.clone(), incs)
-        })
-        .collect();
-
-    let sccs = tarjan_scc(&local_includes);
-
-    let mut visible: HashMap<String, HashMap<String, Type>> = HashMap::new();
-    for scc in sccs {
-        let scc_set: HashSet<&str> = scc.iter().map(String::as_str).collect();
-
-        let mut combined: HashMap<String, Type> = HashMap::new();
-        for member in &scc {
-            if let Some(o) = own.get(member) {
-                combined.extend(o.iter().map(|(k, v)| (k.clone(), v.clone())));
-            }
-        }
-        for member in &scc {
-            for dep in local_includes.get(member).into_iter().flatten() {
-                if scc_set.contains(dep.as_str()) {
-                    continue;
-                }
-                if let Some(dep_visible) = visible.get(dep) {
-                    combined.extend(dep_visible.iter().map(|(k, v)| (k.clone(), v.clone())));
-                }
-            }
-        }
-        for member in scc {
-            visible.insert(member, combined.clone());
-        }
-    }
-    visible
+/// Computes each file's own precise function-signature environment
+/// (`function name -> FnSig`), same shape again - harvesting
+/// `ItemKind::FunctionDecl`/`FunctionDef`'s signature instead. Needed to
+/// look up a call site's callee (must be visible via the *caller's* own
+/// `#include`s to be a real, resolvable call).
+pub fn compute_known_functions(paths: &[PathBuf]) -> HashMap<String, HashMap<String, FnSig>> {
+    compute_per_file_env(paths, own_function_sigs, merge_map)
 }
 
 fn own_global_types(items: &[(Item, Trivia)]) -> HashMap<String, Type> {
@@ -165,18 +147,44 @@ fn collect_global_types(items: &[(Item, Trivia)], globals: &mut HashMap<String, 
             ItemKind::Var(vd) => {
                 globals.insert(vd.name.clone(), vd.ty.clone());
             }
-            ItemKind::Conditional(cg) => collect_global_types_cond(cg, globals),
+            ItemKind::Conditional(cg) => {
+                for branch in &cg.branches {
+                    collect_global_types(&branch.body, globals);
+                }
+                if let Some(else_body) = &cg.else_body {
+                    collect_global_types(else_body, globals);
+                }
+            }
             _ => {}
         }
     }
 }
 
-fn collect_global_types_cond(cg: &CondGroup, globals: &mut HashMap<String, Type>) {
-    for branch in &cg.branches {
-        collect_global_types(&branch.body, globals);
-    }
-    if let Some(else_body) = &cg.else_body {
-        collect_global_types(else_body, globals);
+fn own_function_sigs(items: &[(Item, Trivia)]) -> HashMap<String, FnSig> {
+    let mut sigs = HashMap::new();
+    collect_function_sigs(items, &mut sigs);
+    sigs
+}
+
+fn collect_function_sigs(items: &[(Item, Trivia)], sigs: &mut HashMap<String, FnSig>) {
+    for (item, _) in items {
+        match &item.kind {
+            ItemKind::FunctionDecl(sig) => {
+                sigs.insert(sig.name.clone(), sig.clone());
+            }
+            ItemKind::FunctionDef(sig, _) => {
+                sigs.insert(sig.name.clone(), sig.clone());
+            }
+            ItemKind::Conditional(cg) => {
+                for branch in &cg.branches {
+                    collect_function_sigs(&branch.body, sigs);
+                }
+                if let Some(else_body) = &cg.else_body {
+                    collect_function_sigs(else_body, sigs);
+                }
+            }
+            _ => {}
+        }
     }
 }
 
