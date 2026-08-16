@@ -170,6 +170,101 @@ fn struct_field_trailing_comment_does_not_leak_into_next_field() {
 }
 
 #[test]
+fn nested_anonymous_union_field_is_recursively_parsed() {
+    // p_local.h's intercept_t: a nested anonymous union field, previously
+    // kept as one opaque Field with the union's raw text as its "type" and
+    // its own name ("d") not captured anywhere structurally.
+    let src = "typedef struct\n{\n    fixed_t\tfrac;\n    boolean\tisaline;\n    union {\n\tmobj_t*\tthing;\n\tline_t*\tline;\n    }\t\t\td;\n} intercept_t;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            assert_eq!(rd.fields.len(), 3);
+            assert_eq!(rd.fields[0].name, "frac");
+            assert_eq!(rd.fields[1].name, "isaline");
+            let nested_field = &rd.fields[2];
+            assert_eq!(nested_field.name, "d");
+            assert!(nested_field.array_dims.is_empty());
+            let nested = nested_field
+                .nested
+                .as_deref()
+                .expect("expected nested record");
+            assert_eq!(nested.kind, RecordKind::Union);
+            assert_eq!(nested.tag, None);
+            assert_eq!(nested.fields.len(), 2);
+            assert_eq!(nested.fields[0].ty, "mobj_t*");
+            assert_eq!(nested.fields[0].name, "thing");
+            assert_eq!(nested.fields[1].ty, "line_t*");
+            assert_eq!(nested.fields[1].name, "line");
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn nested_anonymous_struct_field_with_array_dims() {
+    let src = "struct\n{\n    int before;\n    struct\n    {\n\tint x;\n    } points[4];\n    int after;\n} foo;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            assert_eq!(rd.fields.len(), 3);
+            let nested_field = &rd.fields[1];
+            assert_eq!(nested_field.name, "points");
+            assert_eq!(nested_field.array_dims, vec![Some("4".to_string())]);
+            let nested = nested_field
+                .nested
+                .as_deref()
+                .expect("expected nested record");
+            assert_eq!(nested.kind, RecordKind::Struct);
+            assert_eq!(nested.fields.len(), 1);
+            assert_eq!(nested.fields[0].name, "x");
+            assert_eq!(rd.fields[2].name, "after");
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn nested_record_with_tag_keeps_its_tag() {
+    let src = "struct\n{\n    struct point_s\n    {\n\tint x;\n    } origin;\n} foo;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            let nested = rd.fields[0].nested.as_deref().unwrap();
+            assert_eq!(nested.tag.as_deref(), Some("point_s"));
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn nested_group_without_keyword_falls_back_to_opaque_field() {
+    // A `{...}` field body not preceded by struct/union/enum isn't a shape
+    // this parser recognizes at all (invalid C, or something stranger) -
+    // must degrade to the old opaque-field fallback rather than panicking
+    // or silently vanishing.
+    let src = "struct\n{\n    int before;\n    weird_macro { 1, 2, 3 } after;\n} foo;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            assert_eq!(rd.fields[0].name, "before");
+            // "weird_macro" (unparseable alone) is dropped, same as before
+            // this change; the group itself becomes one opaque field.
+            let opaque = rd
+                .fields
+                .iter()
+                .find(|f| f.nested.is_none() && f.name.is_empty());
+            assert!(opaque.is_some(), "expected an opaque fallback field");
+            assert!(opaque.unwrap().ty.contains("1, 2, 3"));
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
 fn struct_field_trailing_comment_is_captured_structurally() {
     let src = "typedef struct\n{\n    int score;\t// current score\n    int epsd;\t// episode #\n} player_t;\n";
     round_trip(src);
