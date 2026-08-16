@@ -388,9 +388,8 @@ pub enum ItemKind {
     Typedef(TypedefDecl),
     Var(VarDecl),
     FunctionDecl(FnSig),
-    /// Signature + fully opaque, never-descended-into body text (including
-    /// the surrounding braces).
-    FunctionDef(FnSig, String),
+    /// Signature + structured body (see `stmt::ast::FnBody`).
+    FunctionDef(FnSig, super::stmt::ast::FnBody),
     /// A folded `#if`/`#ifdef`/`#ifndef` ... `#endif` run. See `cond.rs`.
     Conditional(CondGroup),
     /// Fallback for anything v1 doesn't structurally recognize yet. `raw`

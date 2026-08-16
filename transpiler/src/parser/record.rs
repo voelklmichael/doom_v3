@@ -28,8 +28,26 @@ use super::decl::{
     try_parse_var_flat, wrap_array_dims,
 };
 use super::preproc::parse_directive;
+use super::stmt::expr::KnownTypeNames;
 
+/// Parses a whole file's tokens with no corpus type-name context - function
+/// bodies still get fully parsed (see `ItemKind::FunctionDef`), just with
+/// less precise cast-vs-parenthesized-expression disambiguation (only C
+/// base keywords and `struct`/`union`/`enum` tags are recognized as types,
+/// no corpus typedefs). Used by callers that don't need body-parsing
+/// accuracy (this module's own tests, `parser::corpus`'s own graph-building
+/// pass, which only looks at top-level `Typedef`/`Record`/`Enum` items and
+/// never at `FunctionDef` bodies at all). Real per-file output should use
+/// `build_items_with_types` with a `KnownTypeNames` from
+/// `parser::corpus::compute_known_type_names` instead.
 pub fn build_items(tokens: Vec<RawToken>) -> Vec<(Item, Trivia)> {
+    build_items_with_types(tokens, &KnownTypeNames::new())
+}
+
+pub fn build_items_with_types(
+    tokens: Vec<RawToken>,
+    known: &KnownTypeNames,
+) -> Vec<(Item, Trivia)> {
     let chunks = super::brace::group_braces(tokens);
     let mut items = Vec::new();
     let mut unit: Vec<Chunk> = Vec::new();
@@ -50,7 +68,7 @@ pub fn build_items(tokens: Vec<RawToken>) -> Vec<(Item, Trivia)> {
                 unit.push(chunk);
                 if try_parse_fn_sig(header.trim()).is_some() {
                     let finished = std::mem::take(&mut unit);
-                    items.push(lower_unit(finished));
+                    items.push(lower_unit(finished, known));
                 }
             }
             Chunk::Flat(toks) => {
@@ -58,7 +76,7 @@ pub fn build_items(tokens: Vec<RawToken>) -> Vec<(Item, Trivia)> {
                 for piece in pieces {
                     unit.push(Chunk::Flat(piece));
                     let finished = std::mem::take(&mut unit);
-                    items.push(lower_unit(finished));
+                    items.push(lower_unit(finished, known));
                 }
                 if !leftover.is_empty() {
                     unit.push(Chunk::Flat(leftover));
@@ -67,7 +85,7 @@ pub fn build_items(tokens: Vec<RawToken>) -> Vec<(Item, Trivia)> {
         }
     }
     if !unit.is_empty() {
-        items.push(lower_unit(unit));
+        items.push(lower_unit(unit, known));
     }
     items
 }
@@ -210,7 +228,7 @@ fn drain_leading_comments(unit: &mut [Chunk]) -> Vec<Comment> {
     leading
 }
 
-fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
+fn lower_unit(mut unit: Vec<Chunk>, known: &KnownTypeNames) -> (Item, Trivia) {
     let leading = drain_leading_comments(&mut unit);
     let raw: String = unit.iter().map(Chunk::render).collect();
     let trivia = Trivia { leading };
@@ -239,7 +257,7 @@ fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
     }
 
     if unit.iter().any(|c| matches!(c, Chunk::Group { .. })) {
-        let kind = classify_group_unit(&unit, &raw);
+        let kind = classify_group_unit(&unit, &raw, known);
         return (Item { kind, raw }, trivia);
     }
 
@@ -282,7 +300,7 @@ fn declarator_text(chunks: &[Chunk]) -> String {
         .collect()
 }
 
-fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
+fn classify_group_unit(unit: &[Chunk], raw: &str, known: &KnownTypeNames) -> ItemKind {
     let gi = match unit.iter().position(|c| matches!(c, Chunk::Group { .. })) {
         Some(i) => i,
         None => return ItemKind::Raw,
@@ -304,7 +322,8 @@ fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
 
     if let Some(sig) = try_parse_fn_sig(header_trim) {
         let body_raw = format!("{open_text}{}{close_text}", render_tokens(&inner));
-        return ItemKind::FunctionDef(sig, body_raw);
+        let body = super::stmt::parse_function_body(inner, body_raw, known);
+        return ItemKind::FunctionDef(sig, body);
     }
 
     if header_trim.ends_with('=')

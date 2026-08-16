@@ -172,6 +172,20 @@ fn split_top_level_eq(s: &str) -> Option<(&str, &str)> {
 /// stars are folded into the returned `Type` (`Array`/`Pointer` wrapping a
 /// base `Named`) rather than returned as separate fields.
 pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> {
+    let (storage, _base_ty, ty, name) = parse_declarator_with_base(s)?;
+    Some((storage, ty, name))
+}
+
+/// Same as `parse_declarator`, but additionally returns the declarator's
+/// base type (storage/type words only, *before* this declarator's own
+/// `*`/`[]` decoration is applied). Added so `stmt::decl`'s multi-declarator
+/// local parsing (`int *a, b[4];` - C forbids repeating the type word for
+/// later declarators) can reuse one shared base type across sibling
+/// declarators via `parse_bare_declarator_suffix`, instead of re-deriving it
+/// per declarator. For the function-pointer shape, there's no meaningful
+/// "undecorated base" separate from the whole return type, so `base_ty`
+/// there is just a clone of `ty` itself.
+pub(crate) fn parse_declarator_with_base(s: &str) -> Option<(Vec<Storage>, Type, Type, String)> {
     let s = s.trim();
     if s.is_empty() {
         return None;
@@ -203,7 +217,8 @@ pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> 
     // any, live *inside* the name parens instead and are already wrapped
     // into the `Type` `parse_fnptr_declarator` returns.
     if base.ends_with(')') {
-        return parse_fnptr_declarator(base);
+        let (storage, ty, name) = parse_fnptr_declarator(base)?;
+        return Some((storage, ty.clone(), ty, name));
     }
 
     let tokens: Vec<&str> = base.split_whitespace().collect();
@@ -227,12 +242,53 @@ pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> 
     if ty_text.is_empty() {
         return None;
     }
-    let mut ty = parse_type_text(&ty_text);
+    let base_ty = parse_type_text(&ty_text);
+    let mut ty = base_ty.clone();
     for _ in 0..star_count {
         ty = Type::Pointer(Box::new(ty));
     }
     let ty = wrap_array_dims(ty, &dims);
-    Some((storage, ty, name))
+    Some((storage, base_ty, ty, name))
+}
+
+/// Parses a later comma-separated declarator in a multi-declarator local
+/// (`int *a, b[4];` - this handles the `b[4]` piece, given `base_ty` already
+/// derived from `a`'s own `parse_declarator_with_base` call), applying its
+/// own `*`/`[]` decoration on top of the shared base type. Doesn't handle
+/// the function-pointer-declarator shape (`(*NAME)(PARAMS)`) for a later
+/// piece - unconfirmed in the corpus for locals, so returns `None` (caller
+/// degrades to a `Raw` statement) rather than guessing.
+pub(crate) fn parse_bare_declarator_suffix(s: &str, base_ty: &Type) -> Option<(Type, String)> {
+    let mut base = s.trim();
+    if base.is_empty() || base.ends_with(')') {
+        return None;
+    }
+    let mut dims: Vec<Option<String>> = Vec::new();
+    while base.ends_with(']') {
+        let open = base.rfind('[')?;
+        let dim = base[open + 1..base.len() - 1].trim();
+        dims.push(if dim.is_empty() {
+            None
+        } else {
+            Some(dim.to_string())
+        });
+        base = base[..open].trim_end();
+    }
+    dims.reverse();
+
+    let star_count = base.len() - base.trim_start_matches('*').len();
+    let name = base.trim_start_matches('*').to_string();
+    let first_char = name.chars().next()?;
+    if !(first_char.is_alphabetic() || first_char == '_') {
+        return None;
+    }
+
+    let mut ty = base_ty.clone();
+    for _ in 0..star_count {
+        ty = Type::Pointer(Box::new(ty));
+    }
+    let ty = wrap_array_dims(ty, &dims);
+    Some((ty, name))
 }
 
 /// Recognizes the function-pointer declarator shape `RETTYPE (*NAME) (PARAMS)`,

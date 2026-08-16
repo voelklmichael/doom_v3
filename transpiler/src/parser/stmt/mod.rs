@@ -1,8 +1,28 @@
-//! Step 7: statement/expression parsing for function bodies. The C token
-//! lexer (`lex.rs`) and a full expression grammar (`expr.rs`) exist so far;
-//! statement-level parsing (if/while/for/switch/...) is a later step.
-//! Nothing here is wired into `record.rs`/`ast.rs` yet, so
-//! `ItemKind::FunctionDef`'s body stays fully opaque until then.
+//! Step 7: statement/expression parsing for function bodies. `lex.rs`
+//! tokenizes, `expr.rs` parses expressions, `decl.rs` parses local
+//! declarations, `parse.rs` drives the statement-level recursive descent,
+//! and `ast.rs` holds the resulting `Block`/`Stmt`/`FnBody` shapes.
+//! `parse_function_body` (below) is the single entry point `record.rs`
+//! calls to turn a function's opaque body tokens into a structured
+//! `FnBody`.
 
+pub mod ast;
+pub mod decl;
 pub mod expr;
 pub mod lex;
+pub mod parse;
+
+use super::ast::RawToken;
+use ast::FnBody;
+use expr::KnownTypeNames;
+
+/// Parses one function's body. `inner` is the body's tokens (excluding the
+/// surrounding `{`/`}`, same as `ItemKind::FunctionDef`'s previous opaque
+/// payload was built from); `raw` is the exact original text *including*
+/// the braces (computed exactly as before, independently of `block` - see
+/// `FnBody`'s doc comment for why round-trip safety never depends on
+/// `block` being correct).
+pub fn parse_function_body(inner: Vec<RawToken>, raw: String, known: &KnownTypeNames) -> FnBody {
+    let block = parse::parse_block(inner, known);
+    FnBody { block, raw }
+}

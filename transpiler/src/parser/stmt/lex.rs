@@ -149,6 +149,20 @@ pub fn render_ctoks(toks: &[CTok]) -> String {
     toks.iter().map(CTok::text).collect()
 }
 
+/// Same as `render_ctoks`, but with comments filtered out first - mirrors
+/// `ast::render_tokens_no_comments` one layer up. Used to feed declarator
+/// text (e.g. `stmt::decl`'s multi-declarator local parsing) to the
+/// string-based grammar in `parser::decl` without an embedded comment's
+/// text (e.g. one containing a stray keyword or punctuation) confusing it -
+/// same reasoning `record::declarator_text` already applies at the top
+/// level.
+pub fn render_ctoks_no_comments(toks: &[CTok]) -> String {
+    toks.iter()
+        .filter(|t| !matches!(t, CTok::LineComment(_) | CTok::BlockComment(_)))
+        .map(CTok::text)
+        .collect()
+}
+
 /// Flattens one `group_braces` level's output into a single `CTok` stream:
 /// a `Chunk::Flat` run is lexed via `lex_ctoks`; a `Chunk::Group` becomes
 /// one opaque `CTok::Group`.

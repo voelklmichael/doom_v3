@@ -56,14 +56,14 @@ fn enum_with_values() {
 }
 
 #[test]
-fn function_body_stays_opaque() {
+fn function_body_is_parsed_and_raw_preserved() {
     let src = "int\nM_DrawText\n( int x,\n  int y )\n{\n    return x + y;\n}\n";
     round_trip(src);
     let items = build(src);
     match &items[0].0.kind {
         ItemKind::FunctionDef(sig, body) => {
             assert_eq!(sig.name, "M_DrawText");
-            assert!(body.contains("return x + y;"));
+            assert!(body.raw.contains("return x + y;"));
             assert_eq!(sig.params.len(), 2);
             assert_eq!(sig.params[0].ty, Type::Named("int".to_string()));
             assert_eq!(sig.params[0].name, "x");

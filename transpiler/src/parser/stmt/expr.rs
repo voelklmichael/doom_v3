@@ -12,9 +12,10 @@
 
 use super::super::ast::Type;
 use super::lex::{CTok, Punct};
+use serde::Serialize;
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum Expr {
     Ident(String),
     /// Exact literal text kept, no value computed (same reasoning `CTok`'s
@@ -84,13 +85,13 @@ pub enum Expr {
     Raw(String),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum SizeofArg {
     Type(Type),
     Expr(Box<Expr>),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum UnaryOp {
     Not,
     BitNot,
@@ -102,13 +103,13 @@ pub enum UnaryOp {
     PreDec,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum PostfixOp {
     PostInc,
     PostDec,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -130,7 +131,7 @@ pub enum BinaryOp {
     LogOr,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum AssignOp {
     Assign,
     AddEq,
@@ -193,7 +194,11 @@ pub fn parse_expr(toks: &[CTok], known: &KnownTypeNames) -> Expr {
     parse_comma(&mut cur, known)
 }
 
-const BASE_TYPE_WORDS: &[&str] = &[
+/// `pub(super)` (rather than private) so `stmt::decl::looks_like_decl_start`
+/// can reuse the same base-keyword list when deciding whether a statement
+/// looks like the start of a local declaration - one source of truth for
+/// "is this word a C base type keyword" shared between the two.
+pub(super) const BASE_TYPE_WORDS: &[&str] = &[
     "int", "char", "short", "long", "unsigned", "signed", "float", "double", "void",
 ];
 
