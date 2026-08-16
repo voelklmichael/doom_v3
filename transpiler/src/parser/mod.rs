@@ -10,4 +10,5 @@ pub mod decl;
 pub mod preproc;
 pub mod record;
 pub mod scan;
+pub mod stmt;
 pub mod trivia;
