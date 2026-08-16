@@ -183,11 +183,19 @@ fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
         return (Item { kind, raw }, trivia);
     }
 
-    let kind = if let Some(td) = try_parse_typedef_flat(&raw) {
+    // Classification (unlike `raw` itself) must ignore any leading comment
+    // `drain_leading_comments` left behind - a blank line between the item
+    // and its doc comment stops that drain, same gap `declarator_text`
+    // already works around for the Group-unit path below. Without this, a
+    // commented flat declaration (e.g. d_think.h's `actionf_v`, preceded by
+    // a blank-line-then-doc-comment) never even reaches the `typedef`
+    // prefix check and falls to `Item::Raw`.
+    let text = declarator_text(&unit);
+    let kind = if let Some(td) = try_parse_typedef_flat(&text) {
         ItemKind::Typedef(td)
-    } else if let Some(cd) = try_parse_const_flat(&raw) {
+    } else if let Some(cd) = try_parse_const_flat(&text) {
         ItemKind::Const(cd)
-    } else if let Some(sig) = raw
+    } else if let Some(sig) = text
         .trim()
         .strip_suffix(';')
         .and_then(|h| try_parse_fn_sig(h.trim()))
