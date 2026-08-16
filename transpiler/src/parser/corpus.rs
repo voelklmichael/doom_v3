@@ -187,6 +187,18 @@ fn own_defines(items: &[(Item, Trivia)]) -> HashMap<String, String> {
 /// genuinely reached - there'd be nothing to see otherwise. Only this one
 /// specific, always-true wrapper is unwrapped - an arbitrary other
 /// `#ifdef` still correctly stays out of `own_defines`'s reach.
+///
+/// The returned slice deliberately **excludes** the guard's own opening
+/// `#define GUARD` line (verified via a corpus-wide check: no guard name
+/// is ever referenced anywhere outside its own defining file, so nothing
+/// is lost by never counting it as "defined" at all). Keeping it would be
+/// actively wrong, not just superfluous: `cond::resolve_conditionals`
+/// evaluates a file's *own* `#ifndef GUARD` against this same environment,
+/// and if `GUARD` showed up as already "defined" (because this file itself
+/// defines it, one line later), the guard's own opening condition would
+/// self-defeat - always resolving as if the header had already been
+/// included once before, which is never true for the single-file-at-a-time
+/// model this parser uses.
 fn unwrap_include_guard(items: &[(Item, Trivia)]) -> &[(Item, Trivia)] {
     let Some((first, _)) = items.split_first() else {
         return items;
@@ -209,7 +221,7 @@ fn unwrap_include_guard(items: &[(Item, Trivia)]) -> &[(Item, Trivia)] {
                     if def_name == name
             ) =>
         {
-            &branch.body
+            &branch.body[1..]
         }
         _ => items,
     }

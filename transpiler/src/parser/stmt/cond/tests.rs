@@ -9,6 +9,20 @@ fn build(src: &str) -> Block {
     fold_conditionals(parse_block(toks, &KnownTypeNames::new()))
 }
 
+fn defines(pairs: &[(&str, &str)]) -> HashMap<String, String> {
+    pairs
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect()
+}
+
+fn group_of(block: &Block) -> &StmtCondGroup {
+    match &block.stmts[0].0.kind {
+        StmtKind::Conditional(g) => g,
+        other => panic!("expected Conditional, got {other:?}"),
+    }
+}
+
 fn round_trip(src: &str) {
     let block = build(src);
     assert_eq!(render_block(&block), src, "round trip mismatch");
@@ -118,5 +132,63 @@ fn unterminated_ifdef_degrades_to_flat() {
             .iter()
             .any(|(s, _)| matches!(s.kind, StmtKind::Conditional(_))),
         "an unterminated #ifdef must not be folded"
+    );
+}
+
+#[test]
+fn resolves_ifdef_true() {
+    let mut block = build("#ifdef FOO\nx = 1;\n#endif");
+    resolve_conditionals(&mut block, &defines(&[("FOO", "")]));
+    assert_eq!(group_of(&block).active, ActiveBranch::Branch(0));
+}
+
+#[test]
+fn resolves_ifdef_false_falls_to_else() {
+    let mut block = build("#ifdef FOO\nx = 1;\n#else\ny = 2;\n#endif");
+    resolve_conditionals(&mut block, &defines(&[]));
+    assert_eq!(group_of(&block).active, ActiveBranch::Else);
+}
+
+#[test]
+fn unresolved_before_resolve_conditionals_runs() {
+    let block = build("#ifdef FOO\nx = 1;\n#endif");
+    assert_eq!(group_of(&block).active, ActiveBranch::Unknown);
+}
+
+#[test]
+fn resolves_inside_nested_block() {
+    // The #ifdef sits inside an `if`'s own nested Block - resolution must
+    // recurse into it, same as folding already does.
+    let src = "if (cond) {\n    x = 1;\n#ifdef FOO\n    y = 2;\n#endif\n}";
+    let mut block = build(src);
+    resolve_conditionals(&mut block, &defines(&[("FOO", "1")]));
+    match &block.stmts[0].0.kind {
+        StmtKind::If { then_branch, .. } => match &then_branch.kind {
+            StmtKind::Block(inner) => {
+                let (cond_stmt, _) = inner
+                    .stmts
+                    .iter()
+                    .find(|(s, _)| matches!(s.kind, StmtKind::Conditional(_)))
+                    .expect("expected a Conditional statement inside the if-body block");
+                match &cond_stmt.kind {
+                    StmtKind::Conditional(g) => assert_eq!(g.active, ActiveBranch::Branch(0)),
+                    _ => unreachable!(),
+                }
+            }
+            other => panic!("expected Block, got {other:?}"),
+        },
+        other => panic!("expected If, got {other:?}"),
+    }
+}
+
+#[test]
+fn resolve_conditionals_does_not_change_render_output() {
+    let src = "#ifdef FOO\nx = 1;\n#else\ny = 2;\n#endif";
+    let mut block = build(src);
+    resolve_conditionals(&mut block, &defines(&[("FOO", "1")]));
+    assert_eq!(
+        render_block(&block),
+        src,
+        "active-branch resolution must not touch bytes"
     );
 }

@@ -1,6 +1,7 @@
 use super::*;
 use crate::parser::record::build_items;
 use crate::parser::scan::scan;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 fn build(src: &str) -> Vec<(Item, Trivia)> {
@@ -184,4 +185,116 @@ fn include_guard_none_when_it_has_an_else() {
         items: build(src),
     };
     assert_eq!(include_guard_name(&file), None);
+}
+
+fn defines(pairs: &[(&str, &str)]) -> HashMap<String, String> {
+    pairs
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect()
+}
+
+fn group_of(items: &[(Item, Trivia)]) -> &CondGroup {
+    match &items[0].0.kind {
+        ItemKind::Conditional(g) => g,
+        other => panic!("expected Conditional, got {other:?}"),
+    }
+}
+
+#[test]
+fn resolves_ifdef_true() {
+    let mut items = build("#ifdef FOO\nint x;\n#endif\n");
+    resolve_conditionals(&mut items, &defines(&[("FOO", "")]));
+    assert_eq!(group_of(&items).active, ActiveBranch::Branch(0));
+}
+
+#[test]
+fn resolves_ifdef_false_falls_to_none_without_else() {
+    let mut items = build("#ifdef FOO\nint x;\n#endif\n");
+    resolve_conditionals(&mut items, &defines(&[]));
+    assert_eq!(group_of(&items).active, ActiveBranch::None);
+}
+
+#[test]
+fn resolves_ifdef_false_falls_to_else() {
+    let mut items = build("#ifdef FOO\nint x;\n#else\nint y;\n#endif\n");
+    resolve_conditionals(&mut items, &defines(&[]));
+    assert_eq!(group_of(&items).active, ActiveBranch::Else);
+}
+
+#[test]
+fn resolves_elif_chain_first_true_wins() {
+    let mut items = build("#if A\nint a;\n#elif B\nint b;\n#else\nint c;\n#endif\n");
+    resolve_conditionals(&mut items, &defines(&[("A", "0"), ("B", "1")]));
+    assert_eq!(group_of(&items).active, ActiveBranch::Branch(1));
+}
+
+#[test]
+fn resolves_bare_0_and_1_literals() {
+    let mut off = build("#if 0\nint x;\n#endif\n");
+    resolve_conditionals(&mut off, &defines(&[]));
+    assert_eq!(group_of(&off).active, ActiveBranch::None);
+
+    let mut on = build("#if 1\nint x;\n#endif\n");
+    resolve_conditionals(&mut on, &defines(&[]));
+    assert_eq!(group_of(&on).active, ActiveBranch::Branch(0));
+}
+
+#[test]
+fn elif_bare_identifier_loses_to_earlier_ifdef_true() {
+    // Real corpus shape (i_sound.c): #ifdef SNDSERV ... #elif SNDINTR ...
+    // #endif - SNDSERV is #define'd (true), so it must win regardless of
+    // whether SNDINTR is ever defined.
+    let mut items = build("#ifdef SNDSERV\nint a;\n#elif SNDINTR\nint b;\n#endif\n");
+    resolve_conditionals(&mut items, &defines(&[("SNDSERV", "1")]));
+    assert_eq!(group_of(&items).active, ActiveBranch::Branch(0));
+}
+
+#[test]
+fn unresolvable_expression_yields_unknown_and_stops() {
+    // A bare identifier is always decidable (looked up, defaults False if
+    // undefined) - genuine `Unknown` needs an actual expression shape this
+    // evaluator doesn't attempt (operators, `defined()`, ...), none of
+    // which occur anywhere in the real corpus.
+    let mut items = build("#if VERSION >= 2\nint a;\n#else\nint b;\n#endif\n");
+    resolve_conditionals(&mut items, &defines(&[]));
+    // Can't safely fall through to `#else` either - the condition wasn't
+    // decidably false, just undecidable.
+    assert_eq!(group_of(&items).active, ActiveBranch::Unknown);
+}
+
+#[test]
+fn unresolved_before_resolve_conditionals_runs() {
+    let items = build("#ifdef FOO\nint x;\n#endif\n");
+    assert_eq!(group_of(&items).active, ActiveBranch::Unknown);
+}
+
+#[test]
+fn nested_conditional_resolves_independently_of_ancestor() {
+    // The outer branch is false (never resolves True), but the nested
+    // conditional inside the *other* (unreachable) branch should still get
+    // its own independent resolution - useful information regardless.
+    let src = "#ifdef OUTER\nint a;\n#else\n#ifdef INNER\nint b;\n#endif\n#endif\n";
+    let mut items = build(src);
+    resolve_conditionals(&mut items, &defines(&[("INNER", "")]));
+    let outer = group_of(&items);
+    assert_eq!(outer.active, ActiveBranch::Else);
+    let else_body = outer.else_body.as_ref().expect("expected else body");
+    let inner = match &else_body[0].0.kind {
+        ItemKind::Conditional(g) => g,
+        other => panic!("expected nested Conditional, got {other:?}"),
+    };
+    assert_eq!(inner.active, ActiveBranch::Branch(0));
+}
+
+#[test]
+fn resolve_conditionals_does_not_change_render_output() {
+    let src = "#ifdef FOO\nint x;\n#else\nint y;\n#endif\n";
+    let mut items = build(src);
+    resolve_conditionals(&mut items, &defines(&[("FOO", "1")]));
+    assert_eq!(
+        render_items(&items),
+        src,
+        "active-branch resolution must not touch bytes"
+    );
 }

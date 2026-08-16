@@ -20,9 +20,10 @@
 //! corpus-wide census before implementing this), so this is a safety net,
 //! not something exercised by real input.
 
-use super::super::ast::Trivia;
-use super::super::preproc::Directive;
+use super::super::ast::{ActiveBranch, Trivia};
+use super::super::preproc::{self, Directive, Tri};
 use super::ast::{Block, Stmt, StmtCondBranch, StmtCondGroup, StmtKind};
+use std::collections::HashMap;
 
 enum Cur {
     Branch(Directive),
@@ -87,6 +88,7 @@ impl Builder {
             StmtCondGroup {
                 branches: self.branches,
                 else_body: self.else_body.map(|stmts| Block { stmts }),
+                active: ActiveBranch::Unknown,
             },
             self.raw_stmts,
         )
@@ -229,10 +231,87 @@ fn fold_nested(mut stmt: Stmt) -> Stmt {
                 })
                 .collect(),
             else_body: cg.else_body.map(fold_conditionals),
+            active: cg.active,
         }),
         other => other,
     };
     stmt
+}
+
+/// Fills in every `StmtCondGroup.active` reachable from `block`, given a
+/// `#define` environment - the statement-level counterpart to
+/// `cond::resolve_conditionals`. Same evaluation rules
+/// (`preproc::eval_ifdef`/`eval_if_expr`), and the same extra requirement
+/// `fold_conditionals` already has one layer down: recursing into every
+/// nested `Block` reachable from a `Stmt`, not just this one's own flat
+/// list, since an `if`/`while`/`for`/`switch` body or an explicit nested
+/// `{...}` block is its own separate `Block`.
+pub fn resolve_conditionals(block: &mut Block, defines: &HashMap<String, String>) {
+    for (stmt, _) in &mut block.stmts {
+        resolve_stmt(stmt, defines);
+    }
+}
+
+fn resolve_stmt(stmt: &mut Stmt, defines: &HashMap<String, String>) {
+    match &mut stmt.kind {
+        StmtKind::Block(b) => resolve_conditionals(b, defines),
+        StmtKind::If {
+            then_branch,
+            else_branch,
+            ..
+        } => {
+            resolve_stmt(then_branch, defines);
+            if let Some(e) = else_branch {
+                resolve_stmt(e, defines);
+            }
+        }
+        StmtKind::While { body, .. }
+        | StmtKind::DoWhile { body, .. }
+        | StmtKind::For { body, .. }
+        | StmtKind::Switch { body, .. } => resolve_stmt(body, defines),
+        StmtKind::Conditional(group) => resolve_group(group, defines),
+        _ => {}
+    }
+}
+
+fn resolve_group(group: &mut StmtCondGroup, defines: &HashMap<String, String>) {
+    let mut resolved = None;
+    for (i, branch) in group.branches.iter().enumerate() {
+        match eval_directive(&branch.directive, defines) {
+            Tri::True => {
+                resolved = Some(ActiveBranch::Branch(i));
+                break;
+            }
+            Tri::False => continue,
+            Tri::Unknown => {
+                resolved = Some(ActiveBranch::Unknown);
+                break;
+            }
+        }
+    }
+    group.active = resolved.unwrap_or(if group.else_body.is_some() {
+        ActiveBranch::Else
+    } else {
+        ActiveBranch::None
+    });
+
+    // Nested conditionals resolve independently of whether this group's
+    // own branch containing them is itself active - same reasoning as
+    // `cond::resolve_group`.
+    for branch in &mut group.branches {
+        resolve_conditionals(&mut branch.body, defines);
+    }
+    if let Some(else_body) = &mut group.else_body {
+        resolve_conditionals(else_body, defines);
+    }
+}
+
+fn eval_directive(directive: &Directive, defines: &HashMap<String, String>) -> Tri {
+    match directive {
+        Directive::IfDef { name, negate } => preproc::eval_ifdef(name, *negate, defines),
+        Directive::If { expr } | Directive::Elif { expr } => preproc::eval_if_expr(expr, defines),
+        _ => Tri::Unknown,
+    }
 }
 
 #[cfg(test)]

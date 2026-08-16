@@ -1,8 +1,21 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use transpiler::parse_file_with_types;
-use transpiler::parser::corpus::compute_known_type_names;
+use transpiler::parser::corpus::{compute_known_defines, compute_known_type_names};
 use transpiler::parser::evidence::{collect_evidence, summarize};
 use transpiler::parser::{ast, cond, preproc, trivia};
+
+/// The externally pre-defined macro list (compiler `-D`-style flags) used
+/// to resolve `#if`/`#ifdef` alongside whatever the source itself
+/// `#define`s (see `parser::corpus::compute_known_defines`). Matches this
+/// corpus's own name (`linuxdoom-1.10`) and its default Unix build -
+/// confirmed with the user via a corpus-wide census before picking this:
+/// `LINUX`/`NORMALUNIX` are the only macros that need to come from
+/// *outside* the source (everything else interesting - `RANGECHECK`,
+/// `SNDSERV` - is already `#define`'d unconditionally in `doomdef.h`).
+/// Everything else (C++ mode, other platforms, debug asserts, the
+/// alternate `SNDINTR` sound driver, French) starts undefined.
+const PREDEFINED_MACROS: &[&str] = &["LINUX", "NORMALUNIX"];
 
 fn main() {
     let mut args: Vec<String> = std::env::args().skip(1).collect();
@@ -19,22 +32,30 @@ fn main() {
         args.into_iter().map(PathBuf::from).collect()
     };
 
-    // Cast-vs-parenthesized-expression disambiguation inside function
-    // bodies needs to know about typedefs/tags a file's `#include`s make
+    // Cast-vs-parenthesized-expression disambiguation, and #if/#ifdef
+    // resolution, both need to know about things a file's `#include`s make
     // visible, which can live outside `paths` itself (e.g. a single target
-    // `.c` file's own headers) - so this always scans the *whole* corpus,
+    // `.c` file's own headers) - so both always scan the *whole* corpus,
     // not just `paths`, regardless of which files are the actual output
     // targets.
     let known_types = compute_known_type_names(&all_files());
+    let known_defines = compute_known_defines(&all_files());
+    let predefined: HashMap<String, String> = PREDEFINED_MACROS
+        .iter()
+        .map(|m| (m.to_string(), String::new()))
+        .collect();
 
     for path in paths {
-        let known = path
-            .file_name()
-            .and_then(|n| n.to_str())
+        let name = path.file_name().and_then(|n| n.to_str());
+        let known = name
             .and_then(|n| known_types.get(n))
             .cloned()
             .unwrap_or_default();
-        match parse_file_with_types(&path, &known) {
+        let mut defines = predefined.clone();
+        if let Some(file_defines) = name.and_then(|n| known_defines.get(n)) {
+            defines.extend(file_defines.iter().map(|(k, v)| (k.clone(), v.clone())));
+        }
+        match parse_file_with_types(&path, &known, &defines) {
             Ok(mut file) => {
                 let original = std::fs::read_to_string(&path).unwrap_or_default();
                 let original = trivia::strip_leading_banner(&original).to_string();
@@ -125,8 +146,21 @@ fn kind_label(kind: &ast::ItemKind) -> String {
         Var(_) => "var".to_string(),
         FunctionDecl(_) => "fn-decl".to_string(),
         FunctionDef(..) => "fn-def".to_string(),
-        Conditional(g) => format!("conditional:{}", directive_label(&g.branches[0].directive)),
+        Conditional(g) => format!(
+            "conditional:{}:{}",
+            directive_label(&g.branches[0].directive),
+            active_label(g.active)
+        ),
         Raw => "raw".to_string(),
+    }
+}
+
+fn active_label(active: ast::ActiveBranch) -> String {
+    match active {
+        ast::ActiveBranch::Branch(i) => format!("branch{i}"),
+        ast::ActiveBranch::Else => "else".to_string(),
+        ast::ActiveBranch::None => "none".to_string(),
+        ast::ActiveBranch::Unknown => "unknown".to_string(),
     }
 }
 

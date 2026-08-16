@@ -246,6 +246,19 @@ fn harvests_plain_define() {
 }
 
 #[test]
+fn own_include_guard_name_is_not_harvested() {
+    // doomdef.h's own `#ifndef __DOOMDEF__`/`#define __DOOMDEF__` wrapper -
+    // if __DOOMDEF__ leaked through as "defined" here, doomdef.h's own
+    // opening #ifndef check would self-defeat when later fed through
+    // cond::resolve_conditionals (always resolving as if the header had
+    // already been included once before, which is never true for the
+    // single-file-at-a-time model this parser uses).
+    let map = compute_known_defines(&[corpus_path("doomdef.h")]);
+    let defines = defines_for(&map, "doomdef.h");
+    assert!(!defines.contains_key("__DOOMDEF__"));
+}
+
+#[test]
 fn harvests_valueless_define() {
     // `#define RANGECHECK` (no value) - real corpus text, doomdef.h.
     let map = compute_known_defines(&[corpus_path("doomdef.h")]);

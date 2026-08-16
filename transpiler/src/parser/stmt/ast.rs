@@ -112,6 +112,10 @@ pub struct StmtCondBranch {
 pub struct StmtCondGroup {
     pub branches: Vec<StmtCondBranch>,
     pub else_body: Option<Block>,
+    /// Which branch (if any) would actually compile - reuses
+    /// `ast::ActiveBranch`, `Unknown` until `stmt::cond::resolve_conditionals`
+    /// is run with a `#define` environment. See `ast::CondGroup::active`.
+    pub active: super::super::ast::ActiveBranch,
 }
 
 /// A function body: the structured `block` alongside its own independently-
