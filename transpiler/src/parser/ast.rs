@@ -160,6 +160,11 @@ pub struct Field {
     pub name: String,
     pub array_dims: Vec<Option<String>>,
     pub bitfield: Option<String>,
+    /// Doc comment(s) on their own line(s) immediately preceding this field.
+    pub trivia: Trivia,
+    /// A comment on the same line as (and after) this field's `;`, e.g.
+    /// `int health; // hit points`.
+    pub trailing_comment: Option<Comment>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -174,9 +179,20 @@ pub struct RecordDecl {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct EnumVariant {
+    pub name: String,
+    pub value: Option<String>,
+    /// Doc comment(s) on their own line(s) immediately preceding this variant.
+    pub trivia: Trivia,
+    /// A comment on the same line as (and after) this variant's `,`, e.g.
+    /// `INVULN, // invulnerability`.
+    pub trailing_comment: Option<Comment>,
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct EnumDecl {
     pub tag: Option<String>,
-    pub variants: Vec<(String, Option<String>)>,
+    pub variants: Vec<EnumVariant>,
     pub names: Vec<String>,
     pub typedef_name: Option<String>,
 }
