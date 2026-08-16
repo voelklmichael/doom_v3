@@ -136,10 +136,10 @@ fn mid_array_initializer_ifdef_stays_opaque_unaffected_by_folding() {
     let after = fold_conditionals(build_items(scan(src)));
     assert_eq!(before.len(), after.len());
     match &after[0].0.kind {
-        ItemKind::Const(cd) => {
+        ItemKind::Var(cd) => {
             assert_eq!(cd.name, "defaults");
         }
-        other => panic!("expected Const, got {other:?}"),
+        other => panic!("expected Var, got {other:?}"),
     }
     assert!(after[0].0.raw.contains("#ifdef FOO"));
 }
