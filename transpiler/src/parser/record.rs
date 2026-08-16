@@ -19,7 +19,7 @@
 
 use super::ast::{
     Chunk, Comment, EnumDecl, Field, FnSig, Item, ItemKind, RawToken, RecordDecl, RecordKind,
-    Trivia, render_tokens,
+    Trivia, render_tokens, render_tokens_no_comments,
 };
 use super::decl::{
     parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat,
@@ -125,7 +125,64 @@ fn split_into_pieces(toks: Vec<RawToken>) -> (Vec<Vec<RawToken>>, Vec<RawToken>)
             _ => cur.push(tok),
         }
     }
+    reattach_trailing_comments(&mut pieces, &mut cur);
     (pieces, cur)
+}
+
+/// A comment on the same line as the `;` that just closed a piece describes
+/// that piece, not whatever declaration follows - e.g. in `int x; // meaning
+/// \nint y;`, "// meaning" is about `x`, not `y`. But each piece above is
+/// found purely by scanning forward for the next `;`, so such a comment
+/// always ends up at the *start* of the following piece (or `leftover`)
+/// instead of the end of the one it belongs to. This moves it back: for
+/// each piece (and `leftover`) that begins with an optional same-line
+/// (no-newline) whitespace run followed immediately by a comment, that
+/// prefix is spliced onto the end of the previous piece. A comment preceded
+/// by a newline is left alone - it's a leading comment for what follows,
+/// the case `drain_leading_comments` already handles.
+fn reattach_trailing_comments(pieces: &mut [Vec<RawToken>], leftover: &mut Vec<RawToken>) {
+    for i in 0..pieces.len() {
+        if let Some(taken) = take_leading_same_line_comment(&mut pieces[i]) {
+            if i == 0 {
+                // No earlier piece *in this call* to attach to (e.g. right
+                // after a function body's `}`, flushed by the caller before
+                // this chunk was even scanned) - leave the bytes where they
+                // were; still correct, just not reattached across that
+                // boundary.
+                pieces[i].splice(0..0, taken);
+            } else {
+                pieces[i - 1].extend(taken);
+            }
+        }
+    }
+    if let Some(taken) = take_leading_same_line_comment(leftover) {
+        match pieces.last_mut() {
+            Some(last) => last.extend(taken),
+            None => {
+                leftover.splice(0..0, taken);
+            }
+        }
+    }
+}
+
+/// If `toks` starts with an optional whitespace-only `Code` token containing
+/// no newline, immediately followed by a `LineComment`/`BlockComment`,
+/// drains and returns that prefix (comment included). Returns `None`
+/// (leaving `toks` untouched) otherwise.
+fn take_leading_same_line_comment(toks: &mut Vec<RawToken>) -> Option<Vec<RawToken>> {
+    let mut end = 0;
+    if let Some(RawToken::Code(span)) = toks.first() {
+        if span.text.contains('\n') {
+            return None;
+        }
+        end = 1;
+    }
+    match toks.get(end) {
+        Some(RawToken::LineComment(_)) | Some(RawToken::BlockComment(_)) => {
+            Some(toks.drain(0..=end).collect())
+        }
+        _ => None,
+    }
 }
 
 fn drain_leading_comments(unit: &mut [Chunk]) -> Vec<Comment> {
@@ -216,11 +273,7 @@ fn declarator_text(chunks: &[Chunk]) -> String {
     chunks
         .iter()
         .map(|c| match c {
-            Chunk::Flat(toks) => toks
-                .iter()
-                .filter(|t| !matches!(t, RawToken::LineComment(_) | RawToken::BlockComment(_)))
-                .map(RawToken::text)
-                .collect::<String>(),
+            Chunk::Flat(toks) => render_tokens_no_comments(toks),
             other => other.render(),
         })
         .collect()
@@ -351,8 +404,11 @@ fn classify_record_or_enum(
 /// Splits `inner` tokens on top-level `,` (re-grouping any nested braces
 /// first, since an enum value can itself be a parenthesized/braced
 /// expression referencing an earlier constant, e.g. `INVULNTICS = (30*TICRATE)`).
+/// Comments are dropped before splitting - a trailing `// comment, with a
+/// comma` would otherwise fracture into bogus extra variants (per-variant
+/// comments aren't captured structurally in v1; `Item.raw` still has them).
 fn parse_enum_variants(inner: &[RawToken]) -> Vec<(String, Option<String>)> {
-    let text = render_tokens(inner);
+    let text = render_tokens_no_comments(inner);
     let mut variants = Vec::new();
     for part in split_top_level(&text, ',') {
         let part = part.trim();
@@ -371,7 +427,11 @@ fn parse_enum_variants(inner: &[RawToken]) -> Vec<(String, Option<String>)> {
 /// Splits `inner` tokens (a struct/union body) on top-level `;` into
 /// fields. A nested anonymous struct/union (a literal `{` inside the body)
 /// is not descended into further in v1 - it's kept as one field with its
-/// raw text as the type.
+/// raw text as the type. Comments (this codebase's usual per-field
+/// trailing-comment style, e.g. `int health; // hit points`) are dropped
+/// before splitting rather than rendered - otherwise `Field` doesn't carry
+/// them anywhere useful, and if the comment itself contained a `;` it would
+/// fracture the split; `Item.raw` still has them verbatim.
 fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
     let chunks = super::brace::group_braces(inner.to_vec());
     let mut fields = Vec::new();
@@ -379,7 +439,7 @@ fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
     for chunk in chunks {
         match chunk {
             Chunk::Flat(toks) => {
-                let text = render_tokens(&toks);
+                let text = render_tokens_no_comments(&toks);
                 for part in split_top_level(&text, ';') {
                     let part = part.trim();
                     if part.is_empty() {

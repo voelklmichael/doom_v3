@@ -115,6 +115,19 @@ pub fn render_tokens(tokens: &[RawToken]) -> String {
     tokens.iter().map(RawToken::text).collect()
 }
 
+/// Same as `render_tokens`, but drops comments. Used wherever comment text
+/// is rendered only to be split on a delimiter (`;` for struct fields, `,`
+/// for enum variants) - a comment containing that delimiter (e.g. `// Use
+/// button, or something` before a `,`-terminated enum variant) would
+/// otherwise fracture into bogus extra pieces.
+pub fn render_tokens_no_comments(tokens: &[RawToken]) -> String {
+    tokens
+        .iter()
+        .filter(|t| !matches!(t, RawToken::LineComment(_) | RawToken::BlockComment(_)))
+        .map(RawToken::text)
+        .collect()
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub enum Comment {
     Line(String),
