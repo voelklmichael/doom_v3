@@ -5,9 +5,11 @@ use crate::parser::scan::scan;
 fn rcsid_style() {
     let cd = try_parse_const_flat("static const char rcsid[] = \"$Id$\";").unwrap();
     assert_eq!(cd.storage, vec!["static", "const"]);
-    assert_eq!(cd.ty, "char");
+    assert_eq!(
+        cd.ty,
+        Type::Array(Box::new(Type::Named("char".to_string())), None)
+    );
     assert_eq!(cd.name, "rcsid");
-    assert_eq!(cd.array_dims, vec![None]);
     assert!(matches!(cd.initializer, Some(Init::Expr(_))));
 }
 
@@ -15,9 +17,14 @@ fn rcsid_style() {
 fn braced_array_style() {
     let cd = try_parse_const_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", &scan(" /* ... */ "))
         .unwrap();
-    assert_eq!(cd.ty, "mobjinfo_t");
+    assert_eq!(
+        cd.ty,
+        Type::Array(
+            Box::new(Type::Named("mobjinfo_t".to_string())),
+            Some("NUMMOBJTYPES".to_string())
+        )
+    );
     assert_eq!(cd.name, "mobjinfo");
-    assert_eq!(cd.array_dims, vec![Some("NUMMOBJTYPES".to_string())]);
 }
 
 #[test]
@@ -119,10 +126,19 @@ fn fnptr_typedef_with_named_param() {
     // recognized, this fell through to the plain whitespace-token parser
     // and produced garbage: name "in)", underlying "boolean (*traverser_t)
     // (intercept_t *". Round-trip stayed exact (raw is untouched) but the
-    // structured fields were nonsense.
+    // structured fields were nonsense. The param's own name ("in") is
+    // discarded - Type::FunctionPointer::params is types only.
     let td = try_parse_typedef_flat("typedef boolean (*traverser_t) (intercept_t *in);").unwrap();
     assert_eq!(td.name, "traverser_t");
-    assert_eq!(td.underlying, "boolean (*)(intercept_t *in)");
+    assert_eq!(
+        td.underlying,
+        Type::FunctionPointer {
+            ret: Box::new(Type::Named("boolean".to_string())),
+            params: vec![Type::Pointer(Box::new(Type::Named(
+                "intercept_t".to_string()
+            )))],
+        }
+    );
 }
 
 #[test]
@@ -130,7 +146,13 @@ fn fnptr_typedef_with_empty_params() {
     // d_think.h's actionf_v.
     let td = try_parse_typedef_flat("typedef  void (*actionf_v)();").unwrap();
     assert_eq!(td.name, "actionf_v");
-    assert_eq!(td.underlying, "void (*)()");
+    assert_eq!(
+        td.underlying,
+        Type::FunctionPointer {
+            ret: Box::new(Type::Named("void".to_string())),
+            params: vec![],
+        }
+    );
 }
 
 #[test]
@@ -138,16 +160,33 @@ fn fnptr_typedef_with_anonymous_params() {
     // d_think.h's actionf_p2.
     let td = try_parse_typedef_flat("typedef  void (*actionf_p2)( void*, void* );").unwrap();
     assert_eq!(td.name, "actionf_p2");
-    assert_eq!(td.underlying, "void (*)(void*, void*)");
+    assert_eq!(
+        td.underlying,
+        Type::FunctionPointer {
+            ret: Box::new(Type::Named("void".to_string())),
+            params: vec![
+                Type::Pointer(Box::new(Type::Named("void".to_string()))),
+                Type::Pointer(Box::new(Type::Named("void".to_string()))),
+            ],
+        }
+    );
 }
 
 #[test]
 fn fnptr_array_declarator_with_sized_dim() {
-    let (storage, ty, name, dims) = parse_declarator("void (*table[4])(int)").unwrap();
+    let (storage, ty, name) = parse_declarator("void (*table[4])(int)").unwrap();
     assert!(storage.is_empty());
-    assert_eq!(ty, "void (*)(int)");
     assert_eq!(name, "table");
-    assert_eq!(dims, vec![Some("4".to_string())]);
+    assert_eq!(
+        ty,
+        Type::Array(
+            Box::new(Type::FunctionPointer {
+                ret: Box::new(Type::Named("void".to_string())),
+                params: vec![Type::Named("int".to_string())],
+            }),
+            Some("4".to_string())
+        )
+    );
 }
 
 #[test]
@@ -159,16 +198,40 @@ fn fnptr_array_declarator_with_unsized_dim() {
     )
     .unwrap();
     assert_eq!(cd.storage, vec!["static"]);
-    assert_eq!(cd.ty, "int (*)(int, int, int)");
     assert_eq!(cd.name, "wipes");
-    assert_eq!(cd.array_dims, vec![None]);
+    assert_eq!(
+        cd.ty,
+        Type::Array(
+            Box::new(Type::FunctionPointer {
+                ret: Box::new(Type::Named("int".to_string())),
+                params: vec![
+                    Type::Named("int".to_string()),
+                    Type::Named("int".to_string()),
+                    Type::Named("int".to_string()),
+                ],
+            }),
+            None
+        )
+    );
 }
 
 #[test]
 fn fnptr_array_declarator_with_multiple_dims() {
-    let (_, _, name, dims) = parse_declarator("void (*table[4][2])(int)").unwrap();
+    // The outer Array corresponds to the *first* bracket - `table[4][2]` is
+    // an array of 4 (array of 2 fn-pointer).
+    let (_, ty, name) = parse_declarator("void (*table[4][2])(int)").unwrap();
     assert_eq!(name, "table");
-    assert_eq!(dims, vec![Some("4".to_string()), Some("2".to_string())]);
+    let fn_ptr = Type::FunctionPointer {
+        ret: Box::new(Type::Named("void".to_string())),
+        params: vec![Type::Named("int".to_string())],
+    };
+    assert_eq!(
+        ty,
+        Type::Array(
+            Box::new(Type::Array(Box::new(fn_ptr), Some("2".to_string()))),
+            Some("4".to_string())
+        )
+    );
 }
 
 #[test]
@@ -176,4 +239,43 @@ fn fnptr_array_declarator_rejects_non_identifier_name() {
     // Guards against a malformed name (e.g. a stray `*`) inside the array
     // brackets being silently accepted.
     assert!(parse_declarator("void (*1table[4])(int)").is_none());
+}
+
+#[test]
+fn pointer_stars_fold_into_type_regardless_of_spacing() {
+    // "char*" (glued to the type) and "char *x" (glued to the name) must
+    // both produce the same Pointer(Named("char")) shape - previously they
+    // diverged into differently-spelled strings ("char*" vs "char *").
+    let (_, ty1, _) = parse_declarator("char *rcsid").unwrap();
+    let (_, ty2, _) = parse_declarator("char* rcsid").unwrap();
+    let expected = Type::Pointer(Box::new(Type::Named("char".to_string())));
+    assert_eq!(ty1, expected);
+    assert_eq!(ty2, expected);
+}
+
+#[test]
+fn double_pointer_is_nested() {
+    let (_, ty, name) = parse_declarator("patch_t **p").unwrap();
+    assert_eq!(name, "p");
+    assert_eq!(
+        ty,
+        Type::Pointer(Box::new(Type::Pointer(Box::new(Type::Named(
+            "patch_t".to_string()
+        )))))
+    );
+}
+
+#[test]
+fn parse_type_text_handles_bare_and_pointer_types() {
+    assert_eq!(parse_type_text("int"), Type::Named("int".to_string()));
+    assert_eq!(
+        parse_type_text("player_t*"),
+        Type::Pointer(Box::new(Type::Named("player_t".to_string())))
+    );
+    assert_eq!(
+        parse_type_text("char * *"),
+        Type::Pointer(Box::new(Type::Pointer(Box::new(Type::Named(
+            "char".to_string()
+        )))))
+    );
 }

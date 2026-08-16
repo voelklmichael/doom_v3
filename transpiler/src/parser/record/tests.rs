@@ -65,9 +65,9 @@ fn function_body_stays_opaque() {
             assert_eq!(sig.name, "M_DrawText");
             assert!(body.contains("return x + y;"));
             assert_eq!(sig.params.len(), 2);
-            assert_eq!(sig.params[0].ty, "int");
+            assert_eq!(sig.params[0].ty, Type::Named("int".to_string()));
             assert_eq!(sig.params[0].name, "x");
-            assert_eq!(sig.params[1].ty, "int");
+            assert_eq!(sig.params[1].ty, Type::Named("int".to_string()));
             assert_eq!(sig.params[1].name, "y");
             assert!(!sig.variadic);
         }
@@ -113,8 +113,32 @@ fn anonymous_params_keep_their_type_with_no_name() {
     match &items[0].0.kind {
         ItemKind::FunctionDecl(sig) => {
             assert_eq!(sig.params.len(), 1);
-            assert_eq!(sig.params[0].ty, "short");
+            assert_eq!(sig.params[0].ty, Type::Named("short".to_string()));
             assert_eq!(sig.params[0].name, "");
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
+    }
+}
+
+#[test]
+fn anonymous_pointer_param_still_folds_its_star_into_type() {
+    // p_inter.h's real P_GivePower(player_t*, int): the anonymous-parameter
+    // fallback used to wrap the parameter's raw text ("player_t*") straight
+    // into Type::Named instead of running it through parse_type_text, so
+    // the pointer star leaked into the Named string instead of becoming a
+    // proper Type::Pointer wrapper.
+    let src = "boolean P_GivePower(player_t*, int);\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert_eq!(sig.params.len(), 2);
+            assert_eq!(
+                sig.params[0].ty,
+                Type::Pointer(Box::new(Type::Named("player_t".to_string())))
+            );
+            assert_eq!(sig.params[0].name, "");
+            assert_eq!(sig.params[1].ty, Type::Named("int".to_string()));
         }
         other => panic!("expected FunctionDecl, got {other:?}"),
     }
@@ -147,7 +171,13 @@ fn function_pointer_parameter_is_parsed_via_declarator() {
     match &items[0].0.kind {
         ItemKind::FunctionDecl(sig) => {
             assert_eq!(sig.params.len(), 3);
-            assert_eq!(sig.params[2].ty, "boolean (*)(line_t*)");
+            assert_eq!(
+                sig.params[2].ty,
+                Type::FunctionPointer {
+                    ret: Box::new(Type::Named("boolean".to_string())),
+                    params: vec![Type::Pointer(Box::new(Type::Named("line_t".to_string())))],
+                }
+            );
             assert_eq!(sig.params[2].name, "func");
         }
         other => panic!("expected FunctionDecl, got {other:?}"),
@@ -185,7 +215,13 @@ fn blank_line_before_doc_comment_does_not_block_flat_classification() {
     match &items[0].0.kind {
         ItemKind::Typedef(td) => {
             assert_eq!(td.name, "fn_t");
-            assert_eq!(td.underlying, "void (*)()");
+            assert_eq!(
+                td.underlying,
+                Type::FunctionPointer {
+                    ret: Box::new(Type::Named("void".to_string())),
+                    params: vec![],
+                }
+            );
         }
         other => panic!("expected Typedef, got {other:?}"),
     }
@@ -245,9 +281,9 @@ fn struct_field_trailing_comment_does_not_leak_into_next_field() {
     match &items[0].0.kind {
         ItemKind::Record(rd) => {
             assert_eq!(rd.fields.len(), 2);
-            assert_eq!(rd.fields[0].ty, "int");
+            assert_eq!(rd.fields[0].ty, Type::Named("int".to_string()));
             assert_eq!(rd.fields[0].name, "score");
-            assert_eq!(rd.fields[1].ty, "int");
+            assert_eq!(rd.fields[1].ty, Type::Named("int".to_string()));
             assert_eq!(rd.fields[1].name, "epsd");
         }
         other => panic!("expected Record, got {other:?}"),
@@ -269,7 +305,7 @@ fn nested_anonymous_union_field_is_recursively_parsed() {
             assert_eq!(rd.fields[1].name, "isaline");
             let nested_field = &rd.fields[2];
             assert_eq!(nested_field.name, "d");
-            assert!(nested_field.array_dims.is_empty());
+            assert_eq!(nested_field.ty, Type::Named("union".to_string()));
             let nested = nested_field
                 .nested
                 .as_deref()
@@ -277,9 +313,15 @@ fn nested_anonymous_union_field_is_recursively_parsed() {
             assert_eq!(nested.kind, RecordKind::Union);
             assert_eq!(nested.tag, None);
             assert_eq!(nested.fields.len(), 2);
-            assert_eq!(nested.fields[0].ty, "mobj_t*");
+            assert_eq!(
+                nested.fields[0].ty,
+                Type::Pointer(Box::new(Type::Named("mobj_t".to_string())))
+            );
             assert_eq!(nested.fields[0].name, "thing");
-            assert_eq!(nested.fields[1].ty, "line_t*");
+            assert_eq!(
+                nested.fields[1].ty,
+                Type::Pointer(Box::new(Type::Named("line_t".to_string())))
+            );
             assert_eq!(nested.fields[1].name, "line");
         }
         other => panic!("expected Record, got {other:?}"),
@@ -296,7 +338,13 @@ fn nested_anonymous_struct_field_with_array_dims() {
             assert_eq!(rd.fields.len(), 3);
             let nested_field = &rd.fields[1];
             assert_eq!(nested_field.name, "points");
-            assert_eq!(nested_field.array_dims, vec![Some("4".to_string())]);
+            assert_eq!(
+                nested_field.ty,
+                Type::Array(
+                    Box::new(Type::Named("struct".to_string())),
+                    Some("4".to_string())
+                )
+            );
             let nested = nested_field
                 .nested
                 .as_deref()
@@ -343,7 +391,10 @@ fn nested_group_without_keyword_falls_back_to_opaque_field() {
                 .iter()
                 .find(|f| f.nested.is_none() && f.name.is_empty());
             assert!(opaque.is_some(), "expected an opaque fallback field");
-            assert!(opaque.unwrap().ty.contains("1, 2, 3"));
+            match &opaque.unwrap().ty {
+                Type::Named(s) => assert!(s.contains("1, 2, 3")),
+                other => panic!("expected Type::Named, got {other:?}"),
+            }
         }
         other => panic!("expected Record, got {other:?}"),
     }
