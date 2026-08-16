@@ -122,6 +122,77 @@ fn equals_sign_in_comment_does_not_fake_a_const_initializer() {
 }
 
 #[test]
+fn same_line_trailing_comment_stays_with_its_own_item() {
+    // p_local.h's `linetarget`: a comment on the same line as the `;` that
+    // ends a top-level declaration describes *that* declaration, not
+    // whatever follows. Piece-splitting only scans forward for `;`, so
+    // without reattachment the comment lands as a prefix of the next item's
+    // raw instead of a suffix of this one's.
+    let src = "extern int x; // who got hit\nint y;\n";
+    round_trip(src);
+    let items = build(src);
+    assert_eq!(items[0].0.raw, "extern int x; // who got hit\n");
+    assert_eq!(items[1].0.raw, "int y;");
+}
+
+#[test]
+fn trailing_comment_after_newline_is_not_reattached() {
+    // A comment on its *own* line, even right after a `;`, is a leading
+    // doc comment for what follows - not a trailing comment for what came
+    // before - and must be left alone (the existing `drain_leading_comments`
+    // / blank-line-before-doc-comment case, unaffected by reattachment).
+    let src = "extern int x;\n// about y\nint y;\n";
+    round_trip(src);
+    let items = build(src);
+    assert_eq!(items[0].0.raw, "extern int x;");
+    assert!(items[1].0.raw.contains("about y"));
+}
+
+#[test]
+fn struct_field_trailing_comment_does_not_leak_into_next_field() {
+    // d_player.h-style: nearly every field has a trailing comment.
+    // Rendering comments into the text that gets split on `;` used to glue
+    // a comment (and, if it began right after the `;` with no space, even
+    // fragments of it) onto the *next* field's declarator text.
+    let src = "typedef struct\n{\n    int score;\t// current score\n    int epsd;\t// episode #\n} player_t;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            assert_eq!(rd.fields.len(), 2);
+            assert_eq!(rd.fields[0].ty, "int");
+            assert_eq!(rd.fields[0].name, "score");
+            assert_eq!(rd.fields[1].ty, "int");
+            assert_eq!(rd.fields[1].name, "epsd");
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn enum_variant_comment_with_a_comma_does_not_fracture_variants() {
+    // d_event.h's BT_ATTACK: a trailing comment containing a comma (e.g.
+    // "// Use button, to open doors") used to be rendered straight into the
+    // text `parse_enum_variants` splits on top-level ',', so the comma
+    // *inside the comment* fractured it into bogus extra variants.
+    let src = "enum\n{\n    BT_ATTACK\t= 1,\t// Use button, to open doors\n    BT_USE\t= 2\n};\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Enum(ed) => {
+            assert_eq!(
+                ed.variants,
+                vec![
+                    ("BT_ATTACK".to_string(), Some("1".to_string())),
+                    ("BT_USE".to_string(), Some("2".to_string())),
+                ]
+            );
+        }
+        other => panic!("expected Enum, got {other:?}"),
+    }
+}
+
+#[test]
 fn braced_array_const() {
     let src = "default_t defaults[] =\n{\n    {\"a\", &a, 1},\n};\n";
     round_trip(src);
