@@ -59,9 +59,38 @@ fn fnptr_typedef_with_anonymous_params() {
 }
 
 #[test]
-fn fnptr_array_declarator_is_rejected_not_garbage() {
-    // An array of function pointers (`(*NAME[dims])`) isn't a shape v1
-    // supports - it must fail cleanly (-> Item::Raw upstream) rather than
-    // extracting a bogus name like "table[4]".
-    assert!(parse_declarator("void (*table[4])(int)").is_none());
+fn fnptr_array_declarator_with_sized_dim() {
+    let (storage, ty, name, dims) = parse_declarator("void (*table[4])(int)").unwrap();
+    assert!(storage.is_empty());
+    assert_eq!(ty, "void (*)(int)");
+    assert_eq!(name, "table");
+    assert_eq!(dims, vec![Some("4".to_string())]);
+}
+
+#[test]
+fn fnptr_array_declarator_with_unsized_dim() {
+    // f_wipe.c's `wipes[]`: `static int (*wipes[])(int, int, int) = { ... };`
+    let cd = try_parse_const_braced(
+        "static int (*wipes[])(int, int, int) =",
+        "{ wipe_initColorXForm, wipe_doColorXForm }",
+    )
+    .unwrap();
+    assert_eq!(cd.storage, vec!["static"]);
+    assert_eq!(cd.ty, "int (*)(int, int, int)");
+    assert_eq!(cd.name, "wipes");
+    assert_eq!(cd.array_dims, vec![None]);
+}
+
+#[test]
+fn fnptr_array_declarator_with_multiple_dims() {
+    let (_, _, name, dims) = parse_declarator("void (*table[4][2])(int)").unwrap();
+    assert_eq!(name, "table");
+    assert_eq!(dims, vec![Some("4".to_string()), Some("2".to_string())]);
+}
+
+#[test]
+fn fnptr_array_declarator_rejects_non_identifier_name() {
+    // Guards against a malformed name (e.g. a stray `*`) inside the array
+    // brackets being silently accepted.
+    assert!(parse_declarator("void (*1table[4])(int)").is_none());
 }
