@@ -69,7 +69,9 @@ pub fn collect_evidence(paths: &[PathBuf]) -> Vec<CallSiteEvidence> {
             continue;
         };
         let known = known_types.get(name).cloned().unwrap_or_default();
-        let Ok(file) = crate::parse_file_with_types(path, &known) else {
+        // #if/#ifdef resolution is irrelevant to call-site evidence
+        // collection - this pass never reads `ActiveBranch`.
+        let Ok(file) = crate::parse_file_with_types(path, &known, &HashMap::new()) else {
             continue;
         };
         let file_globals = globals.get(name).cloned().unwrap_or_default();

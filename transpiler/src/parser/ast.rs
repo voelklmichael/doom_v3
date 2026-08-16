@@ -378,6 +378,31 @@ pub struct CondBranch {
 pub struct CondGroup {
     pub branches: Vec<CondBranch>,
     pub else_body: Option<Vec<(Item, Trivia)>>,
+    /// Which branch (if any) would actually compile, given a `#define`
+    /// environment - `Unknown` until `cond::resolve_conditionals` is run
+    /// with one (plain `fold_conditionals` alone always leaves this
+    /// `Unknown`, matching how `KnownTypeNames` needs a separate corpus
+    /// pass before cast disambiguation can use it). See
+    /// `preproc::eval_ifdef`/`eval_if_expr` for what can and can't be
+    /// decided.
+    pub active: ActiveBranch,
+}
+
+/// Which of a `CondGroup`'s branches would actually compile, given a fixed
+/// `#define` environment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum ActiveBranch {
+    /// `branches[N]` is the first one whose condition evaluated true.
+    Branch(usize),
+    /// No branch's condition evaluated true, and an `#else` is present.
+    Else,
+    /// No branch's condition evaluated true, and there's no `#else`.
+    None,
+    /// Not resolved yet (`resolve_conditionals` was never run), or a
+    /// branch before any that might otherwise have won was itself
+    /// undecidable (`preproc::Tri::Unknown`) - can't safely skip past an
+    /// undecidable branch to check the ones after it.
+    Unknown,
 }
 
 #[derive(Debug, Clone, Serialize)]

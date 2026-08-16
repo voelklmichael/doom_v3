@@ -21,8 +21,9 @@
 //! corpus (all 124 files) is fully balanced, so this path is a safety net,
 //! not something exercised by real input.
 
-use super::ast::{CondBranch, CondGroup, File, Item, ItemKind, Trivia, render_items};
-use super::preproc::Directive;
+use super::ast::{ActiveBranch, CondBranch, CondGroup, File, Item, ItemKind, Trivia, render_items};
+use super::preproc::{self, Directive, Tri};
+use std::collections::HashMap;
 
 /// What a `Builder` is currently accumulating a body for.
 enum Cur {
@@ -85,6 +86,7 @@ impl Builder {
             CondGroup {
                 branches: self.branches,
                 else_body: self.else_body,
+                active: ActiveBranch::Unknown,
             },
             self.raw_items,
         )
@@ -205,6 +207,73 @@ pub fn strip_include_guard(file: &mut File) -> Option<String> {
     let rest: Vec<_> = body.into_iter().skip(1).collect();
     file.items.splice(0..0, rest);
     Some(name)
+}
+
+/// Fills in every `CondGroup.active` reachable from `items`, including
+/// inside every `FunctionDef` body (via `stmt::cond::resolve_conditionals`),
+/// given a `#define` environment (typically `main.rs`'s pre-defined list
+/// merged with a file's own `corpus::compute_known_defines` entry). One
+/// call resolves the whole tree at both AST levels, since it's simpler than
+/// threading `defines` down through `record::build_items_with_types`/
+/// `stmt::parse_function_body` at parse time. Mutates in place, the same
+/// established precedent as `strip_include_guard`, but unlike that
+/// function, this never removes or reorders bytes; it only ever writes
+/// `active` fields, so it's always safe to call regardless of whether the
+/// caller wants byte-exact round-trip afterward (`File::render()` never
+/// reads `active` at all).
+pub fn resolve_conditionals(items: &mut [(Item, Trivia)], defines: &HashMap<String, String>) {
+    for (item, _) in items.iter_mut() {
+        match &mut item.kind {
+            ItemKind::Conditional(group) => resolve_group(group, defines),
+            ItemKind::FunctionDef(_, body) => {
+                super::stmt::cond::resolve_conditionals(&mut body.block, defines)
+            }
+            _ => {}
+        }
+    }
+}
+
+fn resolve_group(group: &mut CondGroup, defines: &HashMap<String, String>) {
+    let mut resolved = None;
+    for (i, branch) in group.branches.iter().enumerate() {
+        match eval_directive(&branch.directive, defines) {
+            Tri::True => {
+                resolved = Some(ActiveBranch::Branch(i));
+                break;
+            }
+            Tri::False => continue,
+            // Can't safely skip past an undecidable branch to check the
+            // ones after it - stop here, leaving `resolved` unset.
+            Tri::Unknown => {
+                resolved = Some(ActiveBranch::Unknown);
+                break;
+            }
+        }
+    }
+    group.active = resolved.unwrap_or(if group.else_body.is_some() {
+        ActiveBranch::Else
+    } else {
+        ActiveBranch::None
+    });
+
+    // Nested conditionals resolve independently of whether this group's
+    // own branch containing them is itself active - still useful
+    // information, and cheap to compute uniformly rather than special-
+    // casing "skip resolving inside a branch we already know is dead".
+    for branch in &mut group.branches {
+        resolve_conditionals(&mut branch.body, defines);
+    }
+    if let Some(else_body) = &mut group.else_body {
+        resolve_conditionals(else_body, defines);
+    }
+}
+
+fn eval_directive(directive: &Directive, defines: &HashMap<String, String>) -> Tri {
+    match directive {
+        Directive::IfDef { name, negate } => preproc::eval_ifdef(name, *negate, defines),
+        Directive::If { expr } | Directive::Elif { expr } => preproc::eval_if_expr(expr, defines),
+        _ => Tri::Unknown,
+    }
 }
 
 #[cfg(test)]
