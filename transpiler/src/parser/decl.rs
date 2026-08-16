@@ -183,15 +183,20 @@ pub(crate) fn parse_declarator(
     dims.reverse();
 
     // A declarator never legitimately ends in `)` other than the
-    // function-pointer shape (`TYPE (*NAME)(PARAMS)`) - falling through to
-    // the plain whitespace-token parsing below for such text would misread
-    // e.g. `boolean (*traverser_t) (intercept_t *in)` as a garbage
-    // `*`-prefixed name (`in)`) instead of correctly failing or extracting
-    // `traverser_t`. So this shape is tried first, and if it doesn't match,
-    // parsing fails outright rather than falling through.
+    // function-pointer shape (`TYPE (*NAME)(PARAMS)`, or its array variant
+    // `TYPE (*NAME[N])(PARAMS)`) - falling through to the plain
+    // whitespace-token parsing below for such text would misread e.g.
+    // `boolean (*traverser_t) (intercept_t *in)` as a garbage `*`-prefixed
+    // name (`in)`) instead of correctly failing or extracting `traverser_t`.
+    // So this shape is tried first, and if it doesn't match, parsing fails
+    // outright rather than falling through. The `while base.ends_with(']')`
+    // loop above never fires for this shape (a fn-pointer declarator ends in
+    // `)`, not `]`), so `dims` is always empty here - the array dims, if
+    // any, live *inside* the name parens instead and come back from
+    // `parse_fnptr_declarator` itself.
     if base.ends_with(')') {
-        let (storage, ty, name) = parse_fnptr_declarator(base)?;
-        return Some((storage, ty, name, dims));
+        let (storage, ty, name, fnptr_dims) = parse_fnptr_declarator(base)?;
+        return Some((storage, ty, name, fnptr_dims));
     }
 
     let tokens: Vec<&str> = base.split_whitespace().collect();
@@ -225,12 +230,18 @@ pub(crate) fn parse_declarator(
 }
 
 /// Recognizes the function-pointer declarator shape `RETTYPE (*NAME) (PARAMS)`,
-/// e.g. `void (*actionf_v)()` or `boolean (*traverser_t) (intercept_t *in)`.
-/// `PARAMS` is kept as raw text, same as `try_parse_fn_sig` does for
-/// ordinary function signatures. Returns `(storage, ty, name)` with `ty`
-/// re-spelled as `RETTYPE (*)(PARAMS)` (name elided) so it composes with the
-/// plain `ty`/`name` fields `ConstDecl`/`TypedefDecl`/`Field` already use.
-fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String)> {
+/// e.g. `void (*actionf_v)()` or `boolean (*traverser_t) (intercept_t *in)`,
+/// as well as its array-of-function-pointers variant
+/// `RETTYPE (*NAME[N])(PARAMS)`, e.g. `int (*wipes[])(int, int, int)`
+/// (`f_wipe.c`). `PARAMS` is kept as raw text, same as `try_parse_fn_sig`
+/// does for ordinary function signatures. Returns `(storage, ty, name,
+/// dims)` with `ty` re-spelled as `RETTYPE (*)(PARAMS)` (name elided) so it
+/// composes with the plain `ty`/`name` fields `ConstDecl`/`TypedefDecl`/
+/// `Field` already use, and `dims` in the same shape `parse_declarator`'s
+/// own trailing-`[...]` loop produces (one entry per `[...]`, `None` for an
+/// unsized `[]`) so a `(*wipes[])(...)` declarator reports its array-ness
+/// through the normal `array_dims` field rather than folding it into `name`.
+fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String, Vec<Option<String>>)> {
     let params_open = matching_open_paren(s)?;
     let params = s[params_open + 1..s.len() - 1].trim();
     let before_params = s[..params_open].trim();
@@ -239,7 +250,20 @@ fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String)> {
     }
     let name_open = matching_open_paren(before_params)?;
     let name_group = before_params[name_open + 1..before_params.len() - 1].trim();
-    let name = name_group.strip_prefix('*')?.trim().to_string();
+    let mut name_base = name_group.strip_prefix('*')?.trim();
+    let mut dims: Vec<Option<String>> = Vec::new();
+    while name_base.ends_with(']') {
+        let open = name_base.rfind('[')?;
+        let dim = name_base[open + 1..name_base.len() - 1].trim();
+        dims.push(if dim.is_empty() {
+            None
+        } else {
+            Some(dim.to_string())
+        });
+        name_base = name_base[..open].trim_end();
+    }
+    dims.reverse();
+    let name = name_base.to_string();
     let first_char = name.chars().next()?;
     if !(first_char.is_alphabetic() || first_char == '_')
         || !name.chars().all(|c| c.is_alphanumeric() || c == '_')
@@ -264,7 +288,7 @@ fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String)> {
         return None;
     }
     let ty = format!("{ret_ty} (*)({params})");
-    Some((storage, ty, name))
+    Some((storage, ty, name, dims))
 }
 
 /// Finds the index of the `(` matching the final `)` of `s`, or `None` if

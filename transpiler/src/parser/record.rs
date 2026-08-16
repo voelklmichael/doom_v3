@@ -18,8 +18,8 @@
 //! produces a less useful `ItemKind`.
 
 use super::ast::{
-    Chunk, Comment, EnumDecl, Field, FnSig, Item, ItemKind, RawToken, RecordDecl, RecordKind,
-    Trivia, render_tokens, render_tokens_no_comments, split_top_level,
+    Chunk, Comment, EnumDecl, EnumVariant, Field, FnSig, Item, ItemKind, RawToken, RecordDecl,
+    RecordKind, Span, Trivia, render_tokens, render_tokens_no_comments,
 };
 use super::decl::{
     parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat,
@@ -400,37 +400,51 @@ fn classify_record_or_enum(
     }
 }
 
-/// Splits `inner` tokens on top-level `,` (re-grouping any nested braces
-/// first, since an enum value can itself be a parenthesized/braced
-/// expression referencing an earlier constant, e.g. `INVULNTICS = (30*TICRATE)`).
-/// Comments are dropped before splitting - a trailing `// comment, with a
-/// comma` would otherwise fracture into bogus extra variants (per-variant
-/// comments aren't captured structurally in v1; `Item.raw` still has them).
-fn parse_enum_variants(inner: &[RawToken]) -> Vec<(String, Option<String>)> {
-    let text = render_tokens_no_comments(inner);
+/// Splits `inner` tokens on top-level `,` (respecting `(`/`[`/`{` nesting
+/// depth, since an enum value can itself be a parenthesized/braced
+/// expression referencing an earlier constant, e.g.
+/// `INVULNTICS = (30*TICRATE)`), reattaching same-line trailing comments to
+/// the variant they describe (same convention as top-level items - see
+/// `reattach_trailing_comments`) and any other leading comment run to the
+/// variant that follows it.
+fn parse_enum_variants(inner: &[RawToken]) -> Vec<EnumVariant> {
+    let (mut pieces, mut leftover) = split_tokens_top_level(inner, ',');
+    reattach_trailing_comments(&mut pieces, &mut leftover);
+    // Unlike struct fields (always `;`-terminated), an enum's last variant
+    // usually has no trailing comma, so whatever remains after the final
+    // split point is itself a real variant, not just discardable trailing
+    // whitespace - fold it in as one more piece.
+    if !leftover.is_empty() {
+        pieces.push(leftover);
+    }
+
     let mut variants = Vec::new();
-    for part in split_top_level(&text, ',') {
-        let part = part.trim();
-        if part.is_empty() {
+    for piece in pieces {
+        let (leading, trailing_comment, text) = extract_piece_trivia(piece);
+        let text = text.trim();
+        if text.is_empty() {
             continue;
         }
-        if let Some((name, val)) = part.split_once('=') {
-            variants.push((name.trim().to_string(), Some(val.trim().to_string())));
-        } else {
-            variants.push((part.to_string(), None));
-        }
+        let (name, value) = match text.split_once('=') {
+            Some((n, v)) => (n.trim().to_string(), Some(v.trim().to_string())),
+            None => (text.to_string(), None),
+        };
+        variants.push(EnumVariant {
+            name,
+            value,
+            trivia: Trivia { leading },
+            trailing_comment,
+        });
     }
     variants
 }
 
 /// Splits `inner` tokens (a struct/union body) on top-level `;` into
-/// fields. A nested anonymous struct/union (a literal `{` inside the body)
-/// is not descended into further in v1 - it's kept as one field with its
-/// raw text as the type. Comments (this codebase's usual per-field
-/// trailing-comment style, e.g. `int health; // hit points`) are dropped
-/// before splitting rather than rendered - otherwise `Field` doesn't carry
-/// them anywhere useful, and if the comment itself contained a `;` it would
-/// fracture the split; `Item.raw` still has them verbatim.
+/// fields, reattaching same-line trailing comments (e.g. `int health; //
+/// hit points`) and leading doc-comment runs to the field they describe. A
+/// nested anonymous struct/union (a literal `{` inside the body) is not
+/// descended into further in v1 - it's kept as one field with its raw text
+/// as the type.
 fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
     let chunks = super::brace::group_braces(inner.to_vec());
     let mut fields = Vec::new();
@@ -438,13 +452,21 @@ fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
     for chunk in chunks {
         match chunk {
             Chunk::Flat(toks) => {
-                let text = render_tokens_no_comments(&toks);
-                for part in split_top_level(&text, ';') {
-                    let part = part.trim();
-                    if part.is_empty() {
+                let (mut pieces, mut leftover) = split_tokens_top_level(&toks, ';');
+                reattach_trailing_comments(&mut pieces, &mut leftover);
+                // Every real field ends in `;`, so `leftover` here is just
+                // trailing whitespace/comments after the last one (already
+                // reattached above) - unlike the enum case, it's never a
+                // field in its own right and is safe to discard.
+                for piece in pieces {
+                    let (leading, trailing_comment, text) = extract_piece_trivia(piece);
+                    let text = text.trim();
+                    if text.is_empty() {
                         continue;
                     }
-                    if let Some(f) = parse_field(part) {
+                    if let Some(mut f) = parse_field(text) {
+                        f.trivia = Trivia { leading };
+                        f.trailing_comment = trailing_comment;
                         fields.push(f);
                     }
                 }
@@ -458,6 +480,8 @@ fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
                     name: String::new(),
                     array_dims: Vec::new(),
                     bitfield: None,
+                    trivia: Trivia::default(),
+                    trailing_comment: None,
                 });
             }
         }
@@ -482,7 +506,103 @@ fn parse_field(decl_text: &str) -> Option<Field> {
         name,
         array_dims,
         bitfield,
+        trivia: Trivia::default(),
+        trailing_comment: None,
     })
+}
+
+/// Splits `tokens` on top-level occurrences of `sep` (a `Code`-token
+/// character at bracket depth 0 - `(`/`[`/`{` increase depth, `)`/`]`/`}`
+/// decrease it). Comments are *kept* in place (as their own tokens,
+/// attached to whichever piece they fall in) rather than dropped, so
+/// callers can recover per-piece trivia instead of just per-piece
+/// declarator text. Returns the completed pieces plus a final `leftover`
+/// run with no terminating `sep` (mirrors `split_into_pieces`'s `(pieces,
+/// leftover)` shape).
+fn split_tokens_top_level(tokens: &[RawToken], sep: char) -> (Vec<Vec<RawToken>>, Vec<RawToken>) {
+    let mut pieces: Vec<Vec<RawToken>> = Vec::new();
+    let mut cur: Vec<RawToken> = Vec::new();
+    let mut depth: i32 = 0;
+
+    for tok in tokens {
+        match tok {
+            RawToken::Code(span) => {
+                let text = span.text.as_str();
+                let mut byte_start = 0usize;
+                let mut pos = span.start;
+                for (i, c) in text.char_indices() {
+                    match c {
+                        '(' | '[' | '{' => depth += 1,
+                        ')' | ']' | '}' => depth -= 1,
+                        _ => {}
+                    }
+                    if c == sep && depth <= 0 {
+                        let piece_text = &text[byte_start..i];
+                        if !piece_text.is_empty() {
+                            let piece_start = pos;
+                            pos = piece_start.advance(piece_text);
+                            cur.push(RawToken::Code(Span {
+                                start: piece_start,
+                                end: pos,
+                                text: piece_text.to_string(),
+                            }));
+                        }
+                        pos = pos.advance(&text[i..i + c.len_utf8()]);
+                        byte_start = i + c.len_utf8();
+                        pieces.push(std::mem::take(&mut cur));
+                    }
+                }
+                if byte_start < text.len() {
+                    let piece_text = &text[byte_start..];
+                    let piece_start = pos;
+                    cur.push(RawToken::Code(Span {
+                        start: piece_start,
+                        end: piece_start.advance(piece_text),
+                        text: piece_text.to_string(),
+                    }));
+                }
+            }
+            other => cur.push(other.clone()),
+        }
+    }
+    (pieces, cur)
+}
+
+/// Splits a piece (as produced by `split_tokens_top_level`) into its leading
+/// comment run, a trailing same-line comment (if `reattach_trailing_comments`
+/// moved one onto the end of this piece), and the remaining declarator text
+/// with all comments filtered out.
+fn extract_piece_trivia(mut toks: Vec<RawToken>) -> (Vec<Comment>, Option<Comment>, String) {
+    let mut leading = Vec::new();
+    let mut i = 0;
+    while i < toks.len() {
+        match &toks[i] {
+            RawToken::Code(s) if s.text.trim().is_empty() => i += 1,
+            RawToken::LineComment(s) => {
+                leading.push(Comment::Line(s.text.clone()));
+                i += 1;
+            }
+            RawToken::BlockComment(s) => {
+                leading.push(Comment::Block(s.text.clone()));
+                i += 1;
+            }
+            _ => break,
+        }
+    }
+    toks.drain(0..i);
+
+    let trailing = match toks.last() {
+        Some(RawToken::LineComment(_)) | Some(RawToken::BlockComment(_)) => {
+            match toks.pop().unwrap() {
+                RawToken::LineComment(s) => Some(Comment::Line(s.text)),
+                RawToken::BlockComment(s) => Some(Comment::Block(s.text)),
+                _ => unreachable!(),
+            }
+        }
+        _ => None,
+    };
+
+    (leading, trailing, render_tokens_no_comments(&toks))
 }
 
 /// Recognizes a function signature: header text ending in `NAME ( params )`,

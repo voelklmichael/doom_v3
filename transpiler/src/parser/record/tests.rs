@@ -48,8 +48,8 @@ fn enum_with_values() {
         ItemKind::Enum(e) => {
             assert_eq!(e.typedef_name.as_deref(), Some("powerduration_t"));
             assert_eq!(e.variants.len(), 2);
-            assert_eq!(e.variants[0].0, "INVULNTICS");
-            assert_eq!(e.variants[0].1.as_deref(), Some("(30*TICRATE)"));
+            assert_eq!(e.variants[0].name, "INVULNTICS");
+            assert_eq!(e.variants[0].value.as_deref(), Some("(30*TICRATE)"));
         }
         other => panic!("expected Enum, got {other:?}"),
     }
@@ -170,6 +170,73 @@ fn struct_field_trailing_comment_does_not_leak_into_next_field() {
 }
 
 #[test]
+fn struct_field_trailing_comment_is_captured_structurally() {
+    let src = "typedef struct\n{\n    int score;\t// current score\n    int epsd;\t// episode #\n} player_t;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            assert_eq!(
+                rd.fields[0].trailing_comment.as_ref().map(Comment::text),
+                Some("// current score\n")
+            );
+            assert_eq!(
+                rd.fields[1].trailing_comment.as_ref().map(Comment::text),
+                Some("// episode #\n")
+            );
+            assert!(rd.fields[0].trivia.leading.is_empty());
+            assert!(rd.fields[1].trivia.leading.is_empty());
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn struct_field_leading_doc_comment_is_captured_structurally() {
+    // A blank line ahead of the doc comment (this codebase's common style)
+    // must not stop it from being recognized as leading trivia for the
+    // field that follows - same gap class as
+    // `blank_line_before_doc_comment_does_not_block_flat_classification`,
+    // but for a field inside a struct body rather than a top-level item.
+    let src = "typedef struct\n{\n\n    // hit points\n    int health;\n} mobj_t;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(rd) => {
+            assert_eq!(rd.fields.len(), 1);
+            assert_eq!(rd.fields[0].name, "health");
+            assert_eq!(rd.fields[0].trivia.leading.len(), 1);
+            assert_eq!(rd.fields[0].trivia.leading[0].text(), "// hit points\n");
+            assert!(rd.fields[0].trailing_comment.is_none());
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn enum_variant_trailing_comment_is_captured_structurally() {
+    let src = "enum\n{\n    BT_ATTACK\t= 1,\t// fire weapon\n    BT_USE\t= 2 // open doors\n};\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Enum(ed) => {
+            assert_eq!(ed.variants.len(), 2);
+            assert_eq!(ed.variants[0].name, "BT_ATTACK");
+            assert_eq!(
+                ed.variants[0].trailing_comment.as_ref().map(Comment::text),
+                Some("// fire weapon\n")
+            );
+            assert_eq!(ed.variants[1].name, "BT_USE");
+            assert_eq!(
+                ed.variants[1].trailing_comment.as_ref().map(Comment::text),
+                Some("// open doors\n")
+            );
+        }
+        other => panic!("expected Enum, got {other:?}"),
+    }
+}
+
+#[test]
 fn enum_variant_comment_with_a_comma_does_not_fracture_variants() {
     // d_event.h's BT_ATTACK: a trailing comment containing a comma (e.g.
     // "// Use button, to open doors") used to be rendered straight into the
@@ -180,8 +247,13 @@ fn enum_variant_comment_with_a_comma_does_not_fracture_variants() {
     let items = build(src);
     match &items[0].0.kind {
         ItemKind::Enum(ed) => {
+            let simplified: Vec<(String, Option<String>)> = ed
+                .variants
+                .iter()
+                .map(|v| (v.name.clone(), v.value.clone()))
+                .collect();
             assert_eq!(
-                ed.variants,
+                simplified,
                 vec![
                     ("BT_ATTACK".to_string(), Some("1".to_string())),
                     ("BT_USE".to_string(), Some("2".to_string())),
