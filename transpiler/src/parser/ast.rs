@@ -148,7 +148,7 @@ pub struct Trivia {
     pub leading: Vec<Comment>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum RecordKind {
     Struct,
     Union,
@@ -160,6 +160,14 @@ pub struct Field {
     pub name: String,
     pub array_dims: Vec<Option<String>>,
     pub bitfield: Option<String>,
+    /// Set when this field is itself an anonymous nested struct/union (a
+    /// literal `{ ... }` body with no `typedef`, e.g. `union { ... } d;`
+    /// inside another struct) - recursively parsed rather than kept as one
+    /// opaque field. `ty`/`name`/`array_dims` still describe the *outer*
+    /// declarator (`d`, no dims here); `ty` holds a short label (e.g.
+    /// `"union"` or `"struct foo"`) rather than the full nested body, whose
+    /// structure lives here instead.
+    pub nested: Option<Box<RecordDecl>>,
     /// Doc comment(s) on their own line(s) immediately preceding this field.
     pub trivia: Trivia,
     /// A comment on the same line as (and after) this field's `;`, e.g.

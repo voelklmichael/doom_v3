@@ -442,52 +442,251 @@ fn parse_enum_variants(inner: &[RawToken]) -> Vec<EnumVariant> {
 
 /// Splits `inner` tokens (a struct/union body) on top-level `;` into
 /// fields, reattaching same-line trailing comments (e.g. `int health; //
-/// hit points`) and leading doc-comment runs to the field they describe. A
-/// nested anonymous struct/union (a literal `{` inside the body) is not
-/// descended into further in v1 - it's kept as one field with its raw text
-/// as the type.
+/// hit points`) and leading doc-comment runs to the field they describe.
+///
+/// A nested anonymous struct/union (a literal `{` inside the body, e.g.
+/// `p_local.h`'s `intercept_t.d`) is recursively parsed rather than kept
+/// opaque: `pending_header` accumulates tokens across chunk boundaries the
+/// same way `build_items`'s own `unit` accumulator does at the top level,
+/// so when a `Group` is reached whose preceding (comment-stripped) text
+/// ends in `struct`/`union`, its declarator can still be recovered from
+/// whatever `Flat` chunk follows the closing `}` (the field's name, and any
+/// array dims). A `Group` not preceded by that keyword (or a nested
+/// *enum*, not supported here) falls back to the old opaque-field
+/// behavior, unchanged.
 fn parse_fields(inner: &[RawToken]) -> Vec<Field> {
     let chunks = super::brace::group_braces(inner.to_vec());
     let mut fields = Vec::new();
+    let mut pending_header: Vec<RawToken> = Vec::new();
+    let mut pending_nested: Option<PendingNested> = None;
 
     for chunk in chunks {
         match chunk {
+            Chunk::Group {
+                open,
+                inner: ginner,
+                close,
+            } => {
+                let header_text = render_tokens_no_comments(&pending_header);
+                if let Some((kw, kw_pos)) = find_record_keyword(header_text.trim())
+                    && kw != "enum"
+                {
+                    let header_trim = header_text.trim();
+                    let after_kw = header_trim[kw_pos + kw.len()..].trim();
+                    let tag = if after_kw.is_empty() {
+                        None
+                    } else {
+                        Some(after_kw.to_string())
+                    };
+                    let kind = if kw == "union" {
+                        RecordKind::Union
+                    } else {
+                        RecordKind::Struct
+                    };
+                    let (leading, _, _) = extract_piece_trivia(std::mem::take(&mut pending_header));
+                    pending_nested = Some(PendingNested {
+                        kind,
+                        tag,
+                        open_text: open.text,
+                        inner: ginner,
+                        close_text: close.text,
+                        leading,
+                    });
+                    continue;
+                }
+                // Not a recognized nested-record header: preserve the old
+                // per-chunk-independent behavior exactly - whatever's
+                // pending is tried as its own (usually unparseable, silently
+                // dropped) field, and this group becomes its own opaque
+                // field.
+                let (leading, trailing_comment, text) =
+                    extract_piece_trivia(std::mem::take(&mut pending_header));
+                push_plain_field(&text, leading, trailing_comment, &mut fields);
+                push_opaque_group_field(&open.text, &ginner, &close.text, &mut fields);
+            }
             Chunk::Flat(toks) => {
-                let (mut pieces, mut leftover) = split_tokens_top_level(&toks, ';');
+                let mut combined = std::mem::take(&mut pending_header);
+                combined.extend(toks);
+                let (mut pieces, mut leftover) = split_tokens_top_level(&combined, ';');
                 reattach_trailing_comments(&mut pieces, &mut leftover);
-                // Every real field ends in `;`, so `leftover` here is just
-                // trailing whitespace/comments after the last one (already
-                // reattached above) - unlike the enum case, it's never a
-                // field in its own right and is safe to discard.
-                for piece in pieces {
-                    let (leading, trailing_comment, text) = extract_piece_trivia(piece);
-                    let text = text.trim();
-                    if text.is_empty() {
+
+                if let Some(pending) = pending_nested.take() {
+                    // This chunk must supply the nested record's trailing
+                    // declarator ("NAME;", "NAME[dims];", ...) - only the
+                    // first piece belongs to it; anything after starts a
+                    // fresh field, same as any other boundary. `pieces`
+                    // being empty here (no `;` at all yet) can't actually
+                    // happen for a valid struct body - `group_braces`
+                    // always alternates Flat/Group, so this Flat chunk is
+                    // the *only* place the trailer can come from - but
+                    // degrade to the opaque fallback rather than dropping
+                    // the group if it somehow does.
+                    if pieces.is_empty() {
+                        push_opaque_group_field(
+                            &pending.open_text,
+                            &pending.inner,
+                            &pending.close_text,
+                            &mut fields,
+                        );
+                        pending_header = leftover;
                         continue;
                     }
-                    if let Some(mut f) = parse_field(text) {
-                        f.trivia = Trivia { leading };
-                        f.trailing_comment = trailing_comment;
-                        fields.push(f);
-                    }
+                    let trailer = pieces.remove(0);
+                    let (_, trailing_comment, trailer_text) = extract_piece_trivia(trailer);
+                    push_nested_record_field(pending, &trailer_text, trailing_comment, &mut fields);
                 }
-            }
-            Chunk::Group { open, inner, close } => {
-                // Nested anonymous struct/union: not descended into in v1,
-                // kept as one field with its raw text as the "type".
-                let raw = format!("{}{}{}", open.text, render_tokens(&inner), close.text);
-                fields.push(Field {
-                    ty: raw,
-                    name: String::new(),
-                    array_dims: Vec::new(),
-                    bitfield: None,
-                    trivia: Trivia::default(),
-                    trailing_comment: None,
-                });
+                for piece in pieces {
+                    let (leading, trailing_comment, text) = extract_piece_trivia(piece);
+                    push_plain_field(&text, leading, trailing_comment, &mut fields);
+                }
+                pending_header = leftover;
             }
         }
     }
+    match pending_nested {
+        // EOF with a nested record never followed by a trailer at all
+        // (malformed/truncated input) - degrade to the opaque fallback
+        // rather than dropping it silently.
+        Some(pending) => {
+            push_opaque_group_field(
+                &pending.open_text,
+                &pending.inner,
+                &pending.close_text,
+                &mut fields,
+            );
+        }
+        None => {
+            let (leading, trailing_comment, text) = extract_piece_trivia(pending_header);
+            push_plain_field(&text, leading, trailing_comment, &mut fields);
+        }
+    }
     fields
+}
+
+fn push_plain_field(
+    text: &str,
+    leading: Vec<Comment>,
+    trailing_comment: Option<Comment>,
+    fields: &mut Vec<Field>,
+) {
+    let text = text.trim();
+    if text.is_empty() {
+        return;
+    }
+    if let Some(mut f) = parse_field(text) {
+        f.trivia = Trivia { leading };
+        f.trailing_comment = trailing_comment;
+        fields.push(f);
+    }
+}
+
+fn push_opaque_group_field(
+    open_text: &str,
+    inner: &[RawToken],
+    close_text: &str,
+    fields: &mut Vec<Field>,
+) {
+    let raw = format!("{open_text}{}{close_text}", render_tokens(inner));
+    fields.push(Field {
+        ty: raw,
+        name: String::new(),
+        array_dims: Vec::new(),
+        bitfield: None,
+        nested: None,
+        trivia: Trivia::default(),
+        trailing_comment: None,
+    });
+}
+
+fn record_kw(kind: RecordKind) -> &'static str {
+    match kind {
+        RecordKind::Struct => "struct",
+        RecordKind::Union => "union",
+    }
+}
+
+/// A recognized-but-not-yet-complete nested anonymous struct/union: the
+/// `struct`/`union` keyword and optional tag already seen before its `{`,
+/// plus the group's own open/inner/close and any leading doc comment, all
+/// held until the declarator that names it (`NAME;` after the closing `}`)
+/// arrives in a later chunk.
+struct PendingNested {
+    kind: RecordKind,
+    tag: Option<String>,
+    open_text: String,
+    inner: Vec<RawToken>,
+    close_text: String,
+    leading: Vec<Comment>,
+}
+
+fn push_nested_record_field(
+    pending: PendingNested,
+    trailer_text: &str,
+    trailing_comment: Option<Comment>,
+    fields: &mut Vec<Field>,
+) {
+    let PendingNested {
+        kind,
+        tag,
+        open_text,
+        inner: ginner,
+        close_text,
+        leading,
+    } = pending;
+    let Some((name, array_dims)) = parse_nested_trailer(trailer_text) else {
+        push_opaque_group_field(&open_text, &ginner, &close_text, fields);
+        return;
+    };
+    let nested_fields = parse_fields(&ginner);
+    let ty = match &tag {
+        Some(t) => format!("{} {t}", record_kw(kind)),
+        None => record_kw(kind).to_string(),
+    };
+    fields.push(Field {
+        ty,
+        name,
+        array_dims,
+        bitfield: None,
+        nested: Some(Box::new(RecordDecl {
+            kind,
+            tag,
+            fields: nested_fields,
+            names: Vec::new(),
+            typedef_name: None,
+        })),
+        trivia: Trivia { leading },
+        trailing_comment,
+    });
+}
+
+/// Parses the declarator following a nested anonymous struct/union's closing
+/// `}` (e.g. the `d` in `union { ... } d;`) - just a bare identifier plus
+/// optional array dims. A bitfield suffix is never valid here (bitfields
+/// apply to integer members, not struct/union-typed ones), so unlike
+/// `parse_field` this doesn't look for one.
+fn parse_nested_trailer(text: &str) -> Option<(String, Vec<Option<String>>)> {
+    let mut base = text.trim();
+    let mut dims: Vec<Option<String>> = Vec::new();
+    while base.ends_with(']') {
+        let open = base.rfind('[')?;
+        let dim = base[open + 1..base.len() - 1].trim();
+        dims.push(if dim.is_empty() {
+            None
+        } else {
+            Some(dim.to_string())
+        });
+        base = base[..open].trim_end();
+    }
+    dims.reverse();
+    let name = base.trim();
+    if name.is_empty() || !name.chars().all(|c| c.is_alphanumeric() || c == '_') {
+        return None;
+    }
+    let first_char = name.chars().next()?;
+    if !(first_char.is_alphabetic() || first_char == '_') {
+        return None;
+    }
+    Some((name.to_string(), dims))
 }
 
 fn parse_field(decl_text: &str) -> Option<Field> {
@@ -507,6 +706,7 @@ fn parse_field(decl_text: &str) -> Option<Field> {
         name,
         array_dims,
         bitfield,
+        nested: None,
         trivia: Trivia::default(),
         trailing_comment: None,
     })
