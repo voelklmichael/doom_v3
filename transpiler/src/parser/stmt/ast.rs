@@ -75,12 +75,15 @@ pub enum StmtKind {
     Continue,
     Goto(String),
     Empty,
-    /// A standalone preprocessor directive at statement position (a
-    /// mid-body `#ifdef`/`#if 0` block, e.g.) - its own sibling statement,
-    /// flat, not folded into a conditional tree (that folding is out of
-    /// scope for this feature, same as it once was for top-level items
-    /// before `cond.rs` existed).
+    /// A standalone preprocessor directive at statement position that isn't
+    /// part of an `#if`/`#ifdef`/.../`#endif` run - `stmt::cond` folds the
+    /// conditional family into `Conditional` below; whatever's left (a
+    /// stray `#define`/`#undef`/`#pragma` mid-body) stays a flat sibling
+    /// here, same as `ItemKind::Preproc` does one level up.
     Preproc(Directive),
+    /// A folded `#if`/`#ifdef`/`#ifndef`...`#endif` run - the statement-level
+    /// counterpart to `ItemKind::Conditional`. See `stmt::cond::fold_conditionals`.
+    Conditional(StmtCondGroup),
     /// Fallback for anything this grammar doesn't recognize; `raw` (on the
     /// containing `Stmt`) already holds the exact text.
     Raw,
@@ -90,6 +93,25 @@ pub enum StmtKind {
 pub enum ForInit {
     Decl(DeclStmt),
     Expr(Expr),
+}
+
+/// One `#if`/`#ifdef`/`#ifndef` branch (or a following `#elif`) at statement
+/// position - mirrors `ast::CondBranch` one layer down (`Block` instead of
+/// `Vec<(Item, Trivia)>` for the body).
+#[derive(Debug, Clone, Serialize)]
+pub struct StmtCondBranch {
+    pub directive: Directive,
+    pub body: Block,
+}
+
+/// A folded `#if...#endif` run at statement position - mirrors
+/// `ast::CondGroup` one layer down. `branches[0]` is the opening
+/// `#if`/`#ifdef`/`#ifndef`; further entries are `#elif`s. `else_body` is
+/// the `#else` body, if present.
+#[derive(Debug, Clone, Serialize)]
+pub struct StmtCondGroup {
+    pub branches: Vec<StmtCondBranch>,
+    pub else_body: Option<Block>,
 }
 
 /// A function body: the structured `block` alongside its own independently-

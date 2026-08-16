@@ -242,17 +242,16 @@ fn lower_unit(mut unit: Vec<Chunk>, known: &KnownTypeNames) -> (Item, Trivia) {
             && toks
                 .iter()
                 .all(|t| matches!(t, RawToken::PreprocLine(_)) || is_trivial(t))
+            && let Some(RawToken::PreprocLine(s)) = only_directive
         {
-            if let Some(RawToken::PreprocLine(s)) = only_directive {
-                let d = parse_directive(&s.text);
-                return (
-                    Item {
-                        kind: ItemKind::Preproc(d),
-                        raw,
-                    },
-                    trivia,
-                );
-            }
+            let d = parse_directive(&s.text);
+            return (
+                Item {
+                    kind: ItemKind::Preproc(d),
+                    raw,
+                },
+                trivia,
+            );
         }
     }
 

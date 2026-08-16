@@ -116,24 +116,24 @@ fn parse_define(rest: &str) -> Directive {
     let name = &rest[..name_end];
     let after_name = &rest[name_end..];
     // No space between name and '(' is what makes this function-like, per C rules.
-    if let Some(paren_rest) = after_name.strip_prefix('(') {
-        if let Some(close) = paren_rest.find(')') {
-            let params_raw = &paren_rest[..close];
-            let params: Vec<String> = if params_raw.trim().is_empty() {
-                Vec::new()
-            } else {
-                params_raw
-                    .split(',')
-                    .map(|p| p.trim().to_string())
-                    .collect()
-            };
-            let body = paren_rest[close + 1..].trim().to_string();
-            return Directive::DefineFunction {
-                name: name.to_string(),
-                params,
-                body,
-            };
-        }
+    if let Some(paren_rest) = after_name.strip_prefix('(')
+        && let Some(close) = paren_rest.find(')')
+    {
+        let params_raw = &paren_rest[..close];
+        let params: Vec<String> = if params_raw.trim().is_empty() {
+            Vec::new()
+        } else {
+            params_raw
+                .split(',')
+                .map(|p| p.trim().to_string())
+                .collect()
+        };
+        let body = paren_rest[close + 1..].trim().to_string();
+        return Directive::DefineFunction {
+            name: name.to_string(),
+            params,
+            body,
+        };
     }
     Directive::DefineObject {
         name: name.to_string(),
