@@ -19,11 +19,12 @@
 
 use super::ast::{
     Chunk, Comment, EnumDecl, EnumVariant, Field, FnSig, Item, ItemKind, Param, RawToken,
-    RecordDecl, RecordKind, Span, Trivia, render_tokens, render_tokens_no_comments,
+    RecordDecl, RecordKind, Span, Storage, Trivia, Type, render_tokens, render_tokens_no_comments,
     split_top_level,
 };
 use super::decl::{
-    parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat,
+    parse_declarator, parse_type_text, try_parse_const_braced, try_parse_const_flat,
+    try_parse_typedef_flat, wrap_array_dims,
 };
 use super::preproc::parse_directive;
 
@@ -588,9 +589,9 @@ fn push_opaque_group_field(
 ) {
     let raw = format!("{open_text}{}{close_text}", render_tokens(inner));
     fields.push(Field {
-        ty: raw,
+        ty: Type::Named(raw),
         name: String::new(),
-        array_dims: Vec::new(),
+        storage: Vec::new(),
         bitfield: None,
         nested: None,
         trivia: Trivia::default(),
@@ -638,14 +639,15 @@ fn push_nested_record_field(
         return;
     };
     let nested_fields = parse_fields(&ginner);
-    let ty = match &tag {
+    let ty_text = match &tag {
         Some(t) => format!("{} {t}", record_kw(kind)),
         None => record_kw(kind).to_string(),
     };
+    let ty = wrap_array_dims(Type::Named(ty_text), &array_dims);
     fields.push(Field {
         ty,
         name,
-        array_dims,
+        storage: Vec::new(),
         bitfield: None,
         nested: Some(Box::new(RecordDecl {
             kind,
@@ -696,15 +698,11 @@ fn parse_field(decl_text: &str) -> Option<Field> {
         }
         _ => (decl_text, None),
     };
-    let (storage, ty, name, array_dims) = parse_declarator(decl_text)?;
-    let mut ty = ty;
-    if !storage.is_empty() {
-        ty = format!("{} {}", storage.join(" "), ty);
-    }
+    let (storage, ty, name) = parse_declarator(decl_text)?;
     Some(Field {
         ty,
         name,
-        array_dims,
+        storage,
         bitfield,
         nested: None,
         trivia: Trivia::default(),
@@ -827,17 +825,23 @@ fn try_parse_fn_sig(header: &str) -> Option<FnSig> {
     }
     let ret_raw = before_paren[..name_start].trim();
     let tokens: Vec<&str> = ret_raw.split_whitespace().collect();
-    const STORAGE_KW: &[&str] = &["static", "extern", "inline"];
+    // Unlike a plain declarator, a function signature's storage set doesn't
+    // include const/register/volatile - `const char *foo()`'s "const"
+    // qualifies the *return type*, not the function itself, so it's left in
+    // `ty_parts` (part of `ret_ty`) rather than pulled into `storage` here.
     let mut storage = Vec::new();
     let mut ty_parts = Vec::new();
     for t in tokens {
-        if STORAGE_KW.contains(&t) && ty_parts.is_empty() {
-            storage.push(t.to_string());
-        } else {
-            ty_parts.push(t);
+        match Storage::from_keyword(t) {
+            Some(kw @ (Storage::Static | Storage::Extern | Storage::Inline))
+                if ty_parts.is_empty() =>
+            {
+                storage.push(kw);
+            }
+            _ => ty_parts.push(t),
         }
     }
-    let ret_ty = ty_parts.join(" ");
+    let ret_ty = parse_type_text(&ty_parts.join(" "));
     let (params, variadic) = parse_params(&params_raw);
     Some(FnSig {
         storage,
@@ -878,25 +882,17 @@ fn parse_params(params_raw: &str) -> (Vec<Param>, bool) {
 /// forward declarations can have anonymous parameters (a bare type, e.g.
 /// `int foo(int, char*);`) that grammar can't name - `parse_declarator`
 /// fails on those (nothing after the type to read as an identifier), so
-/// this falls back to keeping the parameter's whole text as `ty` with an
+/// this falls back to reading the parameter's whole text as a bare type
+/// (`parse_type_text`, same fallback `parse_fnptr_params` uses) with an
 /// empty `name` rather than guessing.
 fn parse_param(text: &str) -> Param {
-    if let Some((storage, ty, name, array_dims)) = parse_declarator(text) {
-        let mut ty = ty;
-        if !storage.is_empty() {
-            ty = format!("{} {}", storage.join(" "), ty);
-        }
-        Param {
-            ty,
-            name,
-            array_dims,
-        }
-    } else {
-        Param {
-            ty: text.to_string(),
+    match parse_declarator(text) {
+        Some((storage, ty, name)) => Param { ty, name, storage },
+        None => Param {
+            ty: parse_type_text(text),
             name: String::new(),
-            array_dims: Vec::new(),
-        }
+            storage: Vec::new(),
+        },
     }
 }
 

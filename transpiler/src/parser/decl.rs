@@ -11,7 +11,8 @@
 //! opaque string, because step 1 already found the matching `{`/`}`.
 
 use super::ast::{
-    Chunk, ConstDecl, Init, RawToken, TypedefDecl, render_tokens_no_comments, split_top_level,
+    Chunk, ConstDecl, Init, RawToken, Storage, Type, TypedefDecl, render_tokens_no_comments,
+    split_top_level,
 };
 
 /// Parses a plain `;`-terminated statement with no top-level brace group,
@@ -22,12 +23,11 @@ pub fn try_parse_const_flat(stmt: &str) -> Option<ConstDecl> {
     let s = stmt.trim();
     let s = s.strip_suffix(';').unwrap_or(s).trim();
     let (decl_part, init_part) = split_top_level_eq(s)?;
-    let (storage, ty, name, array_dims) = parse_declarator(decl_part.trim())?;
+    let (storage, ty, name) = parse_declarator(decl_part.trim())?;
     Some(ConstDecl {
         storage,
         ty,
         name,
-        array_dims,
         initializer: Some(Init::Expr(init_part.trim().to_string())),
     })
 }
@@ -38,12 +38,11 @@ pub fn try_parse_const_flat(stmt: &str) -> Option<ConstDecl> {
 /// is the group's contents (excluding the `{`/`}` themselves).
 pub fn try_parse_const_braced(header: &str, inner: &[RawToken]) -> Option<ConstDecl> {
     let decl_part = header.trim().strip_suffix('=')?.trim();
-    let (storage, ty, name, array_dims) = parse_declarator(decl_part)?;
+    let (storage, ty, name) = parse_declarator(decl_part)?;
     Some(ConstDecl {
         storage,
         ty,
         name,
-        array_dims,
         initializer: Some(Init::Braced(parse_braced_init(inner))),
     })
 }
@@ -109,15 +108,10 @@ pub fn try_parse_typedef_flat(stmt: &str) -> Option<TypedefDecl> {
     if rest.starts_with(|c: char| c.is_alphanumeric() || c == '_') {
         return None; // e.g. "typedefFoo" is not the "typedef" keyword
     }
-    let (_, ty, name, dims) = parse_declarator(rest.trim())?;
-    let mut underlying = ty;
-    for d in &dims {
-        underlying.push('[');
-        if let Some(n) = d {
-            underlying.push_str(n);
-        }
-        underlying.push(']');
-    }
+    // Storage-class keywords on a typedef (e.g. `typedef const int foo;`)
+    // are discarded here, same as before `Type` existed - `TypedefDecl` has
+    // nowhere to put them and no real typedef in this corpus uses one.
+    let (_, underlying, name) = parse_declarator(rest.trim())?;
     Some(TypedefDecl { underlying, name })
 }
 
@@ -160,10 +154,10 @@ fn split_top_level_eq(s: &str) -> Option<(&str, &str)> {
 /// Heuristic C declarator parser: `[storage...] TYPE [*]NAME (['[' dim ']'])*`,
 /// or the function-pointer shape `[storage...] TYPE (*NAME) (PARAMS)`. Not a
 /// full C grammar - good enough to pull apart the shapes actually used in
-/// the target files without parsing expressions.
-pub(crate) fn parse_declarator(
-    s: &str,
-) -> Option<(Vec<String>, String, String, Vec<Option<String>>)> {
+/// the target files without parsing expressions. Array dims and pointer
+/// stars are folded into the returned `Type` (`Array`/`Pointer` wrapping a
+/// base `Named`) rather than returned as separate fields.
+pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> {
     let s = s.trim();
     if s.is_empty() {
         return None;
@@ -192,11 +186,10 @@ pub(crate) fn parse_declarator(
     // outright rather than falling through. The `while base.ends_with(']')`
     // loop above never fires for this shape (a fn-pointer declarator ends in
     // `)`, not `]`), so `dims` is always empty here - the array dims, if
-    // any, live *inside* the name parens instead and come back from
-    // `parse_fnptr_declarator` itself.
+    // any, live *inside* the name parens instead and are already wrapped
+    // into the `Type` `parse_fnptr_declarator` returns.
     if base.ends_with(')') {
-        let (storage, ty, name, fnptr_dims) = parse_fnptr_declarator(base)?;
-        return Some((storage, ty, name, fnptr_dims));
+        return parse_fnptr_declarator(base);
     }
 
     let tokens: Vec<&str> = base.split_whitespace().collect();
@@ -208,42 +201,41 @@ pub(crate) fn parse_declarator(
         return None;
     }
 
-    const STORAGE_KW: &[&str] = &["static", "extern", "const", "register", "volatile"];
     let mut storage = Vec::new();
     let mut ty_parts: Vec<&str> = Vec::new();
     for t in &tokens[..tokens.len() - 1] {
-        if STORAGE_KW.contains(t) && ty_parts.is_empty() {
-            storage.push((*t).to_string());
-        } else {
-            ty_parts.push(t);
+        match Storage::from_keyword(t) {
+            Some(kw) if ty_parts.is_empty() => storage.push(kw),
+            _ => ty_parts.push(t),
         }
     }
-    let mut ty = ty_parts.join(" ");
-    if ty.is_empty() {
+    let ty_text = ty_parts.join(" ");
+    if ty_text.is_empty() {
         return None;
     }
-    if star_count > 0 {
-        ty.push(' ');
-        ty.extend(std::iter::repeat('*').take(star_count));
+    let mut ty = parse_type_text(&ty_text);
+    for _ in 0..star_count {
+        ty = Type::Pointer(Box::new(ty));
     }
-    Some((storage, ty, name, dims))
+    let ty = wrap_array_dims(ty, &dims);
+    Some((storage, ty, name))
 }
 
 /// Recognizes the function-pointer declarator shape `RETTYPE (*NAME) (PARAMS)`,
 /// e.g. `void (*actionf_v)()` or `boolean (*traverser_t) (intercept_t *in)`,
 /// as well as its array-of-function-pointers variant
 /// `RETTYPE (*NAME[N])(PARAMS)`, e.g. `int (*wipes[])(int, int, int)`
-/// (`f_wipe.c`). `PARAMS` is kept as raw text, same as `try_parse_fn_sig`
-/// does for ordinary function signatures. Returns `(storage, ty, name,
-/// dims)` with `ty` re-spelled as `RETTYPE (*)(PARAMS)` (name elided) so it
-/// composes with the plain `ty`/`name` fields `ConstDecl`/`TypedefDecl`/
-/// `Field` already use, and `dims` in the same shape `parse_declarator`'s
-/// own trailing-`[...]` loop produces (one entry per `[...]`, `None` for an
-/// unsized `[]`) so a `(*wipes[])(...)` declarator reports its array-ness
-/// through the normal `array_dims` field rather than folding it into `name`.
-fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String, Vec<Option<String>>)> {
+/// (`f_wipe.c`). Returns `(storage, ty, name)` with `ty` a
+/// `Type::FunctionPointer` (wrapped in `Type::Array` for the `(*NAME[N])`
+/// variant) so it composes with the plain `ty`/`name` fields
+/// `ConstDecl`/`TypedefDecl`/`Field` already use. Each parameter in
+/// `PARAMS` is itself parsed via `parse_declarator` (falling back to a bare
+/// `parse_type_text` read if it has no name, e.g. `traverser_t`'s
+/// `intercept_t *in` *does* have a name "in" that gets discarded here -
+/// `Type::FunctionPointer::params` is types only, see its doc comment).
+fn parse_fnptr_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> {
     let params_open = matching_open_paren(s)?;
-    let params = s[params_open + 1..s.len() - 1].trim();
+    let params_text = s[params_open + 1..s.len() - 1].trim();
     let before_params = s[..params_open].trim();
     if !before_params.ends_with(')') {
         return None;
@@ -273,22 +265,76 @@ fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String, Vec<O
 
     let ret_raw = before_params[..name_open].trim();
     let tokens: Vec<&str> = ret_raw.split_whitespace().collect();
-    const STORAGE_KW: &[&str] = &["static", "extern", "const", "register", "volatile"];
     let mut storage = Vec::new();
     let mut ty_parts = Vec::new();
     for t in &tokens {
-        if STORAGE_KW.contains(t) && ty_parts.is_empty() {
-            storage.push((*t).to_string());
-        } else {
-            ty_parts.push(*t);
+        match Storage::from_keyword(t) {
+            Some(kw) if ty_parts.is_empty() => storage.push(kw),
+            _ => ty_parts.push(*t),
         }
     }
-    let ret_ty = ty_parts.join(" ");
-    if ret_ty.is_empty() {
+    let ret_text = ty_parts.join(" ");
+    if ret_text.is_empty() {
         return None;
     }
-    let ty = format!("{ret_ty} (*)({params})");
-    Some((storage, ty, name, dims))
+    let ret = parse_type_text(&ret_text);
+    let params = parse_fnptr_params(params_text);
+    let ty = wrap_array_dims(
+        Type::FunctionPointer {
+            ret: Box::new(ret),
+            params,
+        },
+        &dims,
+    );
+    Some((storage, ty, name))
+}
+
+/// Splits a function-pointer type's own parameter-list text (e.g. `"int,
+/// int, int"` or `"intercept_t *in"`) on top-level `,` into `Type`s. `()`
+/// and `(void)` both mean no parameters. Each piece is tried as a named
+/// declarator first (discarding the name - see `Type::FunctionPointer`'s
+/// doc comment) and falls back to a bare-type read if it has none.
+fn parse_fnptr_params(params_text: &str) -> Vec<Type> {
+    let trimmed = params_text.trim();
+    if trimmed.is_empty() || trimmed == "void" {
+        return Vec::new();
+    }
+    split_top_level(trimmed, ',')
+        .iter()
+        .map(|p| p.trim())
+        .filter(|p| !p.is_empty())
+        .map(|p| match parse_declarator(p) {
+            Some((_, ty, _)) => ty,
+            None => parse_type_text(p),
+        })
+        .collect()
+}
+
+/// Reads a bare type-text with no declarator name attached (e.g. a
+/// function-pointer's return type, or an anonymous parameter's type) into a
+/// `Type`, by counting any trailing `*` characters as pointer depth. Works
+/// whether the star is glued to the base (`"char*"`) or separated by
+/// whitespace (`"char *"`, `"char * *"`) - both this codebase's styles.
+pub(crate) fn parse_type_text(text: &str) -> Type {
+    let text = text.trim();
+    let base = text.trim_end_matches(['*', ' ']);
+    let star_count = text[base.len()..].matches('*').count();
+    let mut ty = Type::Named(base.to_string());
+    for _ in 0..star_count {
+        ty = Type::Pointer(Box::new(ty));
+    }
+    ty
+}
+
+/// Wraps `base` in one `Type::Array` per entry of `dims`, outermost bracket
+/// first - see `Type::Array`'s doc comment for why this means iterating
+/// `dims` in *reverse*.
+pub(crate) fn wrap_array_dims(base: Type, dims: &[Option<String>]) -> Type {
+    let mut ty = base;
+    for dim in dims.iter().rev() {
+        ty = Type::Array(Box::new(ty), dim.clone());
+    }
+    ty
 }
 
 /// Finds the index of the `(` matching the final `)` of `s`, or `None` if

@@ -184,19 +184,86 @@ pub enum RecordKind {
     Union,
 }
 
+/// A storage-class specifier or type qualifier keyword preceding a
+/// declarator (`static`, `extern`, `const`, `register`, `volatile`) or a
+/// function signature's return type (`static`, `extern`, `inline`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum Storage {
+    Static,
+    Extern,
+    Const,
+    Register,
+    Volatile,
+    Inline,
+}
+
+impl Storage {
+    /// Recognizes one storage-class/qualifier keyword, e.g. `"static"` ->
+    /// `Some(Storage::Static)`. Returns `None` for anything else - not an
+    /// error, callers use this to decide whether a leading token is a
+    /// storage keyword or the start of the actual type/name.
+    pub fn from_keyword(word: &str) -> Option<Storage> {
+        Some(match word {
+            "static" => Storage::Static,
+            "extern" => Storage::Extern,
+            "const" => Storage::Const,
+            "register" => Storage::Register,
+            "volatile" => Storage::Volatile,
+            "inline" => Storage::Inline,
+            _ => return None,
+        })
+    }
+}
+
+/// A declarator's type, recursively structured instead of kept as raw text.
+/// No qualifiers (`const`/`volatile`) live here - those are storage-class
+/// keywords, kept in whichever `storage: Vec<Storage>` field sits alongside
+/// a `Type` (this parser doesn't distinguish `const` applying to the
+/// pointer vs. the pointee - `const char *` and `char * const` both just
+/// contribute `Storage::Const` to the same flat `storage` list, same as
+/// before this type existed).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub enum Type {
+    /// A base type name, e.g. `"int"`, `"mobj_t"`, `"struct foo"` (the
+    /// short label used for an anonymous nested record field's outer type -
+    /// see `Field::nested`), or - as a last-resort fallback - an entire
+    /// unparsed blob of text this parser couldn't make sense of (e.g. an
+    /// opaque nested-group field's raw `{ ... }` body).
+    Named(String),
+    /// One level of pointer indirection, e.g. `char *` is
+    /// `Pointer(Named("char"))`; `char **` is `Pointer(Pointer(Named("char")))`.
+    Pointer(Box<Type>),
+    /// An array of `dim` (or unsized, if `None`, e.g. `int xs[]`) elements
+    /// of the inner type. For a multi-dimensional array (`int m[3][4]`),
+    /// the outermost `Array` corresponds to the *first* bracket - `m` is an
+    /// array of 3 (array of 4 int), i.e.
+    /// `Array(Array(Named("int"), Some("4")), Some("3"))`.
+    Array(Box<Type>, Option<String>),
+    /// A function-pointer type, e.g. `void (*)(int, int)` or a named
+    /// typedef's underlying type (`p_local.h`'s `traverser_t`). `params`
+    /// holds each parameter's type only (any parameter *names* inside the
+    /// pointer's own parens, e.g. `traverser_t`'s `(intercept_t *in)`, are
+    /// discarded - out of scope here, unlike `FnSig::params`, which is a
+    /// real function's own parameter list and does keep names).
+    FunctionPointer { ret: Box<Type>, params: Vec<Type> },
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Field {
-    pub ty: String,
+    pub ty: Type,
     pub name: String,
-    pub array_dims: Vec<Option<String>>,
+    /// Storage-class/qualifier keywords preceding the type (`const`,
+    /// `volatile`, ...) - almost always empty for a struct/union field, but
+    /// kept for parity with `ConstDecl`/`FnSig`/`Param` rather than
+    /// silently dropped or glued into `ty`'s text the way it used to be.
+    pub storage: Vec<Storage>,
     pub bitfield: Option<String>,
     /// Set when this field is itself an anonymous nested struct/union (a
     /// literal `{ ... }` body with no `typedef`, e.g. `union { ... } d;`
     /// inside another struct) - recursively parsed rather than kept as one
-    /// opaque field. `ty`/`name`/`array_dims` still describe the *outer*
-    /// declarator (`d`, no dims here); `ty` holds a short label (e.g.
-    /// `"union"` or `"struct foo"`) rather than the full nested body, whose
-    /// structure lives here instead.
+    /// opaque field. `ty`/`name` still describe the *outer* declarator
+    /// (`d`); `ty` is `Type::Named("union")` (or `"struct foo"` with a tag)
+    /// rather than the full nested body, whose structure lives here instead.
     pub nested: Option<Box<RecordDecl>>,
     /// Doc comment(s) on their own line(s) immediately preceding this field.
     pub trivia: Trivia,
@@ -237,7 +304,7 @@ pub struct EnumDecl {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct TypedefDecl {
-    pub underlying: String,
+    pub underlying: Type,
     pub name: String,
 }
 
@@ -255,29 +322,29 @@ pub enum Init {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ConstDecl {
-    pub storage: Vec<String>,
-    pub ty: String,
+    pub storage: Vec<Storage>,
+    pub ty: Type,
     pub name: String,
-    pub array_dims: Vec<Option<String>>,
     pub initializer: Option<Init>,
 }
 
 /// One entry in a function signature's parameter list, e.g. `int x` or
 /// `char *s`. `name` is empty for an anonymous parameter (a bare type with
 /// no identifier, e.g. an old K&R-style forward declaration's `int foo(int,
-/// char*);`) - in that case `ty` holds the parameter's entire text verbatim
-/// rather than attempting to guess where a type ends and a name begins.
+/// char*);`) - in that case `ty` is `Type::Named` holding the parameter's
+/// entire text verbatim rather than attempting to guess where a type ends
+/// and a name begins.
 #[derive(Debug, Clone, Serialize)]
 pub struct Param {
-    pub ty: String,
+    pub ty: Type,
     pub name: String,
-    pub array_dims: Vec<Option<String>>,
+    pub storage: Vec<Storage>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct FnSig {
-    pub storage: Vec<String>,
-    pub ret_ty: String,
+    pub storage: Vec<Storage>,
+    pub ret_ty: Type,
     pub name: String,
     /// The parameter list, split on top-level `,`. Empty for both `()`
     /// (old-style "unspecified parameters") and `(void)` (explicitly no
