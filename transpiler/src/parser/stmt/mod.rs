@@ -5,7 +5,9 @@
 //! and `ast.rs` holds the resulting `Block`/`Stmt`/`FnBody` shapes.
 //! `parse_function_body` (below) is the single entry point `record.rs`
 //! calls to turn a function's opaque body tokens into a structured
-//! `FnBody`.
+//! `FnBody`. `scope.rs` is a separate, not-yet-wired-in piece: scoped
+//! identifier resolution over an already-parsed `Block`, laid groundwork
+//! for call-site analysis (see `plans/humming-knitting-simon.md`).
 
 pub mod ast;
 pub mod cond;
@@ -13,6 +15,7 @@ pub mod decl;
 pub mod expr;
 pub mod lex;
 pub mod parse;
+pub mod scope;
 
 use super::ast::RawToken;
 use ast::FnBody;
