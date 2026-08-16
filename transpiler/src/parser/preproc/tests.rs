@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashMap;
 
 #[test]
 fn function_like_macro_needs_no_space_before_paren() {
@@ -53,4 +54,63 @@ fn include_angled_and_quoted() {
         }
         other => panic!("{other:?}"),
     }
+}
+
+#[test]
+fn eval_ifdef_basic() {
+    let mut defines = HashMap::new();
+    defines.insert("LINUX".to_string(), String::new());
+    assert_eq!(eval_ifdef("LINUX", false, &defines), Tri::True);
+    assert_eq!(eval_ifdef("LINUX", true, &defines), Tri::False);
+    assert_eq!(eval_ifdef("SGI", false, &defines), Tri::False);
+    assert_eq!(eval_ifdef("SGI", true, &defines), Tri::True);
+}
+
+#[test]
+fn eval_if_expr_bare_literals() {
+    let defines = HashMap::new();
+    assert_eq!(eval_if_expr("0", &defines), Tri::False);
+    assert_eq!(eval_if_expr("1", &defines), Tri::True);
+    // Real corpus text: a trailing line comment after the literal.
+    assert_eq!(eval_if_expr("0\t// UNUSED - debug?", &defines), Tri::False);
+    assert_eq!(eval_if_expr("0 // UNUSED", &defines), Tri::False);
+}
+
+#[test]
+fn eval_if_expr_defined_identifier_recurses_on_value() {
+    // Real corpus shape: `#define SNDSERV  1` then `#elif SNDINTR` /
+    // `#ifdef SNDSERV` elsewhere - a bare identifier condition looks up its
+    // #define'd value and evaluates *that*.
+    let mut defines = HashMap::new();
+    defines.insert("SNDSERV".to_string(), "1".to_string());
+    assert_eq!(eval_if_expr("SNDSERV", &defines), Tri::True);
+}
+
+#[test]
+fn eval_if_expr_undefined_identifier_is_false() {
+    // Matches real C: an identifier left over after macro expansion in an
+    // `#if` expression is replaced with 0. `SNDINTR` is never `#define`'d
+    // anywhere in the real corpus, so `#elif SNDINTR` must resolve False.
+    let defines = HashMap::new();
+    assert_eq!(eval_if_expr("SNDINTR", &defines), Tri::False);
+}
+
+#[test]
+fn eval_if_expr_valueless_define_is_unknown_if_ever_referenced_bare() {
+    // `#define RANGECHECK` (no value) is only ever used via #ifdef in the
+    // real corpus, never bare in an #if expression - but if it were, there's
+    // no numeric value to evaluate, so this must not guess.
+    let mut defines = HashMap::new();
+    defines.insert("RANGECHECK".to_string(), String::new());
+    assert_eq!(eval_if_expr("RANGECHECK", &defines), Tri::Unknown);
+}
+
+#[test]
+fn eval_if_expr_real_expression_is_unknown() {
+    // None of these occur anywhere in the real corpus, but must degrade
+    // gracefully rather than being guessed at.
+    let defines = HashMap::new();
+    assert_eq!(eval_if_expr("defined(FOO)", &defines), Tri::Unknown);
+    assert_eq!(eval_if_expr("VERSION >= 2", &defines), Tri::Unknown);
+    assert_eq!(eval_if_expr("FOO && BAR", &defines), Tri::Unknown);
 }

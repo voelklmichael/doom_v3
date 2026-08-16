@@ -108,6 +108,83 @@ fn parse_include(rest: &str, whole: &str) -> Directive {
     }
 }
 
+/// The result of evaluating an `#ifdef`/`#ifndef`/`#if`/`#elif` condition
+/// against a known set of `#define`s. `Unknown` is a real, first-class
+/// outcome (not an error) - this evaluator only attempts the shapes
+/// actually seen in the target corpus (bare `0`/`1` literals, and a bare
+/// identifier looked up in `defines`), never a general C/preprocessor
+/// expression grammar. Anything else degrades to `Unknown` rather than
+/// guessing, matching this parser's usual stance.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Tri {
+    True,
+    False,
+    Unknown,
+}
+
+/// Evaluates an `#ifdef NAME` (`negate = false`) or `#ifndef NAME`
+/// (`negate = true`) against `defines` - always decidable (`defines`
+/// either has an entry for `name` or it doesn't), never `Unknown`.
+pub fn eval_ifdef(
+    name: &str,
+    negate: bool,
+    defines: &std::collections::HashMap<String, String>,
+) -> Tri {
+    let is_defined = defines.contains_key(name.trim());
+    if is_defined != negate {
+        Tri::True
+    } else {
+        Tri::False
+    }
+}
+
+/// Evaluates an `#if`/`#elif` expression's raw text against `defines`.
+/// Handles exactly the shapes seen in the real corpus: a bare integer
+/// literal (`"0"` -> `False`, any other bare integer -> `True`), or a bare
+/// C identifier, looked up in `defines` and recursed on its value if
+/// defined (e.g. `SNDSERV` -> `"1"` -> `True`) - an *undefined* identifier
+/// evaluates to `False`, matching real C: a name with no macro definition
+/// left over after macro expansion in an `#if` expression is replaced with
+/// `0`. This is what makes `#elif SNDINTR` (real corpus text, `i_sound.c`)
+/// resolve correctly: `SNDINTR` is never `#define`'d anywhere in this
+/// corpus, so the bare identifier is `False`. Anything else (a real
+/// expression with operators, `defined(...)`, comparisons, ...) - none of
+/// which occur anywhere in this corpus - is `Unknown`, not guessed at.
+pub fn eval_if_expr(expr: &str, defines: &std::collections::HashMap<String, String>) -> Tri {
+    let e = strip_trailing_line_comment(expr).trim();
+    if e.is_empty() {
+        return Tri::Unknown;
+    }
+    if e.chars().all(|c| c.is_ascii_digit()) {
+        return if e == "0" { Tri::False } else { Tri::True };
+    }
+    if is_c_identifier(e) {
+        return match defines.get(e) {
+            None => Tri::False,
+            Some(value) => eval_if_expr(value, defines),
+        };
+    }
+    Tri::Unknown
+}
+
+/// Strips a trailing `//...` line comment (and any whitespace before it) -
+/// the raw `Directive::If`/`Elif` expression text isn't comment-stripped by
+/// `parse_directive` itself (e.g. `"0 // UNUSED - debug?"`, tab included in
+/// the real corpus text), since that's a concern specific to evaluation,
+/// not directive parsing.
+fn strip_trailing_line_comment(s: &str) -> &str {
+    match s.find("//") {
+        Some(i) => s[..i].trim_end(),
+        None => s,
+    }
+}
+
+fn is_c_identifier(s: &str) -> bool {
+    let mut chars = s.chars();
+    matches!(chars.next(), Some(c) if c.is_ascii_alphabetic() || c == '_')
+        && chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+}
+
 fn parse_define(rest: &str) -> Directive {
     let rest = rest.trim_start();
     let name_end = rest

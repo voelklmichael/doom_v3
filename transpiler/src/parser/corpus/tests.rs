@@ -230,3 +230,70 @@ fn sees_functions_transitively_included() {
     let sigs = functions_for(&map, "g_game.c");
     assert!(sigs.contains_key("I_GetTime"));
 }
+
+fn defines_for(
+    map: &HashMap<String, HashMap<String, String>>,
+    file: &str,
+) -> HashMap<String, String> {
+    map.get(file).cloned().unwrap_or_default()
+}
+
+#[test]
+fn harvests_plain_define() {
+    let map = compute_known_defines(&[corpus_path("doomdef.h")]);
+    let defines = defines_for(&map, "doomdef.h");
+    assert_eq!(defines.get("SNDSERV"), Some(&"1".to_string()));
+}
+
+#[test]
+fn harvests_valueless_define() {
+    // `#define RANGECHECK` (no value) - real corpus text, doomdef.h.
+    let map = compute_known_defines(&[corpus_path("doomdef.h")]);
+    let defines = defines_for(&map, "doomdef.h");
+    assert_eq!(defines.get("RANGECHECK"), Some(&String::new()));
+}
+
+#[test]
+fn sequential_define_undef_pairs_leave_nothing_behind() {
+    // am_map.c: `#define R (...)` / `#undef R`, four times over, bracketing
+    // four different mline_t array literals - by end of file `R` must be
+    // absent, not "defined as whatever the last #define said" (which would
+    // happen if #undef weren't applied in file order).
+    let map = compute_known_defines(&[corpus_path("am_map.c")]);
+    let defines = defines_for(&map, "am_map.c");
+    assert!(!defines.contains_key("R"));
+}
+
+#[test]
+fn sees_defines_transitively_included() {
+    // i_system.c directly `#include`s doomdef.h - RANGECHECK/SNDSERV
+    // (defined unconditionally in doomdef.h) should be visible from
+    // i_system.c without it declaring them itself. This is the concrete
+    // case that makes the whole #if/#ifdef-resolution feature need the
+    // #include graph, not just an externally pre-defined list.
+    let map = compute_known_defines(&[corpus_path("i_system.c"), corpus_path("doomdef.h")]);
+    let defines = defines_for(&map, "i_system.c");
+    assert!(defines.contains_key("RANGECHECK"));
+    assert_eq!(defines.get("SNDSERV"), Some(&"1".to_string()));
+}
+
+#[test]
+fn unrelated_files_do_not_see_each_others_defines() {
+    let map = compute_known_defines(&[corpus_path("d_think.h"), corpus_path("doomdef.h")]);
+    let d_think = defines_for(&map, "d_think.h");
+    assert!(!d_think.contains_key("RANGECHECK"));
+}
+
+#[test]
+fn define_inside_a_conditional_branch_is_not_harvested() {
+    // Only genuinely unconditional, top-level #defines count - one inside
+    // an #ifdef branch is only real if that branch's own condition holds,
+    // which this harvest doesn't attempt to resolve (that's
+    // preproc::eval_if_expr/eval_ifdef's job, one layer up).
+    let src = "#ifdef SOMETHING\n#define INSIDE_BRANCH 1\n#endif\n";
+    let items = crate::parser::cond::fold_conditionals(crate::parser::record::build_items(
+        crate::parser::scan::scan(src),
+    ));
+    let defines = own_defines(&items);
+    assert!(!defines.contains_key("INSIDE_BRANCH"));
+}
