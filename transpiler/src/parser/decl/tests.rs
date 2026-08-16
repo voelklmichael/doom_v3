@@ -3,7 +3,7 @@ use crate::parser::scan::scan;
 
 #[test]
 fn rcsid_style() {
-    let cd = try_parse_const_flat("static const char rcsid[] = \"$Id$\";").unwrap();
+    let cd = try_parse_var_flat("static const char rcsid[] = \"$Id$\";").unwrap();
     assert_eq!(cd.storage, vec![Storage::Static, Storage::Const]);
     assert_eq!(
         cd.ty,
@@ -15,8 +15,8 @@ fn rcsid_style() {
 
 #[test]
 fn braced_array_style() {
-    let cd = try_parse_const_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", &scan(" /* ... */ "))
-        .unwrap();
+    let cd =
+        try_parse_var_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", &scan(" /* ... */ ")).unwrap();
     assert_eq!(
         cd.ty,
         Type::Array(
@@ -30,7 +30,7 @@ fn braced_array_style() {
 #[test]
 fn braced_init_splits_scalar_elements() {
     // rndtable-style: a flat list of scalar elements, no nesting.
-    let cd = try_parse_const_braced("int rndtable[] =", &scan(" 0, 8, 109, DI_NODIR ")).unwrap();
+    let cd = try_parse_var_braced("int rndtable[] =", &scan(" 0, 8, 109, DI_NODIR ")).unwrap();
     match cd.initializer {
         Some(Init::Braced(elements)) => {
             let texts: Vec<&str> = elements
@@ -51,7 +51,7 @@ fn braced_init_splits_nested_rows() {
     // m_misc.c's defaults[]-style table: each row is its own nested Braced
     // sub-list, e.g. {"mouse_sensitivity", &mouseSensitivity, 5}.
     let src = " {\"a\", &a, 1},\n    {\"b\", &b, 0},\n";
-    let cd = try_parse_const_braced("default_t defaults[] =", &scan(src)).unwrap();
+    let cd = try_parse_var_braced("default_t defaults[] =", &scan(src)).unwrap();
     match cd.initializer {
         Some(Init::Braced(rows)) => {
             assert_eq!(rows.len(), 2);
@@ -80,7 +80,7 @@ fn braced_init_splits_nested_rows() {
 
 #[test]
 fn braced_init_no_trailing_comma_still_captures_last_element() {
-    let cd = try_parse_const_braced("int xs[] =", &scan(" 1, 2, 3 ")).unwrap();
+    let cd = try_parse_var_braced("int xs[] =", &scan(" 1, 2, 3 ")).unwrap();
     match cd.initializer {
         Some(Init::Braced(elements)) => assert_eq!(elements.len(), 3),
         other => panic!("expected Braced, got {other:?}"),
@@ -89,7 +89,7 @@ fn braced_init_no_trailing_comma_still_captures_last_element() {
 
 #[test]
 fn braced_init_drops_comment_with_comma_without_fracturing() {
-    let cd = try_parse_const_braced(
+    let cd = try_parse_var_braced(
         "int xs[] =",
         &scan(" 1, 2, // a comment, with a comma\n 3 "),
     )
@@ -110,8 +110,37 @@ fn braced_init_drops_comment_with_comma_without_fracturing() {
 }
 
 #[test]
-fn no_equals_is_not_a_const() {
-    assert!(try_parse_const_flat("extern patch_t* hu_font[HU_FONTSIZE];").is_none());
+fn no_equals_means_no_initializer() {
+    let vd = try_parse_var_flat("extern patch_t* hu_font[HU_FONTSIZE];").unwrap();
+    assert_eq!(vd.storage, vec![Storage::Extern]);
+    assert_eq!(
+        vd.ty,
+        Type::Array(
+            Box::new(Type::Pointer(Box::new(Type::Named("patch_t".to_string())))),
+            Some("HU_FONTSIZE".to_string())
+        )
+    );
+    assert_eq!(vd.name, "hu_font");
+    assert!(vd.initializer.is_none());
+}
+
+#[test]
+fn fnptr_decl_without_initializer() {
+    // i_video.c-style: `extern void (*colfunc)(void);` - a function-pointer
+    // declarator with no initializer, exercising the same `parse_declarator`
+    // fn-pointer path as the initialized case but through the "no top-level
+    // `=`" branch of `try_parse_var_flat`.
+    let vd = try_parse_var_flat("extern void (*colfunc)(void);").unwrap();
+    assert_eq!(vd.storage, vec![Storage::Extern]);
+    assert_eq!(
+        vd.ty,
+        Type::FunctionPointer {
+            ret: Box::new(Type::Named("void".to_string())),
+            params: vec![],
+        }
+    );
+    assert_eq!(vd.name, "colfunc");
+    assert!(vd.initializer.is_none());
 }
 
 #[test]
@@ -192,7 +221,7 @@ fn fnptr_array_declarator_with_sized_dim() {
 #[test]
 fn fnptr_array_declarator_with_unsized_dim() {
     // f_wipe.c's `wipes[]`: `static int (*wipes[])(int, int, int) = { ... };`
-    let cd = try_parse_const_braced(
+    let cd = try_parse_var_braced(
         "static int (*wipes[])(int, int, int) =",
         &scan(" wipe_initColorXForm, wipe_doColorXForm "),
     )

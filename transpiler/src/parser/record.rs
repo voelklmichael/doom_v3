@@ -9,9 +9,10 @@
 //! 2. Lower each unit into an `Item`. A unit containing a `Group` is
 //!    classified as a struct/union/enum (by a `struct`/`union`/`enum`
 //!    keyword in its header), a function (header ends in `NAME(...)`, body
-//!    kept fully opaque), or - falling back - a braced constant
-//!    initializer. A unit without a `Group` is tried as a constant
-//!    declaration and otherwise kept as `Item::Raw`.
+//!    kept fully opaque), or - falling back - a braced variable
+//!    initializer. A unit without a `Group` is tried as a variable
+//!    declaration (with or without an initializer) and otherwise kept as
+//!    `Item::Raw`.
 //!
 //! `Item.raw` is always the exact original text for the unit (see ast.rs),
 //! so a wrong or incomplete classification never loses bytes - it just
@@ -23,8 +24,8 @@ use super::ast::{
     split_top_level,
 };
 use super::decl::{
-    parse_declarator, parse_type_text, try_parse_const_braced, try_parse_const_flat,
-    try_parse_typedef_flat, wrap_array_dims,
+    parse_declarator, parse_type_text, try_parse_typedef_flat, try_parse_var_braced,
+    try_parse_var_flat, wrap_array_dims,
 };
 use super::preproc::parse_directive;
 
@@ -252,8 +253,8 @@ fn lower_unit(mut unit: Vec<Chunk>) -> (Item, Trivia) {
     let text = declarator_text(&unit);
     let kind = if let Some(td) = try_parse_typedef_flat(&text) {
         ItemKind::Typedef(td)
-    } else if let Some(cd) = try_parse_const_flat(&text) {
-        ItemKind::Const(cd)
+    } else if let Some(vd) = try_parse_var_flat(&text) {
+        ItemKind::Var(vd)
     } else if let Some(sig) = text
         .trim()
         .strip_suffix(';')
@@ -307,9 +308,9 @@ fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
     }
 
     if header_trim.ends_with('=')
-        && let Some(cd) = try_parse_const_braced(header_trim, &inner)
+        && let Some(vd) = try_parse_var_braced(header_trim, &inner)
     {
-        return ItemKind::Const(cd);
+        return ItemKind::Var(vd);
     }
 
     let _ = raw;

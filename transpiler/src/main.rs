@@ -75,7 +75,7 @@ fn kind_label(kind: &ast::ItemKind) -> String {
         Record(r) => format!("record:{:?}", r.kind),
         Enum(_) => "enum".to_string(),
         Typedef(_) => "typedef".to_string(),
-        Const(_) => "const".to_string(),
+        Var(_) => "var".to_string(),
         FunctionDecl(_) => "fn-decl".to_string(),
         FunctionDef(..) => "fn-def".to_string(),
         Conditional(g) => format!("conditional:{}", directive_label(&g.branches[0].directive)),

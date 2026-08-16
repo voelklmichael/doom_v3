@@ -249,18 +249,26 @@ fn blank_line_before_doc_comment_does_not_block_flat_classification() {
 }
 
 #[test]
-fn equals_sign_in_comment_does_not_fake_a_const_initializer() {
+fn equals_sign_in_comment_does_not_fake_an_initializer() {
     // Same shape as doomstat.h's viewangleoffset: the comment text
     // "ANG90 = left side" contains a top-level '=', which used to be
     // mistaken for a real initializer's '=' when classification scanned
-    // the whole (comment-inclusive) raw text, producing a garbage
-    // ConstDecl with the comment fragment as its type/name. A plain
-    // extern declaration with no initializer must fall to Item::Raw
-    // (by design - see the "no initializer" gap), not a fake Const.
+    // the whole (comment-inclusive) raw text, producing a garbage VarDecl
+    // with the comment fragment as its type/name. It must instead come back
+    // as a genuine no-initializer VarDecl for `viewangleoffset`, with the
+    // comment excluded entirely from classification.
     let src = "\n// ANG90 = left side, ANG270 = right\nextern int viewangleoffset;\n";
     round_trip(src);
     let items = build(src);
-    assert!(matches!(items[0].0.kind, ItemKind::Raw));
+    match &items[0].0.kind {
+        ItemKind::Var(vd) => {
+            assert_eq!(vd.storage, vec![Storage::Extern]);
+            assert_eq!(vd.ty, Type::Named("int".to_string()));
+            assert_eq!(vd.name, "viewangleoffset");
+            assert!(vd.initializer.is_none());
+        }
+        other => panic!("expected Var, got {other:?}"),
+    }
 }
 
 #[test]
@@ -517,12 +525,12 @@ fn enum_variant_comment_with_a_comma_does_not_fracture_variants() {
 }
 
 #[test]
-fn braced_array_const() {
+fn braced_array_var() {
     let src = "default_t defaults[] =\n{\n    {\"a\", &a, 1},\n};\n";
     round_trip(src);
     let items = build(src);
     match &items[0].0.kind {
-        ItemKind::Const(cd) => {
+        ItemKind::Var(cd) => {
             assert_eq!(cd.name, "defaults");
             match &cd.initializer {
                 Some(Init::Braced(rows)) => {
@@ -544,7 +552,7 @@ fn braced_array_const() {
                 other => panic!("expected Braced, got {other:?}"),
             }
         }
-        other => panic!("expected Const, got {other:?}"),
+        other => panic!("expected Var, got {other:?}"),
     }
 }
 
@@ -583,6 +591,6 @@ fn directive_and_comment_and_const_all_round_trip_together() {
     // items[2] is the trailing "\n" after the ';' - see simple_struct_with_typedef.
     assert_eq!(items.len(), 3);
     assert!(matches!(items[0].0.kind, ItemKind::Preproc(_)));
-    assert!(matches!(items[1].0.kind, ItemKind::Const(_)));
+    assert!(matches!(items[1].0.kind, ItemKind::Var(_)));
     assert_eq!(items[1].1.leading.len(), 0);
 }

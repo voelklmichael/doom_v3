@@ -1,6 +1,6 @@
-//! Step 4: constants with initializers, e.g.
-//! `static const char rcsid[] = "...";` or
-//! `default_t defaults[] = { ... };`.
+//! Step 4: variable declarations, both with an initializer, e.g.
+//! `static const char rcsid[] = "...";` / `default_t defaults[] = { ... };`,
+//! and without one, e.g. `extern int key_right;` / `static byte *wipe_scr;`.
 //!
 //! No operator grammar: a scalar initializer's own expression text
 //! (`(30*TICRATE)`, `"a"`, `&foo`, ...) is always kept as raw text - no
@@ -11,35 +11,49 @@
 //! opaque string, because step 1 already found the matching `{`/`}`.
 
 use super::ast::{
-    Chunk, ConstDecl, Init, RawToken, Storage, Type, TypedefDecl, render_tokens_no_comments,
+    Chunk, Init, RawToken, Storage, Type, TypedefDecl, VarDecl, render_tokens_no_comments,
     split_top_level,
 };
 
 /// Parses a plain `;`-terminated statement with no top-level brace group,
-/// e.g. `static const char rcsid[] = "...";`. Returns `None` if there's no
-/// top-level `=` (not a constant-with-initializer) or the declarator
-/// doesn't parse.
-pub fn try_parse_const_flat(stmt: &str) -> Option<ConstDecl> {
+/// e.g. `static const char rcsid[] = "...";` (initializer) or
+/// `extern int key_right;` (no initializer - `initializer` comes back
+/// `None`). Returns `None` only if the declarator itself doesn't parse.
+pub fn try_parse_var_flat(stmt: &str) -> Option<VarDecl> {
     let s = stmt.trim();
     let s = s.strip_suffix(';').unwrap_or(s).trim();
-    let (decl_part, init_part) = split_top_level_eq(s)?;
-    let (storage, ty, name) = parse_declarator(decl_part.trim())?;
-    Some(ConstDecl {
-        storage,
-        ty,
-        name,
-        initializer: Some(Init::Expr(init_part.trim().to_string())),
-    })
+    match split_top_level_eq(s) {
+        Some((decl_part, init_part)) => {
+            let (storage, ty, name) = parse_declarator(decl_part.trim())?;
+            Some(VarDecl {
+                storage,
+                ty,
+                name,
+                initializer: Some(Init::Expr(init_part.trim().to_string())),
+            })
+        }
+        None => {
+            let (storage, ty, name) = parse_declarator(s)?;
+            Some(VarDecl {
+                storage,
+                ty,
+                name,
+                initializer: None,
+            })
+        }
+    }
 }
 
 /// Parses the `TYPE NAME[dims] =` header preceding a brace-initializer
 /// group, e.g. `mobjinfo_t mobjinfo[NUMMOBJTYPES] =` before `{ ... };`.
 /// Caller (record.rs) has already confirmed `header` ends with `=`. `inner`
-/// is the group's contents (excluding the `{`/`}` themselves).
-pub fn try_parse_const_braced(header: &str, inner: &[RawToken]) -> Option<ConstDecl> {
+/// is the group's contents (excluding the `{`/`}` themselves). Always
+/// produces `Some` initializer - a braced group with no leading `=` isn't
+/// this function's shape at all (record.rs never calls it in that case).
+pub fn try_parse_var_braced(header: &str, inner: &[RawToken]) -> Option<VarDecl> {
     let decl_part = header.trim().strip_suffix('=')?.trim();
     let (storage, ty, name) = parse_declarator(decl_part)?;
-    Some(ConstDecl {
+    Some(VarDecl {
         storage,
         ty,
         name,
@@ -228,7 +242,7 @@ pub(crate) fn parse_declarator(s: &str) -> Option<(Vec<Storage>, Type, String)> 
 /// (`f_wipe.c`). Returns `(storage, ty, name)` with `ty` a
 /// `Type::FunctionPointer` (wrapped in `Type::Array` for the `(*NAME[N])`
 /// variant) so it composes with the plain `ty`/`name` fields
-/// `ConstDecl`/`TypedefDecl`/`Field` already use. Each parameter in
+/// `VarDecl`/`TypedefDecl`/`Field` already use. Each parameter in
 /// `PARAMS` is itself parsed via `parse_declarator` (falling back to a bare
 /// `parse_type_text` read if it has no name, e.g. `traverser_t`'s
 /// `intercept_t *in` *does* have a name "in" that gets discarded here -

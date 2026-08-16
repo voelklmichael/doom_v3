@@ -254,7 +254,7 @@ pub struct Field {
     pub name: String,
     /// Storage-class/qualifier keywords preceding the type (`const`,
     /// `volatile`, ...) - almost always empty for a struct/union field, but
-    /// kept for parity with `ConstDecl`/`FnSig`/`Param` rather than
+    /// kept for parity with `VarDecl`/`FnSig`/`Param` rather than
     /// silently dropped or glued into `ty`'s text the way it used to be.
     pub storage: Vec<Storage>,
     pub bitfield: Option<String>,
@@ -320,8 +320,13 @@ pub enum Init {
     Expr(String),
 }
 
+/// A variable declaration: `[storage...] TYPE NAME[dims] [= INITIALIZER];`.
+/// Covers both constants-with-initializers (`static const char rcsid[] =
+/// "...";`) and plain declarations with none (`extern int key_right;`,
+/// `static byte *wipe_scr;`) - the two only differ in whether `initializer`
+/// is `Some`/`None`, and share the same declarator grammar either way.
 #[derive(Debug, Clone, Serialize)]
-pub struct ConstDecl {
+pub struct VarDecl {
     pub storage: Vec<Storage>,
     pub ty: Type,
     pub name: String,
@@ -381,7 +386,7 @@ pub enum ItemKind {
     Record(RecordDecl),
     Enum(EnumDecl),
     Typedef(TypedefDecl),
-    Const(ConstDecl),
+    Var(VarDecl),
     FunctionDecl(FnSig),
     /// Signature + fully opaque, never-descended-into body text (including
     /// the surrounding braces).
