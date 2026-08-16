@@ -169,6 +169,13 @@ impl KnownTypeNames {
     pub fn contains(&self, name: &str) -> bool {
         self.0.contains(name)
     }
+
+    /// Merges `other`'s names in. Used by `parser::corpus` to compose a
+    /// file's own set with the (already-computed) sets of whatever it
+    /// `#include`s.
+    pub fn extend(&mut self, other: &KnownTypeNames) {
+        self.0.extend(other.0.iter().cloned());
+    }
 }
 
 impl FromIterator<String> for KnownTypeNames {
