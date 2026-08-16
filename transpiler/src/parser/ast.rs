@@ -128,6 +128,36 @@ pub fn render_tokens_no_comments(tokens: &[RawToken]) -> String {
         .collect()
 }
 
+/// Splits `s` on top-level occurrences of `sep`, treating `(...)`, `[...]`
+/// and `{...}` as opaque (never splitting inside them). Used for enum
+/// variant lists, struct field lists, and braced-initializer element lists
+/// once they're back down to plain text.
+pub(crate) fn split_top_level(s: &str, sep: char) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut depth = 0i32;
+    let mut cur = String::new();
+    for c in s.chars() {
+        match c {
+            '(' | '[' | '{' => {
+                depth += 1;
+                cur.push(c);
+            }
+            ')' | ']' | '}' => {
+                depth -= 1;
+                cur.push(c);
+            }
+            c if c == sep && depth <= 0 => {
+                out.push(std::mem::take(&mut cur));
+            }
+            c => cur.push(c),
+        }
+    }
+    if !cur.trim().is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub enum Comment {
     Line(String),
@@ -189,7 +219,13 @@ pub struct TypedefDecl {
 
 #[derive(Debug, Clone, Serialize)]
 pub enum Init {
-    Braced(String),
+    /// A `{ ... }` initializer, split on top-level `,` into its elements -
+    /// each either a nested `Braced` sub-list (e.g. one row of a
+    /// `mobjinfo[]`/`states[]`-style table) or a scalar `Expr`. No operator
+    /// grammar: an element's own text (`(30*TICRATE)`, `"a"`, `&foo`, ...)
+    /// is kept as raw text either way - only the comma-separated *shape* of
+    /// the initializer is structured.
+    Braced(Vec<Init>),
     Expr(String),
 }
 

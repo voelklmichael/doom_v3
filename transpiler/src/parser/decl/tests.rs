@@ -1,4 +1,5 @@
 use super::*;
+use crate::parser::scan::scan;
 
 #[test]
 fn rcsid_style() {
@@ -12,11 +13,93 @@ fn rcsid_style() {
 
 #[test]
 fn braced_array_style() {
-    let cd =
-        try_parse_const_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", "{ /* ... */ }").unwrap();
+    let cd = try_parse_const_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", &scan(" /* ... */ "))
+        .unwrap();
     assert_eq!(cd.ty, "mobjinfo_t");
     assert_eq!(cd.name, "mobjinfo");
     assert_eq!(cd.array_dims, vec![Some("NUMMOBJTYPES".to_string())]);
+}
+
+#[test]
+fn braced_init_splits_scalar_elements() {
+    // rndtable-style: a flat list of scalar elements, no nesting.
+    let cd = try_parse_const_braced("int rndtable[] =", &scan(" 0, 8, 109, DI_NODIR ")).unwrap();
+    match cd.initializer {
+        Some(Init::Braced(elements)) => {
+            let texts: Vec<&str> = elements
+                .iter()
+                .map(|e| match e {
+                    Init::Expr(s) => s.as_str(),
+                    Init::Braced(_) => panic!("expected a scalar element"),
+                })
+                .collect();
+            assert_eq!(texts, vec!["0", "8", "109", "DI_NODIR"]);
+        }
+        other => panic!("expected Braced, got {other:?}"),
+    }
+}
+
+#[test]
+fn braced_init_splits_nested_rows() {
+    // m_misc.c's defaults[]-style table: each row is its own nested Braced
+    // sub-list, e.g. {"mouse_sensitivity", &mouseSensitivity, 5}.
+    let src = " {\"a\", &a, 1},\n    {\"b\", &b, 0},\n";
+    let cd = try_parse_const_braced("default_t defaults[] =", &scan(src)).unwrap();
+    match cd.initializer {
+        Some(Init::Braced(rows)) => {
+            assert_eq!(rows.len(), 2);
+            for (row, expected) in rows
+                .iter()
+                .zip([["\"a\"", "&a", "1"], ["\"b\"", "&b", "0"]])
+            {
+                match row {
+                    Init::Braced(cells) => {
+                        let texts: Vec<&str> = cells
+                            .iter()
+                            .map(|e| match e {
+                                Init::Expr(s) => s.as_str(),
+                                Init::Braced(_) => panic!("expected a scalar cell"),
+                            })
+                            .collect();
+                        assert_eq!(texts, expected);
+                    }
+                    Init::Expr(_) => panic!("expected a nested Braced row"),
+                }
+            }
+        }
+        other => panic!("expected Braced, got {other:?}"),
+    }
+}
+
+#[test]
+fn braced_init_no_trailing_comma_still_captures_last_element() {
+    let cd = try_parse_const_braced("int xs[] =", &scan(" 1, 2, 3 ")).unwrap();
+    match cd.initializer {
+        Some(Init::Braced(elements)) => assert_eq!(elements.len(), 3),
+        other => panic!("expected Braced, got {other:?}"),
+    }
+}
+
+#[test]
+fn braced_init_drops_comment_with_comma_without_fracturing() {
+    let cd = try_parse_const_braced(
+        "int xs[] =",
+        &scan(" 1, 2, // a comment, with a comma\n 3 "),
+    )
+    .unwrap();
+    match cd.initializer {
+        Some(Init::Braced(elements)) => {
+            let texts: Vec<&str> = elements
+                .iter()
+                .map(|e| match e {
+                    Init::Expr(s) => s.as_str(),
+                    Init::Braced(_) => panic!("expected a scalar element"),
+                })
+                .collect();
+            assert_eq!(texts, vec!["1", "2", "3"]);
+        }
+        other => panic!("expected Braced, got {other:?}"),
+    }
 }
 
 #[test]

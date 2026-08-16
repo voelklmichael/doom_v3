@@ -19,7 +19,7 @@
 
 use super::ast::{
     Chunk, Comment, EnumDecl, Field, FnSig, Item, ItemKind, RawToken, RecordDecl, RecordKind,
-    Trivia, render_tokens, render_tokens_no_comments,
+    Trivia, render_tokens, render_tokens_no_comments, split_top_level,
 };
 use super::decl::{
     parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat,
@@ -304,11 +304,10 @@ fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
         return ItemKind::FunctionDef(sig, body_raw);
     }
 
-    if header_trim.ends_with('=') {
-        let group_raw = format!("{open_text}{}{close_text}", render_tokens(&inner));
-        if let Some(cd) = try_parse_const_braced(header_trim, &group_raw) {
-            return ItemKind::Const(cd);
-        }
+    if header_trim.ends_with('=')
+        && let Some(cd) = try_parse_const_braced(header_trim, &inner)
+    {
+        return ItemKind::Const(cd);
     }
 
     let _ = raw;
@@ -484,36 +483,6 @@ fn parse_field(decl_text: &str) -> Option<Field> {
         array_dims,
         bitfield,
     })
-}
-
-/// Splits `s` on top-level occurrences of `sep`, treating `(...)`, `[...]`
-/// and `{...}` as opaque (never splitting inside them). Used for enum
-/// variant lists and struct field lists once they're back down to plain
-/// text.
-fn split_top_level(s: &str, sep: char) -> Vec<String> {
-    let mut out = Vec::new();
-    let mut depth = 0i32;
-    let mut cur = String::new();
-    for c in s.chars() {
-        match c {
-            '(' | '[' | '{' => {
-                depth += 1;
-                cur.push(c);
-            }
-            ')' | ']' | '}' => {
-                depth -= 1;
-                cur.push(c);
-            }
-            c if c == sep && depth <= 0 => {
-                out.push(std::mem::take(&mut cur));
-            }
-            c => cur.push(c),
-        }
-    }
-    if !cur.trim().is_empty() {
-        out.push(cur);
-    }
-    out
 }
 
 /// Recognizes a function signature: header text ending in `NAME ( params )`,
