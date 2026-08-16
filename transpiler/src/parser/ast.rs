@@ -262,12 +262,31 @@ pub struct ConstDecl {
     pub initializer: Option<Init>,
 }
 
+/// One entry in a function signature's parameter list, e.g. `int x` or
+/// `char *s`. `name` is empty for an anonymous parameter (a bare type with
+/// no identifier, e.g. an old K&R-style forward declaration's `int foo(int,
+/// char*);`) - in that case `ty` holds the parameter's entire text verbatim
+/// rather than attempting to guess where a type ends and a name begins.
+#[derive(Debug, Clone, Serialize)]
+pub struct Param {
+    pub ty: String,
+    pub name: String,
+    pub array_dims: Vec<Option<String>>,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct FnSig {
     pub storage: Vec<String>,
     pub ret_ty: String,
     pub name: String,
-    pub params_raw: String,
+    /// The parameter list, split on top-level `,`. Empty for both `()`
+    /// (old-style "unspecified parameters") and `(void)` (explicitly no
+    /// parameters) - that distinction isn't preserved structurally, though
+    /// it's still visible in the containing `Item.raw`.
+    pub params: Vec<Param>,
+    /// True if the parameter list ends in `...` (e.g. `I_Error`'s
+    /// `(char *error, ...)`).
+    pub variadic: bool,
 }
 
 /// One `#if`/`#ifdef`/`#ifndef` branch (or a following `#elif`): the

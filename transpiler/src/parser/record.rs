@@ -18,8 +18,9 @@
 //! produces a less useful `ItemKind`.
 
 use super::ast::{
-    Chunk, Comment, EnumDecl, EnumVariant, Field, FnSig, Item, ItemKind, RawToken, RecordDecl,
-    RecordKind, Span, Trivia, render_tokens, render_tokens_no_comments,
+    Chunk, Comment, EnumDecl, EnumVariant, Field, FnSig, Item, ItemKind, Param, RawToken,
+    RecordDecl, RecordKind, Span, Trivia, render_tokens, render_tokens_no_comments,
+    split_top_level,
 };
 use super::decl::{
     parse_declarator, try_parse_const_braced, try_parse_const_flat, try_parse_typedef_flat,
@@ -837,12 +838,66 @@ fn try_parse_fn_sig(header: &str) -> Option<FnSig> {
         }
     }
     let ret_ty = ty_parts.join(" ");
+    let (params, variadic) = parse_params(&params_raw);
     Some(FnSig {
         storage,
         ret_ty,
         name,
-        params_raw,
+        params,
+        variadic,
     })
+}
+
+/// Splits a function signature's parameter-list text on top-level `,` into
+/// individual parameters, e.g. `"int x, char *s"` -> two `Param`s. `()` and
+/// `(void)` both collapse to an empty list (see `FnSig::params`'s doc). A
+/// trailing `...` sets the variadic flag instead of becoming a `Param`.
+fn parse_params(params_raw: &str) -> (Vec<Param>, bool) {
+    let trimmed = params_raw.trim();
+    if trimmed.is_empty() || trimmed == "void" {
+        return (Vec::new(), false);
+    }
+    let mut variadic = false;
+    let mut params = Vec::new();
+    for part in split_top_level(trimmed, ',') {
+        let part = part.trim();
+        if part == "..." {
+            variadic = true;
+            continue;
+        }
+        if part.is_empty() {
+            continue;
+        }
+        params.push(parse_param(part));
+    }
+    (params, variadic)
+}
+
+/// Parses one parameter's text via the same declarator grammar used
+/// elsewhere (`parse_declarator`), which requires a trailing name. Old-style
+/// forward declarations can have anonymous parameters (a bare type, e.g.
+/// `int foo(int, char*);`) that grammar can't name - `parse_declarator`
+/// fails on those (nothing after the type to read as an identifier), so
+/// this falls back to keeping the parameter's whole text as `ty` with an
+/// empty `name` rather than guessing.
+fn parse_param(text: &str) -> Param {
+    if let Some((storage, ty, name, array_dims)) = parse_declarator(text) {
+        let mut ty = ty;
+        if !storage.is_empty() {
+            ty = format!("{} {}", storage.join(" "), ty);
+        }
+        Param {
+            ty,
+            name,
+            array_dims,
+        }
+    } else {
+        Param {
+            ty: text.to_string(),
+            name: String::new(),
+            array_dims: Vec::new(),
+        }
+    }
 }
 
 fn matching_open_paren(s: &str) -> Option<usize> {

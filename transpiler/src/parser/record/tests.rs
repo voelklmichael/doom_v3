@@ -64,8 +64,93 @@ fn function_body_stays_opaque() {
         ItemKind::FunctionDef(sig, body) => {
             assert_eq!(sig.name, "M_DrawText");
             assert!(body.contains("return x + y;"));
+            assert_eq!(sig.params.len(), 2);
+            assert_eq!(sig.params[0].ty, "int");
+            assert_eq!(sig.params[0].name, "x");
+            assert_eq!(sig.params[1].ty, "int");
+            assert_eq!(sig.params[1].name, "y");
+            assert!(!sig.variadic);
         }
         other => panic!("expected FunctionDef, got {other:?}"),
+    }
+}
+
+#[test]
+fn void_param_list_is_empty() {
+    let src = "void M_ScreenShot(void);\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert_eq!(sig.name, "M_ScreenShot");
+            assert!(sig.params.is_empty());
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
+    }
+}
+
+#[test]
+fn empty_param_list_is_empty() {
+    let src = "void I_InitSound();\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert_eq!(sig.name, "I_InitSound");
+            assert!(sig.params.is_empty());
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
+    }
+}
+
+#[test]
+fn anonymous_params_keep_their_type_with_no_name() {
+    // m_swap.h's SwapSHORT / p_inter.h's P_GivePower: old K&R-style forward
+    // declarations can have bare-type, no-name parameters.
+    let src = "short SwapSHORT(short);\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert_eq!(sig.params.len(), 1);
+            assert_eq!(sig.params[0].ty, "short");
+            assert_eq!(sig.params[0].name, "");
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
+    }
+}
+
+#[test]
+fn variadic_function_sets_flag_without_a_trailing_param() {
+    // i_system.h's I_Error.
+    let src = "void I_Error (char *error, ...);\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert!(sig.variadic);
+            assert_eq!(sig.params.len(), 1);
+            assert_eq!(sig.params[0].name, "error");
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
+    }
+}
+
+#[test]
+fn function_pointer_parameter_is_parsed_via_declarator() {
+    // p_local.h's P_BlockLinesIterator: a callback parameter is itself a
+    // function-pointer declarator, reusing parse_declarator's existing
+    // fn-ptr support (decl.rs) rather than anything new here.
+    let src = "boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) );\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::FunctionDecl(sig) => {
+            assert_eq!(sig.params.len(), 3);
+            assert_eq!(sig.params[2].ty, "boolean (*)(line_t*)");
+            assert_eq!(sig.params[2].name, "func");
+        }
+        other => panic!("expected FunctionDecl, got {other:?}"),
     }
 }
 
