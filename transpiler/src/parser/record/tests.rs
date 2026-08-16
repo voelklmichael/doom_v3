@@ -87,6 +87,41 @@ fn doc_comment_mentioning_struct_does_not_misclassify_a_function() {
 }
 
 #[test]
+fn blank_line_before_doc_comment_does_not_block_flat_classification() {
+    // Same shape as d_think.h's actionf_v: a blank line before the doc
+    // comment stops `drain_leading_comments` from stripping it (same gap as
+    // the struct-keyword test above), but for a *flat* (brace-free) unit
+    // this used to make classification see the raw text starting with "//"
+    // instead of "typedef", so the typedef was never recognized at all and
+    // fell all the way back to Item::Raw.
+    let src = "\n// Function pointer type.\ntypedef void (*fn_t)();\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Typedef(td) => {
+            assert_eq!(td.name, "fn_t");
+            assert_eq!(td.underlying, "void (*)()");
+        }
+        other => panic!("expected Typedef, got {other:?}"),
+    }
+}
+
+#[test]
+fn equals_sign_in_comment_does_not_fake_a_const_initializer() {
+    // Same shape as doomstat.h's viewangleoffset: the comment text
+    // "ANG90 = left side" contains a top-level '=', which used to be
+    // mistaken for a real initializer's '=' when classification scanned
+    // the whole (comment-inclusive) raw text, producing a garbage
+    // ConstDecl with the comment fragment as its type/name. A plain
+    // extern declaration with no initializer must fall to Item::Raw
+    // (by design - see the "no initializer" gap), not a fake Const.
+    let src = "\n// ANG90 = left side, ANG270 = right\nextern int viewangleoffset;\n";
+    round_trip(src);
+    let items = build(src);
+    assert!(matches!(items[0].0.kind, ItemKind::Raw));
+}
+
+#[test]
 fn braced_array_const() {
     let src = "default_t defaults[] =\n{\n    {\"a\", &a, 1},\n};\n";
     round_trip(src);

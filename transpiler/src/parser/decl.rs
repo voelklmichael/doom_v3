@@ -100,10 +100,10 @@ fn split_top_level_eq(s: &str) -> Option<(&str, &str)> {
     None
 }
 
-/// Heuristic C declarator parser: `[storage...] TYPE [*]NAME (['[' dim ']'])*`.
-/// Not a full C grammar - good enough to pull apart the shapes actually
-/// used in the target files without parsing expressions or function
-/// pointer declarators.
+/// Heuristic C declarator parser: `[storage...] TYPE [*]NAME (['[' dim ']'])*`,
+/// or the function-pointer shape `[storage...] TYPE (*NAME) (PARAMS)`. Not a
+/// full C grammar - good enough to pull apart the shapes actually used in
+/// the target files without parsing expressions.
 pub(crate) fn parse_declarator(
     s: &str,
 ) -> Option<(Vec<String>, String, String, Vec<Option<String>>)> {
@@ -124,6 +124,18 @@ pub(crate) fn parse_declarator(
         base = base[..open].trim_end();
     }
     dims.reverse();
+
+    // A declarator never legitimately ends in `)` other than the
+    // function-pointer shape (`TYPE (*NAME)(PARAMS)`) - falling through to
+    // the plain whitespace-token parsing below for such text would misread
+    // e.g. `boolean (*traverser_t) (intercept_t *in)` as a garbage
+    // `*`-prefixed name (`in)`) instead of correctly failing or extracting
+    // `traverser_t`. So this shape is tried first, and if it doesn't match,
+    // parsing fails outright rather than falling through.
+    if base.ends_with(')') {
+        let (storage, ty, name) = parse_fnptr_declarator(base)?;
+        return Some((storage, ty, name, dims));
+    }
 
     let tokens: Vec<&str> = base.split_whitespace().collect();
     let last = *tokens.last()?;
@@ -153,6 +165,72 @@ pub(crate) fn parse_declarator(
         ty.extend(std::iter::repeat('*').take(star_count));
     }
     Some((storage, ty, name, dims))
+}
+
+/// Recognizes the function-pointer declarator shape `RETTYPE (*NAME) (PARAMS)`,
+/// e.g. `void (*actionf_v)()` or `boolean (*traverser_t) (intercept_t *in)`.
+/// `PARAMS` is kept as raw text, same as `try_parse_fn_sig` does for
+/// ordinary function signatures. Returns `(storage, ty, name)` with `ty`
+/// re-spelled as `RETTYPE (*)(PARAMS)` (name elided) so it composes with the
+/// plain `ty`/`name` fields `ConstDecl`/`TypedefDecl`/`Field` already use.
+fn parse_fnptr_declarator(s: &str) -> Option<(Vec<String>, String, String)> {
+    let params_open = matching_open_paren(s)?;
+    let params = s[params_open + 1..s.len() - 1].trim();
+    let before_params = s[..params_open].trim();
+    if !before_params.ends_with(')') {
+        return None;
+    }
+    let name_open = matching_open_paren(before_params)?;
+    let name_group = before_params[name_open + 1..before_params.len() - 1].trim();
+    let name = name_group.strip_prefix('*')?.trim().to_string();
+    let first_char = name.chars().next()?;
+    if !(first_char.is_alphabetic() || first_char == '_')
+        || !name.chars().all(|c| c.is_alphanumeric() || c == '_')
+    {
+        return None;
+    }
+
+    let ret_raw = before_params[..name_open].trim();
+    let tokens: Vec<&str> = ret_raw.split_whitespace().collect();
+    const STORAGE_KW: &[&str] = &["static", "extern", "const", "register", "volatile"];
+    let mut storage = Vec::new();
+    let mut ty_parts = Vec::new();
+    for t in &tokens {
+        if STORAGE_KW.contains(t) && ty_parts.is_empty() {
+            storage.push((*t).to_string());
+        } else {
+            ty_parts.push(*t);
+        }
+    }
+    let ret_ty = ty_parts.join(" ");
+    if ret_ty.is_empty() {
+        return None;
+    }
+    let ty = format!("{ret_ty} (*)({params})");
+    Some((storage, ty, name))
+}
+
+/// Finds the index of the `(` matching the final `)` of `s`, or `None` if
+/// `s` doesn't end in `)`.
+fn matching_open_paren(s: &str) -> Option<usize> {
+    let bytes = s.as_bytes();
+    if bytes.last() != Some(&b')') {
+        return None;
+    }
+    let mut depth = 0i32;
+    for (i, &b) in bytes.iter().enumerate().rev() {
+        match b {
+            b')' => depth += 1,
+            b'(' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(i);
+                }
+            }
+            _ => {}
+        }
+    }
+    None
 }
 
 #[cfg(test)]

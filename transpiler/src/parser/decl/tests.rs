@@ -29,3 +29,39 @@ fn comparison_is_not_mistaken_for_assignment() {
     // not realistic top-level syntax, but guards the == skip logic
     assert!(split_top_level_eq("a == b").is_none());
 }
+
+#[test]
+fn fnptr_typedef_with_named_param() {
+    // p_local.h's traverser_t. Before the fnptr-declarator shape was
+    // recognized, this fell through to the plain whitespace-token parser
+    // and produced garbage: name "in)", underlying "boolean (*traverser_t)
+    // (intercept_t *". Round-trip stayed exact (raw is untouched) but the
+    // structured fields were nonsense.
+    let td = try_parse_typedef_flat("typedef boolean (*traverser_t) (intercept_t *in);").unwrap();
+    assert_eq!(td.name, "traverser_t");
+    assert_eq!(td.underlying, "boolean (*)(intercept_t *in)");
+}
+
+#[test]
+fn fnptr_typedef_with_empty_params() {
+    // d_think.h's actionf_v.
+    let td = try_parse_typedef_flat("typedef  void (*actionf_v)();").unwrap();
+    assert_eq!(td.name, "actionf_v");
+    assert_eq!(td.underlying, "void (*)()");
+}
+
+#[test]
+fn fnptr_typedef_with_anonymous_params() {
+    // d_think.h's actionf_p2.
+    let td = try_parse_typedef_flat("typedef  void (*actionf_p2)( void*, void* );").unwrap();
+    assert_eq!(td.name, "actionf_p2");
+    assert_eq!(td.underlying, "void (*)(void*, void*)");
+}
+
+#[test]
+fn fnptr_array_declarator_is_rejected_not_garbage() {
+    // An array of function pointers (`(*NAME[dims])`) isn't a shape v1
+    // supports - it must fail cleanly (-> Item::Raw upstream) rather than
+    // extracting a bogus name like "table[4]".
+    assert!(parse_declarator("void (*table[4])(int)").is_none());
+}
