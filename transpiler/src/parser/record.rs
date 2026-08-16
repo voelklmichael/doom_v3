@@ -304,11 +304,10 @@ fn classify_group_unit(unit: &[Chunk], raw: &str) -> ItemKind {
         return ItemKind::FunctionDef(sig, body_raw);
     }
 
-    if header_trim.ends_with('=') {
-        let group_raw = format!("{open_text}{}{close_text}", render_tokens(&inner));
-        if let Some(cd) = try_parse_const_braced(header_trim, &group_raw) {
-            return ItemKind::Const(cd);
-        }
+    if header_trim.ends_with('=')
+        && let Some(cd) = try_parse_const_braced(header_trim, &inner)
+    {
+        return ItemKind::Const(cd);
     }
 
     let _ = raw;

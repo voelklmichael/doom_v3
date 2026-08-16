@@ -367,7 +367,25 @@ fn braced_array_const() {
     match &items[0].0.kind {
         ItemKind::Const(cd) => {
             assert_eq!(cd.name, "defaults");
-            assert!(matches!(cd.initializer, Some(Init::Braced(_))));
+            match &cd.initializer {
+                Some(Init::Braced(rows)) => {
+                    assert_eq!(rows.len(), 1);
+                    match &rows[0] {
+                        Init::Braced(cells) => {
+                            let texts: Vec<&str> = cells
+                                .iter()
+                                .map(|e| match e {
+                                    Init::Expr(s) => s.as_str(),
+                                    Init::Braced(_) => panic!("expected a scalar cell"),
+                                })
+                                .collect();
+                            assert_eq!(texts, vec!["\"a\"", "&a", "1"]);
+                        }
+                        Init::Expr(_) => panic!("expected a nested Braced row"),
+                    }
+                }
+                other => panic!("expected Braced, got {other:?}"),
+            }
         }
         other => panic!("expected Const, got {other:?}"),
     }
