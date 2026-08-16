@@ -135,6 +135,86 @@ pub fn compute_known_functions(paths: &[PathBuf]) -> HashMap<String, HashMap<Str
     compute_per_file_env(paths, own_function_sigs, merge_map)
 }
 
+/// Computes each file's own precise `#define` environment (`macro name ->
+/// value text`), same `#include`-graph machinery again. Unlike
+/// `own_type_names`/`own_global_types`/`own_function_sigs`, this
+/// deliberately does **not** recurse into `ItemKind::Conditional` bodies -
+/// only genuinely unconditional, top-level `#define`s count as "this file
+/// defines this macro" (a `#define` inside an `#if`/`#ifdef` branch is only
+/// real if that branch's own condition holds, which is exactly the
+/// chicken-and-egg case `preproc::eval_if_expr`/`eval_ifdef` exist to
+/// resolve - not attempted here). Within one file, a top-level `#undef`
+/// removes the name from that file's own contribution before merging -
+/// real corpus example: `am_map.c` defines and immediately `#undef`s a
+/// scratch macro named `R` four times over (each pair bracketing one
+/// `mline_t` array literal); by the time this harvest finishes walking the
+/// file, `R` has been inserted and removed four times and correctly ends
+/// up absent, with no special-casing needed - it just falls out of
+/// processing items in their real file order.
+pub fn compute_known_defines(paths: &[PathBuf]) -> HashMap<String, HashMap<String, String>> {
+    compute_per_file_env(paths, own_defines, merge_map)
+}
+
+fn own_defines(items: &[(Item, Trivia)]) -> HashMap<String, String> {
+    let mut defines = HashMap::new();
+    for (item, _) in unwrap_include_guard(items) {
+        match &item.kind {
+            ItemKind::Preproc(Directive::DefineObject { name, value }) => {
+                defines.insert(name.clone(), value.clone());
+            }
+            ItemKind::Preproc(Directive::DefineFunction { name, .. }) => {
+                defines.insert(name.clone(), String::new());
+            }
+            ItemKind::Preproc(Directive::Undef { name }) => {
+                defines.remove(name);
+            }
+            _ => {}
+        }
+    }
+    defines
+}
+
+/// Real corpus headers wrap almost their entire content in the classic
+/// `#ifndef GUARD`/`#define GUARD`...`#endif` include-guard idiom (see
+/// `cond::include_guard_name`, which confirms this exact shape holds for
+/// all 62 headers) - meaning a header's "real" top-level `#define`s (e.g.
+/// `doomdef.h`'s `RANGECHECK`/`SNDSERV`) are technically nested one level
+/// inside that `CondGroup`'s single branch, not directly top-level items.
+/// Unwrapping it here for `own_defines`'s purposes is safe (unlike
+/// `cond::strip_include_guard`, this is read-only - it never mutates or
+/// loses bytes, just chooses which slice to scan): the guard's condition
+/// is, by construction, always true the first time a header's content is
+/// genuinely reached - there'd be nothing to see otherwise. Only this one
+/// specific, always-true wrapper is unwrapped - an arbitrary other
+/// `#ifdef` still correctly stays out of `own_defines`'s reach.
+fn unwrap_include_guard(items: &[(Item, Trivia)]) -> &[(Item, Trivia)] {
+    let Some((first, _)) = items.split_first() else {
+        return items;
+    };
+    let ItemKind::Conditional(group) = &first.0.kind else {
+        return items;
+    };
+    if group.else_body.is_some() || group.branches.len() != 1 {
+        return items;
+    }
+    let branch = &group.branches[0];
+    let Directive::IfDef { name, negate: true } = &branch.directive else {
+        return items;
+    };
+    match branch.body.first() {
+        Some((body_item, _))
+            if matches!(
+                &body_item.kind,
+                ItemKind::Preproc(Directive::DefineObject { name: def_name, .. })
+                    if def_name == name
+            ) =>
+        {
+            &branch.body
+        }
+        _ => items,
+    }
+}
+
 fn own_global_types(items: &[(Item, Trivia)]) -> HashMap<String, Type> {
     let mut globals = HashMap::new();
     collect_global_types(items, &mut globals);
