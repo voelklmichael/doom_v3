@@ -1,4 +1,4 @@
 [workspace]
-members = ["transpiler"]
+members = ["transpiler", "doom_rs"]
 
 resolver = "3"

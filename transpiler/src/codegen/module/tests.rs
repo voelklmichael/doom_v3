@@ -42,9 +42,17 @@ fn fn_def(name: &str) -> ItemKind {
     )
 }
 
+/// `has_init: false` represents a mere `extern` declaration (the dedup
+/// logic's real signal is `Storage::Extern`, not the presence of an
+/// initializer - see `collect_stronger_names`'s doc comment for why); `true`
+/// represents a real (non-`extern`) definition.
 fn var(name: &str, has_init: bool) -> ItemKind {
     ItemKind::Var(VarDecl {
-        storage: vec![],
+        storage: if has_init {
+            vec![]
+        } else {
+            vec![Storage::Extern]
+        },
         ty: named("int"),
         name: name.to_string(),
         initializer: has_init.then(|| crate::parser::ast::Init::Expr("0".to_string())),
@@ -189,6 +197,25 @@ fn use_statements_never_include_own_module() {
     assert!(uses.is_empty());
 }
 
+#[test]
+fn use_statements_skip_a_quoted_include_of_a_non_corpus_file() {
+    // Real corpus case: m_fixed.c's `#include "stdlib.h"` - quoted, but a
+    // real system header, not one of the 124 corpus files, so it never got
+    // its own entry in `graph` (only real corpus files do - see
+    // `use_statements_for_module`'s doc comment). Must not produce a
+    // `use crate::stdlib::*;` referencing a module that was never
+    // generated.
+    let mut graph = HashMap::new();
+    graph.insert(
+        "m_fixed.c".to_string(),
+        vec!["stdlib.h".to_string(), "doomtype.h".to_string()],
+    );
+    graph.insert("doomtype.h".to_string(), vec![]);
+    // Deliberately no entry for "stdlib.h" - it's not a corpus file.
+    let uses = use_statements_for_module(&graph, "m_fixed", &["m_fixed.c".to_string()]);
+    assert_eq!(uses, vec!["use crate::doomtype::*;\n"]);
+}
+
 // ---- merge_items dedup ----
 
 #[test]
@@ -215,6 +242,46 @@ fn extern_var_is_dropped_when_a_real_definition_exists() {
     let merged = merge_items(Some(&header), Some(&source));
     assert_eq!(merged.len(), 1);
     assert!(matches!(&merged[0].0.kind, ItemKind::Var(vd) if vd.initializer.is_some()));
+}
+
+#[test]
+fn extern_var_is_dropped_by_a_tentative_definition_with_no_explicit_initializer() {
+    // Real corpus bug: doomstat.h's `extern boolean modifiedgame;` +
+    // doomstat.c's `boolean modifiedgame;` (a tentative definition - real
+    // storage, implicitly zero-initialized, but with NO explicit `=` in the
+    // source either) both have `initializer: None`. An earlier version of
+    // this dedup keyed on `initializer.is_some()`, so it treated *both* as
+    // mere declarations and dropped neither - a real `cargo build -p
+    // doom_rs` failure (duplicate `static mut modifiedgame`). The real
+    // signal is `Storage::Extern`, not the initializer.
+    let header = vec![item(ItemKind::Var(VarDecl {
+        storage: vec![Storage::Extern],
+        ty: named("boolean"),
+        name: "modifiedgame".to_string(),
+        initializer: None,
+    }))];
+    let source = vec![item(ItemKind::Var(VarDecl {
+        storage: vec![],
+        ty: named("boolean"),
+        name: "modifiedgame".to_string(),
+        initializer: None, // tentative definition - no explicit `=` in the source either
+    }))];
+    let merged = merge_items(Some(&header), Some(&source));
+    assert_eq!(merged.len(), 1);
+    assert!(
+        matches!(&merged[0].0.kind, ItemKind::Var(vd) if !vd.storage.contains(&Storage::Extern))
+    );
+}
+
+#[test]
+fn two_extern_declarations_of_the_same_name_with_no_definition_keep_only_one() {
+    // e.g. two different headers both declaring `extern int foo;` for a
+    // variable actually defined in some other .c file outside this merged
+    // pair - must not produce a literal duplicate extern block entry.
+    let header = vec![item(var("g_only_declared", false))];
+    let source = vec![item(var("g_only_declared", false))];
+    let merged = merge_items(Some(&header), Some(&source));
+    assert_eq!(merged.len(), 1);
 }
 
 #[test]

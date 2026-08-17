@@ -6,7 +6,9 @@
 //! module-assembly concern, not an item-emission one).
 
 use super::ident::{ident, synthesize_nested_name};
-use super::types::{format_return_suffix, map_type, sanitize_int_literal};
+use super::types::{
+    format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
+};
 use crate::parser::ast::{
     ActiveBranch, CondGroup, EnumDecl, Field, FnSig, Item, ItemKind, RecordDecl, RecordKind,
     Storage, TypedefDecl, VarDecl,
@@ -34,7 +36,34 @@ pub fn emit_item(item: &Item) -> String {
     }
 }
 
+/// True if `text` (a raw declaration *name*, never a mapped type) contains
+/// a comma - the signature of `record::parse_fields`/
+/// `decl::parse_declarator` failing to split a real multi-declarator
+/// declaration (e.g. a struct field like `long misc1, misc2;`, or a
+/// top-level variable like `fixed_t m_x2, m_y2;`) into separate
+/// `Field`s/`VarDecl`s. The stray comma can end up glued onto *either*
+/// half depending on exactly where the token stream got cut - sometimes
+/// the name (`{name: "x,y", ty: "int"}`, checked here), sometimes the type
+/// (`{name: "y", ty: "int x,"}`, checked separately via
+/// `types::type_is_malformed` on the raw `Type` - never on mapped text,
+/// which can legitimately contain commas for unrelated reasons, e.g. a
+/// function pointer's own parameter list). Emitting either verbatim would
+/// place a stray comma inside a declaration's syntax, breaking the
+/// surrounding item (for a struct field, the *whole containing struct*) -
+/// callers must detect this and degrade to a flagged comment instead of
+/// emitting broken code.
+fn is_malformed(text: &str) -> bool {
+    text.contains(',')
+}
+
 fn emit_typedef(td: &TypedefDecl) -> String {
+    if is_malformed(&td.name) || type_is_malformed(&td.underlying) {
+        let ty = map_type(&td.underlying);
+        return format!(
+            "// TODO: unparsed multi-declarator typedef, needs manual translation: {} = {ty}\n\n",
+            td.name
+        );
+    }
     format!(
         "pub type {} = {};\n\n",
         ident(&td.name),
@@ -80,9 +109,15 @@ fn emit_record(rd: &RecordDecl) -> String {
     // typedef - `record::classify_record_or_enum` sets `typedef_name =
     // names.first().cloned()` without removing it from `names` - so the
     // typedef name itself must be skipped here, or it gets a bogus
-    // self-referential `pub type X = X;` alias.
+    // self-referential `pub type X = X;` alias. Also skip anything that
+    // isn't identifier-shaped: a bare `};    // comment` with no real extra
+    // declarator can leak the trailing `;`/comment text into `names` as
+    // one garbage "name" (real corpus case: m_bbox.h's anonymous bbox
+    // enum) - not a real declarator, silently dropped as noise (same
+    // "whitespace-only Raw item is noise, not content" precedent as
+    // `emit_raw`), not worth a TODO comment.
     for extra in &rd.names {
-        if rd.typedef_name.as_deref() == Some(extra.as_str()) {
+        if rd.typedef_name.as_deref() == Some(extra.as_str()) || !looks_like_identifier(extra) {
             continue;
         }
         out.push_str(&format!("pub type {} = {primary};\n", ident(extra)));
@@ -112,6 +147,20 @@ fn emit_record_named(name: &str, rd: &RecordDecl) -> String {
 /// Returns (extra top-level definitions needed before the parent, this
 /// field's own `pub name: Type,` line).
 fn emit_field(parent_name: &str, field: &Field) -> (String, String) {
+    if is_malformed(&field.name) {
+        // See `is_malformed` - the stray comma from an unsplit multi-
+        // declarator field can land on the *name* half instead of the
+        // type half (e.g. am_map.c's `mpoint_t`: `int x, y;` -> one Field
+        // with name "x,y"). Comment the whole field out so the rest of the
+        // struct stays syntactically valid.
+        return (
+            String::new(),
+            format!(
+                "    // TODO: unparsed multi-declarator field, needs manual translation: {}\n",
+                field.name
+            ),
+        );
+    }
     let fname = ident(&field.name);
     let bitfield_comment = match &field.bitfield {
         Some(width) => format!(" // TODO: bitfield width {width}, needs manual packing"),
@@ -135,25 +184,18 @@ fn emit_field(parent_name: &str, field: &Field) -> (String, String) {
             )
         }
         None => {
-            let ty_text = map_type(&field.ty);
-            if ty_text.contains(',') {
-                // A comma inside a mapped type means `record::parse_fields`
-                // couldn't split a real multi-declarator field (e.g.
-                // info.h's `long misc1, misc2;`) into separate `Field`s -
-                // a known, rare (5 occurrences corpus-wide) parser gap, not
-                // a codegen bug. Emitting the raw text as-is would break
-                // the *whole containing struct's* Rust syntax (a stray
-                // comma inside a field's type position derails brace/comma
-                // parsing for every field after it), not just this one
-                // field - comment the whole field out instead so the rest
-                // of the struct stays syntactically valid.
+            if type_is_malformed(&field.ty) {
+                // See `type_is_malformed` - comment the whole field out so
+                // the rest of the struct stays syntactically valid.
                 return (
                     String::new(),
                     format!(
-                        "    // TODO: unparsed multi-declarator field, needs manual translation: {fname}: {ty_text}\n"
+                        "    // TODO: unparsed multi-declarator field, needs manual translation: {fname}: {}\n",
+                        map_type(&field.ty)
                     ),
                 );
             }
+            let ty_text = map_type(&field.ty);
             (
                 String::new(),
                 format!("    pub {fname}: {ty_text},{bitfield_comment}\n"),
@@ -223,9 +265,14 @@ fn emit_enum(ed: &EnumDecl) -> String {
         out.push_str(&format!("pub type {} = std::ffi::c_int;\n", ident(tag)));
     }
     // `names` is *every* declarator name, including the typedef name itself
-    // (see the matching comment in `emit_record` for why) - skip it here too.
+    // (see the matching comment in `emit_record` for why) - skip it here
+    // too, and skip anything not identifier-shaped (real corpus case:
+    // m_bbox.h's anonymous bbox enum, `};    // bbox coordinates` with no
+    // real extra declarator, leaks the trailing `;`/comment text into
+    // `names` as one garbage "name" - see the matching comment in
+    // `emit_record`).
     for extra in &ed.names {
-        if ed.typedef_name.as_deref() == Some(extra.as_str()) {
+        if ed.typedef_name.as_deref() == Some(extra.as_str()) || !looks_like_identifier(extra) {
             continue;
         }
         out.push_str(&format!("pub type {} = std::ffi::c_int;\n", ident(extra)));
@@ -239,14 +286,41 @@ fn is_static(storage: &[Storage]) -> bool {
 }
 
 fn emit_var(vd: &VarDecl) -> String {
-    let name = ident(&vd.name);
+    if is_malformed(&vd.name) || type_is_malformed(&vd.ty) {
+        // See `is_malformed`/`type_is_malformed` - real corpus example:
+        // am_map.c's `fixed_t m_x2, m_y2;` (a multi-declarator top-level
+        // variable, same parser gap as the struct-field case, just at file
+        // scope).
+        return format!(
+            "// TODO: unparsed multi-declarator variable, needs manual translation: {}: {}\n\n",
+            vd.name,
+            map_type(&vd.ty)
+        );
+    }
     let ty = map_type(&vd.ty);
+    let name = ident(&vd.name);
     let vis = if is_static(&vd.storage) { "" } else { "pub " };
-    match &vd.initializer {
-        None => format!("unsafe extern \"C\" {{\n    {vis}static mut {name}: {ty};\n}}\n\n"),
-        Some(_) => format!(
+    // The real declaration-vs-definition signal is the `extern` keyword,
+    // *not* whether an explicit initializer is present: a tentative
+    // definition (`boolean modifiedgame;`, no `extern`, no `= value`) is
+    // still a real definition in C (implicitly zero-initialized storage),
+    // not a mere declaration - confirmed via a real corpus build failure
+    // (doomstat.h's `extern boolean modifiedgame;` + doomstat.c's
+    // `boolean modifiedgame;` both had `initializer: None`, so checking
+    // `initializer.is_some()` here treated *both* as declarations and
+    // neither as the "real" one, producing a duplicate `static mut`
+    // definition - `merge_items`'s dedup rule in `codegen::module` uses the
+    // same `Storage::Extern` signal, for the same reason).
+    if vd.storage.contains(&Storage::Extern) {
+        format!("unsafe extern \"C\" {{\n    {vis}static mut {name}: {ty};\n}}\n\n")
+    } else {
+        // Zero matches C's own implicit-zero-initialization for a
+        // tentative definition either way, and stands in as a documented
+        // stub when a real explicit initializer exists too (translating it
+        // is deferred - see decision #3 in the approved plan).
+        format!(
             "{vis}static mut {name}: {ty} = unsafe {{ std::mem::zeroed() }}; // TODO: initializer not yet translated\n\n"
-        ),
+        )
     }
 }
 
@@ -261,7 +335,19 @@ fn format_params(sig: &FnSig) -> String {
             } else {
                 ident(&p.name)
             };
-            format!("{name}: {}", map_type(&p.ty))
+            if type_is_malformed(&p.ty) {
+                // See `type_is_malformed` - real corpus example: m_misc.c's
+                // M_ReadFile/M_WriteFile take a `char const *` param (a
+                // trailing-qualifier shape `map_type` itself flags). Unlike
+                // a struct field, a param can't be commented out without
+                // breaking the enclosing parenthesized list's syntax -
+                // substitute a placeholder type instead, keeping the
+                // signature's arity and overall syntax valid.
+                format!("{name}: () /* TODO: unparsed param type, needs manual translation */")
+            } else {
+                let ty = map_type(&p.ty);
+                format!("{name}: {ty}")
+            }
         })
         .collect::<Vec<_>>()
         .join(", ")

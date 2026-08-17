@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use transpiler::codegen::{
+    items as codegen_items, module as codegen_module, write as codegen_write,
+};
 use transpiler::parse_file_with_types;
 use transpiler::parser::corpus::{compute_known_defines, compute_known_type_names};
 use transpiler::parser::evidence::{collect_evidence, summarize};
@@ -21,6 +24,10 @@ fn main() {
     let mut args: Vec<String> = std::env::args().skip(1).collect();
     if take_flag(&mut args, "--array-evidence") {
         print_array_evidence();
+        return;
+    }
+    if take_flag(&mut args, "--emit-rust") {
+        run_codegen();
         return;
     }
     let strip_guards = take_flag(&mut args, "--strip-guards");
@@ -121,6 +128,109 @@ fn print_array_evidence() {
             "{:<28} {:<16} array={:<3} single={:<3} {verdict}",
             s.function, s.param_name, s.array_hits, s.single_object_hits
         );
+    }
+}
+
+/// `--emit-rust`: runs the full codegen pipeline over the whole corpus and
+/// writes `doom_rs/src/*.rs`. Always operates on all 124 files (module
+/// merging inherently needs both halves of every `.c`+`.h` pair) - not
+/// driven by the positional-args subset the default JSON-dump mode uses.
+/// Skeleton phase only (see `codegen` module docs / the approved plan at
+/// `/home/michael/.claude/plans/eager-marinating-axolotl.md`): types,
+/// struct/union/enum definitions, and function signatures are real;
+/// function bodies and variable initializers are stubs, and macros are out
+/// of scope entirely - `cargo build -p doom_rs` is expected to have real,
+/// already-understood errors from those deferred features, not a green
+/// build.
+fn run_codegen() {
+    let all = all_files();
+    let known_types = compute_known_type_names(&all);
+    let known_defines = compute_known_defines(&all);
+    let predefined: HashMap<String, String> = PREDEFINED_MACROS
+        .iter()
+        .map(|m| (m.to_string(), String::new()))
+        .collect();
+
+    // Parse every file once, keyed by filename - codegen::module's merge
+    // driver needs both halves of a `.c`+`.h` pair, and the include-graph
+    // computation below needs every file's own items too.
+    let mut parsed: HashMap<String, Vec<(ast::Item, ast::Trivia)>> = HashMap::new();
+    for path in &all {
+        let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
+            continue;
+        };
+        let known = known_types.get(name).cloned().unwrap_or_default();
+        let mut defines = predefined.clone();
+        if let Some(file_defines) = known_defines.get(name) {
+            defines.extend(file_defines.iter().map(|(k, v)| (k.clone(), v.clone())));
+        }
+        match parse_file_with_types(path, &known, &defines) {
+            Ok(file) => {
+                parsed.insert(name.to_string(), file.items);
+            }
+            Err(e) => eprintln!("failed to parse {}: {e}", path.display()),
+        }
+    }
+
+    let include_graph: HashMap<String, Vec<String>> = parsed
+        .iter()
+        .map(|(name, items)| (name.clone(), codegen_module::direct_local_includes(items)))
+        .collect();
+
+    let units = codegen_module::group_into_modules(&all);
+    let mut generated: Vec<(String, String)> = Vec::with_capacity(units.len());
+    let mut total_items = 0usize;
+    for unit in &units {
+        fn file_name(p: &Path) -> Option<&str> {
+            p.file_name().and_then(|n| n.to_str())
+        }
+        let header_items = unit
+            .header
+            .as_deref()
+            .and_then(file_name)
+            .and_then(|n| parsed.get(n));
+        let source_items = unit
+            .source
+            .as_deref()
+            .and_then(file_name)
+            .and_then(|n| parsed.get(n));
+        let merged = codegen_module::merge_items(
+            header_items.map(Vec::as_slice),
+            source_items.map(Vec::as_slice),
+        );
+        total_items += merged.len();
+
+        let constituent_files = codegen_module::constituent_file_names(unit);
+        let uses = codegen_module::use_statements_for_module(
+            &include_graph,
+            &unit.name,
+            &constituent_files,
+        );
+        let body = codegen_items::emit_items(&merged);
+
+        let mut text = uses.concat();
+        if !text.is_empty() {
+            text.push('\n');
+        }
+        text.push_str(&body);
+        generated.push((unit.name.clone(), text));
+    }
+
+    let src_dir = Path::new("doom_rs/src");
+    match codegen_write::write_all(src_dir, &generated) {
+        Ok(written) => {
+            println!(
+                "wrote {} modules ({total_items} total merged items) to {}",
+                generated.len(),
+                src_dir.display()
+            );
+            if let Err(e) = codegen_write::run_rustfmt(&written) {
+                eprintln!("failed to run rustfmt: {e}");
+            } else {
+                println!("ran rustfmt over {} files", written.len());
+            }
+        }
+        Err(e) => eprintln!("failed to write {}: {e}", src_dir.display()),
     }
 }
 

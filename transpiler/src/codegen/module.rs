@@ -9,7 +9,7 @@
 //! lists; parsing itself (and building the `known_types`/`defines`
 //! environment) stays a caller responsibility (`codegen::write`, PR D).
 
-use crate::parser::ast::{ActiveBranch, EnumDecl, Item, ItemKind, RecordDecl, Trivia};
+use crate::parser::ast::{ActiveBranch, EnumDecl, Item, ItemKind, RecordDecl, Storage, Trivia};
 use crate::parser::preproc::Directive;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::path::{Path, PathBuf};
@@ -151,6 +151,19 @@ pub fn use_statements_for_module(
     let mut visible_modules: BTreeSet<String> = BTreeSet::new();
     for file in constituent_files {
         for visible_file in transitively_visible_files(graph, file) {
+            // `graph` only has an entry for files actually in the corpus
+            // (every one of the 124 real `.c`/`.h` files gets parsed and
+            // added as a key, even ones with no local includes of their
+            // own, which get an empty edge list rather than being absent).
+            // A file missing from `graph` entirely is something *quoted*
+            // but not actually part of the corpus - confirmed real case:
+            // m_fixed.c's `#include "stdlib.h"` (quoted, but a real system
+            // header, not a local file - "stdlib.h" was never part of the
+            // 124-file corpus to begin with). Such a target has no
+            // corresponding generated Rust module to `use`.
+            if !graph.contains_key(&visible_file) {
+                continue;
+            }
             visible_modules.insert(module_name_for_file(&visible_file).to_string());
         }
     }
@@ -172,43 +185,58 @@ fn enum_name(ed: &EnumDecl) -> Option<&str> {
 }
 
 /// Which names have a "stronger" version elsewhere in `items` - a real
-/// `FunctionDef` for some `FunctionDecl`'s name, or a with-initializer `Var`
-/// for some without-initializer `Var`'s name. Only scans what would
+/// `FunctionDef` for some `FunctionDecl`'s name, or a real (non-`extern`)
+/// `Var` definition for some `extern`-declared `Var`'s name. The real
+/// declaration-vs-definition signal for a `Var` is the `extern` keyword
+/// (`Storage::Extern`), *not* whether an explicit initializer is present -
+/// a tentative definition (`boolean modifiedgame;`, no `extern`, no `=
+/// value`) is still a real definition in C (implicitly zero-initialized
+/// storage), not a mere declaration. Confirmed via a real corpus build
+/// failure: `doomstat.h`'s `extern boolean modifiedgame;` and
+/// `doomstat.c`'s `boolean modifiedgame;` both have `initializer: None`,
+/// so an earlier version of this dedup (keyed on `initializer.is_some()`)
+/// treated *both* as mere declarations and dropped neither, producing a
+/// duplicate `static mut modifiedgame` definition. Only scans what would
 /// actually be emitted (`for_each_active_item`), so a definition sitting in
 /// a dead conditional branch never causes a real declaration elsewhere to
 /// be wrongly dropped.
 fn collect_stronger_names(items: &[(Item, Trivia)]) -> (HashSet<String>, HashSet<String>) {
     let mut has_def = HashSet::new();
-    let mut has_init_var = HashSet::new();
+    let mut has_real_var_def = HashSet::new();
     for_each_active_item(items, &mut |item| match &item.kind {
         ItemKind::FunctionDef(sig, _) => {
             has_def.insert(sig.name.clone());
         }
-        ItemKind::Var(vd) if vd.initializer.is_some() => {
-            has_init_var.insert(vd.name.clone());
+        ItemKind::Var(vd) if !vd.storage.contains(&Storage::Extern) => {
+            has_real_var_def.insert(vd.name.clone());
         }
         _ => {}
     });
-    (has_def, has_init_var)
+    (has_def, has_real_var_def)
 }
 
 /// Recursively drops items superseded by a stronger version elsewhere in
 /// the same merged module (a `FunctionDecl` when a same-name `FunctionDef`
-/// exists, or a no-initializer `Var` when a same-name with-initializer `Var`
-/// exists), and drops every `Typedef`/`Record`/`Enum` beyond the first
-/// occurrence of its own name (a genuine ODR violation if this ever fires
-/// for real in a well-formed corpus - not expected, but degrading to "keep
-/// the first, drop the rest" is safer than emitting a guaranteed-duplicate-
-/// definition compile error). Only ever recurses into a `Conditional`'s
-/// already-resolved *active* branch, leaving dead branches (and the
-/// `Conditional` wrapper itself) untouched - matches `for_each_active_item`
-/// and keeps `codegen::items::emit_conditional`'s own `Unknown`/`None`
-/// handling working unchanged on the merged tree.
+/// exists, or an `extern`-declared `Var` when a same-name real definition
+/// exists - see `collect_stronger_names`), drops every
+/// `Typedef`/`Record`/`Enum`/`Var` beyond the first occurrence of its own
+/// name (a genuine ODR violation if this ever fires for a `Typedef`/
+/// `Record`/`Enum` in a well-formed corpus - not expected, but degrading to
+/// "keep the first, drop the rest" is safer than emitting a guaranteed-
+/// duplicate-definition compile error; for `Var` this also naturally
+/// handles two `extern` declarations of the same name with no real
+/// definition anywhere in this merged module, e.g. from two different
+/// headers). Only ever recurses into a `Conditional`'s already-resolved
+/// *active* branch, leaving dead branches (and the `Conditional` wrapper
+/// itself) untouched - matches `for_each_active_item` and keeps
+/// `codegen::items::emit_conditional`'s own `Unknown`/`None` handling
+/// working unchanged on the merged tree.
 fn dedup_active(
     items: &mut Vec<(Item, Trivia)>,
     has_def: &HashSet<String>,
-    has_init_var: &HashSet<String>,
+    has_real_var_def: &HashSet<String>,
     seen_types: &mut HashSet<String>,
+    seen_vars: &mut HashSet<String>,
 ) {
     items.retain_mut(|(item, _)| match &mut item.kind {
         ItemKind::Conditional(group) => {
@@ -218,13 +246,14 @@ fn dedup_active(
                     dedup_active(
                         &mut group.branches[n].body,
                         has_def,
-                        has_init_var,
+                        has_real_var_def,
                         seen_types,
+                        seen_vars,
                     );
                 }
                 ActiveBranch::Else => {
                     if let Some(body) = &mut group.else_body {
-                        dedup_active(body, has_def, has_init_var, seen_types);
+                        dedup_active(body, has_def, has_real_var_def, seen_types, seen_vars);
                     }
                 }
                 ActiveBranch::None | ActiveBranch::Unknown => {}
@@ -232,7 +261,13 @@ fn dedup_active(
             true
         }
         ItemKind::FunctionDecl(sig) => !has_def.contains(&sig.name),
-        ItemKind::Var(vd) if vd.initializer.is_none() => !has_init_var.contains(&vd.name),
+        ItemKind::Var(vd) => {
+            if vd.storage.contains(&Storage::Extern) && has_real_var_def.contains(&vd.name) {
+                false
+            } else {
+                seen_vars.insert(vd.name.clone())
+            }
+        }
         ItemKind::Typedef(td) => seen_types.insert(td.name.clone()),
         ItemKind::Record(rd) => match record_name(rd) {
             Some(name) => seen_types.insert(name.to_string()),
@@ -263,9 +298,16 @@ pub fn merge_items(
     if let Some(s) = source {
         combined.extend(s.iter().cloned());
     }
-    let (has_def, has_init_var) = collect_stronger_names(&combined);
+    let (has_def, has_real_var_def) = collect_stronger_names(&combined);
     let mut seen_types = HashSet::new();
-    dedup_active(&mut combined, &has_def, &has_init_var, &mut seen_types);
+    let mut seen_vars = HashSet::new();
+    dedup_active(
+        &mut combined,
+        &has_def,
+        &has_real_var_def,
+        &mut seen_types,
+        &mut seen_vars,
+    );
     combined
 }
 
