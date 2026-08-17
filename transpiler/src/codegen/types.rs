@@ -75,8 +75,44 @@ fn normalize(name: &str) -> String {
     name.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+/// Strips a leading `struct `/`union `/`enum ` keyword from a tag-based type
+/// reference (already-`normalize`d, single-space-separated text), e.g.
+/// `"struct mobj_s"` -> `Some("mobj_s")`. Returns `None` for a bare
+/// `"struct"`/`"union"` with no following tag (that shape only appears as
+/// `record::push_nested_record_field`'s synthesized placeholder for an
+/// *anonymous* nested field, which codegen substitutes with a synthesized
+/// name before ever calling `map_type` - see `codegen::items::emit_field`
+/// - so it should never actually reach this function).
+fn strip_tag_keyword(normalized: &str) -> Option<&str> {
+    for kw in ["struct ", "union ", "enum "] {
+        if let Some(rest) = normalized.strip_prefix(kw) {
+            let rest = rest.trim();
+            if !rest.is_empty() {
+                return Some(rest);
+            }
+        }
+    }
+    None
+}
+
 fn map_named(name: &str) -> String {
-    match normalize(name).as_str() {
+    let normalized = normalize(name);
+    // A tag-based type reference (e.g. `struct mobj_s`) keeps the `struct`/
+    // `union`/`enum` keyword glued into the Named text verbatim (the parser
+    // never strips it - `decl::parse_type_text` keeps whatever precedes the
+    // trailing `*`s as-is). This is common in this corpus: self-referential
+    // linked-structure fields are routinely declared via the tag, not the
+    // typedef, because the typedef isn't complete yet at that point in the
+    // struct's own body (e.g. p_mobj.h's `mobj_s`'s own `struct mobj_s*
+    // snext` field, inside `mobj_s`'s own definition). Codegen emits a type
+    // alias from the bare tag name to the real struct/union/enum definition
+    // whenever both a tag and a typedef name exist (see `codegen::items`),
+    // so stripping the keyword here and using just the tag identifier
+    // resolves correctly.
+    if let Some(tag) = strip_tag_keyword(&normalized) {
+        return ident(tag);
+    }
+    match normalized.as_str() {
         "void" => "()".to_string(),
         "int" | "signed" | "signed int" => "std::ffi::c_int".to_string(),
         "unsigned" | "unsigned int" => "std::ffi::c_uint".to_string(),
