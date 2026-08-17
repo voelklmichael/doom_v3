@@ -18,6 +18,26 @@ use crate::tables::*;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub unsafe extern "C" fn ntohl(x: std::ffi::c_int) -> std::ffi::c_ulong {
+    ((((((((x) as std::ffi::c_ulong) & 0x000000ff) << 24)
+        | ((((x) as std::ffi::c_ulong) & 0x0000ff00) << 8))
+        | ((((x) as std::ffi::c_ulong) & 0x00ff0000) >> 8))
+        | ((((x) as std::ffi::c_ulong) & 0xff000000) >> 24)) as std::ffi::c_ulong)
+}
+
+pub unsafe extern "C" fn ntohs(x: std::ffi::c_int) -> std::ffi::c_ushort {
+    ((((((x) as std::ffi::c_ushort) & 0x00ff) << 8) | ((((x) as std::ffi::c_ushort) & 0xff00) >> 8))
+        as std::ffi::c_ushort)
+}
+
+pub unsafe extern "C" fn htonl(x: std::ffi::c_int) -> std::ffi::c_int {
+    ntohl(x)
+}
+
+pub unsafe extern "C" fn htons(x: std::ffi::c_int) -> std::ffi::c_int {
+    ntohs(x)
+}
+
 unsafe extern "C" {
     pub fn NetSend();
 }

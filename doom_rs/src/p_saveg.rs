@@ -32,6 +32,10 @@ static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe {
 
 pub static mut save_p: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub unsafe extern "C" fn PADSAVEP() -> std::ffi::c_int {
+    save_p += ((4 - (((save_p) as std::ffi::c_int) & 3)) & 3)
+}
+
 pub unsafe extern "C" fn P_ArchivePlayers() {
     todo!("body not yet translated")
 }

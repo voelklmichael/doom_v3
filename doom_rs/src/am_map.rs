@@ -145,6 +145,22 @@ pub const M_ZOOMIN: std::ffi::c_int = ((1.02 * FRACUNIT) as std::ffi::c_int);
 
 pub const M_ZOOMOUT: std::ffi::c_int = ((FRACUNIT / 1.02) as std::ffi::c_int);
 
+pub unsafe extern "C" fn FTOM(x: std::ffi::c_int) -> std::ffi::c_int {
+    FixedMul(((x) << 16), scale_ftom)
+}
+
+pub unsafe extern "C" fn MTOF(x: std::ffi::c_int) -> std::ffi::c_int {
+    (FixedMul((x), scale_mtof) >> 16)
+}
+
+pub unsafe extern "C" fn CXMTOF(x: std::ffi::c_int) -> std::ffi::c_int {
+    (f_x + MTOF(((x) - m_x)))
+}
+
+pub unsafe extern "C" fn CYMTOF(y: std::ffi::c_int) -> std::ffi::c_int {
+    (f_y + (f_h - MTOF(((y) - m_y))))
+}
+
 pub const LINE_NEVERSEE: std::ffi::c_int = ML_DONTDRAW;
 
 #[repr(C)]

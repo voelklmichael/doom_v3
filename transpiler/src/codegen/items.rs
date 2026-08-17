@@ -6,7 +6,7 @@
 //! module-assembly concern, not an item-emission one).
 
 use super::ident::{ident, synthesize_nested_name};
-use super::macros::emit_define_object;
+use super::macros::{emit_define_function, emit_define_object};
 use super::types::{
     format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
 };
@@ -39,9 +39,12 @@ pub fn emit_item(item: &Item, known: &KnownTypeNames) -> String {
         ItemKind::Preproc(Directive::DefineObject { name, value }) => {
             emit_define_object(name, value, known)
         }
-        // Function-like macros, #undef/#pragma/#error/#other: out of scope
-        // this phase (any downstream use becomes a visible compile error,
-        // an acceptable signal for this phase rather than a silent gap).
+        ItemKind::Preproc(Directive::DefineFunction { name, params, body }) => {
+            emit_define_function(name, params, body, known)
+        }
+        // #undef/#pragma/#error/#other: no Rust equivalent, out of scope
+        // (any downstream use becomes a visible compile error, an
+        // acceptable signal for this phase rather than a silent gap).
         ItemKind::Preproc(_) => String::new(),
     }
 }
