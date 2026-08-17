@@ -7,10 +7,12 @@
 //!
 //! PR A: `types` (the `Type` -> Rust mapper) and `ident` (keyword escaping +
 //! nested-record name synthesis).
-//! PR B (this step): `items` (per-`ItemKind` emission), consuming a single
-//! already-parsed `ast::File`'s items directly - no cross-file merge or
-//! `use`-import resolution yet (a later PR), no file I/O yet.
+//! PR B: `items` (per-`ItemKind` emission), consuming a single already-
+//! parsed `ast::File`'s items directly.
+//! PR C (this step): `module` (`.c`+`.h` merge/dedup + cross-module `use`
+//! resolution) - no file I/O yet.
 
 pub mod ident;
 pub mod items;
+pub mod module;
 pub mod types;
