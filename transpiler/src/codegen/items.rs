@@ -136,6 +136,24 @@ fn emit_field(parent_name: &str, field: &Field) -> (String, String) {
         }
         None => {
             let ty_text = map_type(&field.ty);
+            if ty_text.contains(',') {
+                // A comma inside a mapped type means `record::parse_fields`
+                // couldn't split a real multi-declarator field (e.g.
+                // info.h's `long misc1, misc2;`) into separate `Field`s -
+                // a known, rare (5 occurrences corpus-wide) parser gap, not
+                // a codegen bug. Emitting the raw text as-is would break
+                // the *whole containing struct's* Rust syntax (a stray
+                // comma inside a field's type position derails brace/comma
+                // parsing for every field after it), not just this one
+                // field - comment the whole field out instead so the rest
+                // of the struct stays syntactically valid.
+                return (
+                    String::new(),
+                    format!(
+                        "    // TODO: unparsed multi-declarator field, needs manual translation: {fname}: {ty_text}\n"
+                    ),
+                );
+            }
             (
                 String::new(),
                 format!("    pub {fname}: {ty_text},{bitfield_comment}\n"),

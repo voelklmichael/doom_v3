@@ -122,6 +122,38 @@ fn record_bitfield_gets_a_todo_comment() {
 }
 
 #[test]
+fn record_multi_declarator_field_bug_is_commented_out_not_emitted_broken() {
+    // Real corpus bug (info.h's `long misc1, misc2;`, 5 occurrences total):
+    // record::parse_fields doesn't split a multi-declarator field into
+    // separate Fields, so `field.ty` ends up as Named("long misc1,") with a
+    // literal embedded comma. Emitting that verbatim would put a stray
+    // comma inside the field's type position, breaking the whole struct's
+    // syntax (every field after it) - must degrade to a flagged comment
+    // covering just this one field instead.
+    let rd = RecordDecl {
+        kind: RecordKind::Struct,
+        tag: None,
+        fields: vec![
+            field("frame", named("long")),
+            field("misc2", named("long misc1,")),
+            field("nextstate", named("statenum_t")),
+        ],
+        names: vec![],
+        typedef_name: Some("state_t".to_string()),
+    };
+    let out = emit_record(&rd);
+    assert!(
+        !out.contains("pub misc2:"),
+        "must not emit a broken field declaration"
+    );
+    assert!(out.contains("TODO"));
+    assert!(out.contains("unparsed multi-declarator field"));
+    // Neighboring, correctly-parsed fields must still emit normally.
+    assert!(out.contains("pub frame: std::ffi::c_long,"));
+    assert!(out.contains("pub nextstate: statenum_t,"));
+}
+
+#[test]
 fn record_anonymous_nested_union_field_gets_synthesized_type() {
     // p_local.h's intercept_t: { fixed_t frac; boolean isaline; union {
     // mobj_t* thing; line_t* line; } d; }
