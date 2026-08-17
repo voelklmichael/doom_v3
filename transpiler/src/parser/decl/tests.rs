@@ -38,6 +38,7 @@ fn braced_init_splits_scalar_elements() {
                 .map(|e| match e {
                     Init::Expr(s) => s.as_str(),
                     Init::Braced(_) => panic!("expected a scalar element"),
+                    Init::Conditional(_) => panic!("expected a scalar element"),
                 })
                 .collect();
             assert_eq!(texts, vec!["0", "8", "109", "DI_NODIR"]);
@@ -66,11 +67,13 @@ fn braced_init_splits_nested_rows() {
                             .map(|e| match e {
                                 Init::Expr(s) => s.as_str(),
                                 Init::Braced(_) => panic!("expected a scalar cell"),
+                                Init::Conditional(_) => panic!("expected a scalar cell"),
                             })
                             .collect();
                         assert_eq!(texts, expected);
                     }
                     Init::Expr(_) => panic!("expected a nested Braced row"),
+                    Init::Conditional(_) => panic!("expected a nested Braced row"),
                 }
             }
         }
@@ -101,9 +104,104 @@ fn braced_init_drops_comment_with_comma_without_fracturing() {
                 .map(|e| match e {
                     Init::Expr(s) => s.as_str(),
                     Init::Braced(_) => panic!("expected a scalar element"),
+                    Init::Conditional(_) => panic!("expected a scalar element"),
                 })
                 .collect();
             assert_eq!(texts, vec!["1", "2", "3"]);
+        }
+        other => panic!("expected Braced, got {other:?}"),
+    }
+}
+
+#[test]
+fn braced_init_folds_ifdef_between_rows() {
+    // m_misc.c's defaults[]-style gap: a whole run of rows gated by a
+    // mid-initializer #ifdef, never reachable as its own top-level Item.
+    let src = " {\"a\", &a, 1},\n\
+#ifdef FOO\n\
+    {\"b\", &b, 0},\n\
+    {\"c\", &c, 2},\n\
+#endif\n\
+    {\"d\", &d, 3},\n";
+    let cd = try_parse_var_braced("default_t defaults[] =", &scan(src)).unwrap();
+    match cd.initializer {
+        Some(Init::Braced(elements)) => {
+            assert_eq!(elements.len(), 3, "a-row, folded conditional, d-row");
+            assert!(matches!(&elements[0], Init::Braced(cells) if cells.len() == 3));
+            assert!(matches!(&elements[2], Init::Braced(cells) if cells.len() == 3));
+            match &elements[1] {
+                Init::Conditional(group) => {
+                    assert!(group.else_body.is_none());
+                    assert_eq!(group.active, ActiveBranch::Unknown);
+                    assert_eq!(group.branches.len(), 1);
+                    assert!(matches!(
+                        &group.branches[0].directive,
+                        Directive::IfDef { name, negate: false } if name == "FOO"
+                    ));
+                    assert_eq!(group.branches[0].body.len(), 2);
+                }
+                other => panic!("expected Conditional, got {other:?}"),
+            }
+        }
+        other => panic!("expected Braced, got {other:?}"),
+    }
+}
+
+#[test]
+fn braced_init_folds_nested_ifdef() {
+    // The exact defaults[] shape: an #ifdef SNDSERV block nested inside the
+    // #ifdef NORMALUNIX block, both gating rows of the same table.
+    let src = " {\"a\", &a, 1},\n\
+#ifdef NORMALUNIX\n\
+    {\"b\", &b, 0},\n\
+#ifdef SNDSERV\n\
+    {\"c\", &c, 2},\n\
+#endif\n\
+#endif\n";
+    let cd = try_parse_var_braced("default_t defaults[] =", &scan(src)).unwrap();
+    match cd.initializer {
+        Some(Init::Braced(elements)) => {
+            assert_eq!(elements.len(), 2);
+            match &elements[1] {
+                Init::Conditional(outer) => {
+                    assert!(matches!(
+                        &outer.branches[0].directive,
+                        Directive::IfDef { name, .. } if name == "NORMALUNIX"
+                    ));
+                    // one row + the nested SNDSERV conditional
+                    assert_eq!(outer.branches[0].body.len(), 2);
+                    match &outer.branches[0].body[1] {
+                        Init::Conditional(inner) => {
+                            assert!(matches!(
+                                &inner.branches[0].directive,
+                                Directive::IfDef { name, .. } if name == "SNDSERV"
+                            ));
+                            assert_eq!(inner.branches[0].body.len(), 1);
+                        }
+                        other => panic!("expected nested Conditional, got {other:?}"),
+                    }
+                }
+                other => panic!("expected Conditional, got {other:?}"),
+            }
+        }
+        other => panic!("expected Braced, got {other:?}"),
+    }
+}
+
+#[test]
+fn braced_init_unterminated_ifdef_flattens_at_eof() {
+    // Malformed input (never seen in the real corpus, which is fully
+    // balanced): a #ifdef with no matching #endif shouldn't lose its rows.
+    let src = " {\"a\", &a, 1},\n#ifdef FOO\n    {\"b\", &b, 0},\n";
+    let cd = try_parse_var_braced("default_t defaults[] =", &scan(src)).unwrap();
+    match cd.initializer {
+        Some(Init::Braced(elements)) => {
+            assert_eq!(
+                elements.len(),
+                2,
+                "both rows recovered, no Conditional wrapper"
+            );
+            assert!(elements.iter().all(|e| matches!(e, Init::Braced(_))));
         }
         other => panic!("expected Braced, got {other:?}"),
     }

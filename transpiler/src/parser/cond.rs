@@ -21,7 +21,10 @@
 //! corpus (all 124 files) is fully balanced, so this path is a safety net,
 //! not something exercised by real input.
 
-use super::ast::{ActiveBranch, CondBranch, CondGroup, File, Item, ItemKind, Trivia, render_items};
+use super::ast::{
+    ActiveBranch, CondBranch, CondGroup, File, Init, InitCondGroup, Item, ItemKind, Trivia,
+    render_items,
+};
 use super::preproc::{self, Directive, Tri};
 use std::collections::HashMap;
 
@@ -228,7 +231,63 @@ pub fn resolve_conditionals(items: &mut [(Item, Trivia)], defines: &HashMap<Stri
             ItemKind::FunctionDef(_, body) => {
                 super::stmt::cond::resolve_conditionals(&mut body.block, defines)
             }
+            ItemKind::Var(var) => {
+                if let Some(init) = &mut var.initializer {
+                    resolve_init(init, defines);
+                }
+            }
             _ => {}
+        }
+    }
+}
+
+/// Resolves any `Init::Conditional` reachable from `init` - the initializer
+/// counterpart of `resolve_conditionals`/`resolve_group`, for `#ifdef`s
+/// sitting mid-braced-initializer (e.g. `m_misc.c`'s `defaults[]`; see
+/// `decl::fold_init_conditionals`, which builds these groups in the first
+/// place). Recurses into `Braced` elements since a conditional can appear
+/// nested inside a nested row, not just at the outermost list.
+fn resolve_init(init: &mut Init, defines: &HashMap<String, String>) {
+    match init {
+        Init::Braced(elements) => {
+            for e in elements {
+                resolve_init(e, defines);
+            }
+        }
+        Init::Conditional(group) => resolve_init_group(group, defines),
+        Init::Expr(_) => {}
+    }
+}
+
+fn resolve_init_group(group: &mut InitCondGroup, defines: &HashMap<String, String>) {
+    let mut resolved = None;
+    for (i, branch) in group.branches.iter().enumerate() {
+        match eval_directive(&branch.directive, defines) {
+            Tri::True => {
+                resolved = Some(ActiveBranch::Branch(i));
+                break;
+            }
+            Tri::False => continue,
+            Tri::Unknown => {
+                resolved = Some(ActiveBranch::Unknown);
+                break;
+            }
+        }
+    }
+    group.active = resolved.unwrap_or(if group.else_body.is_some() {
+        ActiveBranch::Else
+    } else {
+        ActiveBranch::None
+    });
+
+    for branch in &mut group.branches {
+        for e in &mut branch.body {
+            resolve_init(e, defines);
+        }
+    }
+    if let Some(else_body) = &mut group.else_body {
+        for e in else_body {
+            resolve_init(e, defines);
         }
     }
 }

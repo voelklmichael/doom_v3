@@ -127,11 +127,15 @@ fn unterminated_if_at_eof_flattens_back_to_plain_items() {
 }
 
 #[test]
-fn mid_array_initializer_ifdef_stays_opaque_unaffected_by_folding() {
+fn mid_array_initializer_ifdef_item_shape_unaffected_by_top_level_folding() {
     // Same shape as m_misc.c's `defaults[]` table: an #ifdef inside a braced
     // array initializer never becomes a sibling Item in the first place, so
-    // folding must be a complete no-op here - same behavior as before this
-    // step existed.
+    // *this* pass (top-level Item folding) must be a complete no-op here -
+    // same behavior as before this step existed. The initializer's own
+    // *internal* structure is a separate story: `decl::parse_braced_init`
+    // folds it into `Init::Conditional` on its own (see
+    // `decl::tests::braced_init_folds_ifdef_between_rows`) - this test only
+    // documents that `cond::fold_conditionals` itself never sees it.
     let src = "default_t defaults[] =\n{\n    {\"a\", &a, 1},\n#ifdef FOO\n    {\"b\", &b, 2},\n#endif\n};\n";
     let before = build_items(scan(src));
     let after = fold_conditionals(build_items(scan(src)));
@@ -139,6 +143,12 @@ fn mid_array_initializer_ifdef_stays_opaque_unaffected_by_folding() {
     match &after[0].0.kind {
         ItemKind::Var(cd) => {
             assert_eq!(cd.name, "defaults");
+            let elements = match &cd.initializer {
+                Some(Init::Braced(elements)) => elements,
+                other => panic!("expected Braced initializer, got {other:?}"),
+            };
+            assert_eq!(elements.len(), 2, "a-row, folded conditional");
+            assert!(matches!(&elements[1], Init::Conditional(_)));
         }
         other => panic!("expected Var, got {other:?}"),
     }
@@ -285,6 +295,27 @@ fn nested_conditional_resolves_independently_of_ancestor() {
         other => panic!("expected nested Conditional, got {other:?}"),
     };
     assert_eq!(inner.active, ActiveBranch::Branch(0));
+}
+
+#[test]
+fn resolves_ifdef_inside_braced_initializer() {
+    // m_misc.c's defaults[] shape: resolve_conditionals must reach into a
+    // Var's initializer, not just top-level/function-body conditionals.
+    let src = "default_t defaults[] =\n{\n    {\"a\", &a, 1},\n#ifdef FOO\n    {\"b\", &b, 2},\n#endif\n};\n";
+    let mut items = build(src);
+    resolve_conditionals(&mut items, &defines(&[("FOO", "1")]));
+    let cd = match &items[0].0.kind {
+        ItemKind::Var(cd) => cd,
+        other => panic!("expected Var, got {other:?}"),
+    };
+    let elements = match &cd.initializer {
+        Some(Init::Braced(elements)) => elements,
+        other => panic!("expected Braced initializer, got {other:?}"),
+    };
+    match &elements[1] {
+        Init::Conditional(group) => assert_eq!(group.active, ActiveBranch::Branch(0)),
+        other => panic!("expected Conditional, got {other:?}"),
+    }
 }
 
 #[test]

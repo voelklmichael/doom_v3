@@ -318,6 +318,35 @@ pub enum Init {
     /// the initializer is structured.
     Braced(Vec<Init>),
     Expr(String),
+    /// A folded `#if`/`#ifdef`/`#ifndef`...`#endif` run sitting *between*
+    /// elements of a braced initializer list (e.g. `m_misc.c`'s
+    /// `defaults[]` config table, which has `#ifdef NORMALUNIX`/`#ifdef
+    /// SNDSERV`/`#ifdef LINUX` blocks gating whole rows). Mirrors
+    /// `ItemKind::Conditional` one level down - see `InitCondGroup`.
+    Conditional(InitCondGroup),
+}
+
+/// One `#if`/`#ifdef`/`#ifndef` branch (or a following `#elif`) inside a
+/// braced initializer list. Mirrors `CondBranch`, but the body is a plain
+/// `Vec<Init>` (element list) rather than `Vec<(Item, Trivia)>` - unlike a
+/// top-level `Item`, an `Init` never needs to reconstruct its own exact
+/// bytes (`File::render()` never reads `Init` at all; the containing
+/// `VarDecl`'s bytes live entirely in its `Item.raw`), so no trivia/raw
+/// bookkeeping is needed here.
+#[derive(Debug, Clone, Serialize)]
+pub struct InitCondBranch {
+    pub directive: super::preproc::Directive,
+    pub body: Vec<Init>,
+}
+
+/// A folded `#if...#endif` run whose branches contain initializer elements.
+/// See `CondGroup` (the top-level counterpart) for the shape rationale;
+/// `active` is likewise `Unknown` until `cond::resolve_conditionals` runs.
+#[derive(Debug, Clone, Serialize)]
+pub struct InitCondGroup {
+    pub branches: Vec<InitCondBranch>,
+    pub else_body: Option<Vec<Init>>,
+    pub active: ActiveBranch,
 }
 
 /// A variable declaration: `[storage...] TYPE NAME[dims] [= INITIALIZER];`.

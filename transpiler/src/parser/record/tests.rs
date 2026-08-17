@@ -542,11 +542,13 @@ fn braced_array_var() {
                                 .map(|e| match e {
                                     Init::Expr(s) => s.as_str(),
                                     Init::Braced(_) => panic!("expected a scalar cell"),
+                                    Init::Conditional(_) => panic!("expected a scalar cell"),
                                 })
                                 .collect();
                             assert_eq!(texts, vec!["\"a\"", "&a", "1"]);
                         }
                         Init::Expr(_) => panic!("expected a nested Braced row"),
+                        Init::Conditional(_) => panic!("expected a nested Braced row"),
                     }
                 }
                 other => panic!("expected Braced, got {other:?}"),
