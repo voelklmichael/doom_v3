@@ -91,7 +91,7 @@ pub const FUZZOFF: std::ffi::c_int = (SCREENWIDTH);
 
 pub static mut fuzzoffset: [std::ffi::c_int; (FUZZTABLE) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut fuzzpos: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut fuzzpos: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn R_DrawFuzzColumn() {
     todo!("body not yet translated")

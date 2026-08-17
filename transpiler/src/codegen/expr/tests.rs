@@ -65,6 +65,18 @@ fn logical_not_uses_c_semantics_not_bitwise() {
 }
 
 #[test]
+fn addr_of_goes_through_const_cast_first() {
+    // g_game.c's real mousebuttons = &mousearray[1]. A bare `&(x) as *mut _`
+    // is invalid Rust (E0606, casting a shared reference straight to a
+    // mutable pointer) - must go through `*const _` first.
+    let e = Expr::Unary {
+        op: UnaryOp::AddrOf,
+        expr: ident("x"),
+    };
+    assert_eq!(render_expr(&e).unwrap(), "(&(x) as *const _ as *mut _)");
+}
+
+#[test]
 fn bitwise_not_maps_directly() {
     let e = Expr::Unary {
         op: UnaryOp::BitNot,

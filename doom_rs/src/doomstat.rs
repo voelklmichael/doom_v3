@@ -292,10 +292,10 @@ unsafe extern "C" {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut gamemode: GameMode_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut gamemode: GameMode_t = unsafe { indetermined };
 
-pub static mut gamemission: GameMission_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut gamemission: GameMission_t = unsafe { doom };
 
-pub static mut language: Language_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut language: Language_t = unsafe { english };
 
 pub static mut modifiedgame: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

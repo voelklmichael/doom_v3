@@ -66,7 +66,7 @@ pub static mut fastparm: boolean = unsafe { std::mem::zeroed() }; // TODO: initi
 
 pub static mut drone: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut singletics: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut singletics: boolean = unsafe { false_ };
 
 unsafe extern "C" {
     pub static mut inhelpscreens: boolean;
@@ -112,7 +112,7 @@ pub unsafe extern "C" fn D_ProcessEvents() {
     todo!("body not yet translated")
 }
 
-pub static mut wipegamestate: gamestate_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut wipegamestate: gamestate_t = unsafe { GS_DEMOSCREEN };
 
 unsafe extern "C" {
     pub static mut setsizeneeded: boolean;

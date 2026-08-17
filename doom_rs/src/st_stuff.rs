@@ -296,13 +296,13 @@ static mut plyr: *mut player_t = unsafe { std::mem::zeroed() }; // TODO: initial
 
 static mut st_firsttime: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut veryfirsttime: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut veryfirsttime: std::ffi::c_int = unsafe { 1 };
 
 static mut lu_palette: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 static mut st_clock: std::ffi::c_uint = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut st_msgcounter: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut st_msgcounter: std::ffi::c_int = unsafe { 0 };
 
 static mut st_chatstate: st_chatstateenum_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -362,13 +362,13 @@ static mut w_maxammo: [st_number_t; (4) as usize] = unsafe { std::mem::zeroed() 
 
 static mut st_fragscount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut st_oldhealth: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut st_oldhealth: std::ffi::c_int = unsafe { (-(1)) };
 
 static mut oldweaponsowned: [boolean; (NUMWEAPONS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut st_facecount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut st_facecount: std::ffi::c_int = unsafe { 0 };
 
-static mut st_faceindex: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut st_faceindex: std::ffi::c_int = unsafe { 0 };
 
 static mut keyboxes: [std::ffi::c_int; (3) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -443,7 +443,7 @@ pub unsafe extern "C" fn ST_Ticker() {
     todo!("body not yet translated")
 }
 
-static mut st_palette: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut st_palette: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn ST_doPaletteStuff() {
     todo!("body not yet translated")
@@ -489,7 +489,7 @@ pub unsafe extern "C" fn ST_createWidgets() {
     todo!("body not yet translated")
 }
 
-static mut st_stopped: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut st_stopped: boolean = unsafe { true_ };
 
 pub unsafe extern "C" fn ST_Start() {
     todo!("body not yet translated")

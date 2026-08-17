@@ -46,7 +46,7 @@ unsafe extern "C" {
     pub fn NetListen() -> boolean;
 }
 
-pub static mut DOOMPORT: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut DOOMPORT: std::ffi::c_int = unsafe { (IPPORT_USERRESERVED + 0x1d) };
 
 pub static mut sendsocket: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

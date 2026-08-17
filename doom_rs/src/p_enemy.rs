@@ -162,7 +162,7 @@ pub unsafe extern "C" fn A_SkelMissile(actor: *mut mobj_t) {
     todo!("body not yet translated")
 }
 
-pub static mut TRACEANGLE: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut TRACEANGLE: std::ffi::c_int = unsafe { 0xc000000 };
 
 pub unsafe extern "C" fn A_Tracer(actor: *mut mobj_t) {
     todo!("body not yet translated")

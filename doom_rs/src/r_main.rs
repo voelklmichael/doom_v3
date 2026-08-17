@@ -59,7 +59,7 @@ pub const FIELDOFVIEW: std::ffi::c_int = 2048;
 
 pub static mut viewangleoffset: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut validcount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut validcount: std::ffi::c_int = unsafe { 1 };
 
 pub static mut fixedcolormap: *mut lighttable_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -108,7 +108,8 @@ pub static mut viewangletox: [std::ffi::c_int; (FINEANGLES / 2) as usize] =
 
 pub static mut xtoviewangle: [angle_t; (SCREENWIDTH + 1) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut finecosine: *mut fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut finecosine: *mut fixed_t =
+    unsafe { (&(finesine[(FINEANGLES / 4) as usize]) as *const _ as *mut _) };
 
 pub static mut scalelight: [[*mut lighttable_t; (MAXLIGHTSCALE) as usize]; (LIGHTLEVELS) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

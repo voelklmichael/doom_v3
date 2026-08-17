@@ -426,7 +426,7 @@ fn var_malformed_multi_declarator_type_is_flagged_not_emitted_broken() {
         name: "m_y2".to_string(),
         initializer: None,
     };
-    let out = emit_var(&vd);
+    let out = emit_var(&vd, &KnownTypeNames::new());
     assert!(!out.contains("static mut m_y2: fixed_t m_x2,"));
     assert!(out.contains("TODO"));
 }
@@ -439,24 +439,73 @@ fn var_without_initializer_becomes_extern_block() {
         name: "key_right".to_string(),
         initializer: None,
     };
-    let out = emit_var(&vd);
+    let out = emit_var(&vd, &KnownTypeNames::new());
     assert!(out.contains("unsafe extern \"C\" {"));
     assert!(out.contains("pub static mut key_right: std::ffi::c_int;"));
 }
 
 #[test]
-fn var_with_initializer_becomes_zeroed_stub() {
+fn var_without_initializer_still_becomes_zeroed_stub() {
+    let vd = VarDecl {
+        storage: vec![],
+        ty: named("int"),
+        name: "modifiedgame".to_string(),
+        initializer: None,
+    };
+    let out = emit_var(&vd, &KnownTypeNames::new());
+    assert!(
+        out.contains(
+            "pub static mut modifiedgame: std::ffi::c_int = unsafe { std::mem::zeroed() };"
+        )
+    );
+    assert!(out.contains("TODO"));
+}
+
+#[test]
+fn var_with_scalar_initializer_is_translated() {
     let vd = VarDecl {
         storage: vec![],
         ty: named("int"),
         name: "usegamma".to_string(),
         initializer: Some(crate::parser::ast::Init::Expr("0".to_string())),
     };
-    let out = emit_var(&vd);
-    assert!(
-        out.contains("pub static mut usegamma: std::ffi::c_int = unsafe { std::mem::zeroed() };")
+    let out = emit_var(&vd, &KnownTypeNames::new());
+    assert_eq!(
+        out,
+        "pub static mut usegamma: std::ffi::c_int = unsafe { 0 };\n\n"
     );
+}
+
+#[test]
+fn var_array_typed_initializer_stays_a_stub_this_phase() {
+    // char rcsid[] = "..." - an Array-typed target with a scalar
+    // Init::Expr, deferred to a later phase of this arc even though the
+    // Init variant itself is scalar (codegen::init doc comment).
+    let vd = VarDecl {
+        storage: vec![],
+        ty: Type::Array(Box::new(named("char")), None),
+        name: "rcsid".to_string(),
+        initializer: Some(crate::parser::ast::Init::Expr("\"hi\"".to_string())),
+    };
+    let out = emit_var(&vd, &KnownTypeNames::new());
+    assert!(out.contains("std::mem::zeroed()"));
     assert!(out.contains("TODO"));
+}
+
+#[test]
+fn var_null_pointer_literal_becomes_null_mut() {
+    // i_video.c's real X_display: `Display *X_display = 0;`
+    let vd = VarDecl {
+        storage: vec![],
+        ty: Type::Pointer(Box::new(named("Display"))),
+        name: "X_display".to_string(),
+        initializer: Some(crate::parser::ast::Init::Expr("0".to_string())),
+    };
+    let out = emit_var(&vd, &KnownTypeNames::new());
+    assert!(
+        out.contains("= unsafe { std::ptr::null_mut() };"),
+        "got: {out}"
+    );
 }
 
 #[test]
@@ -467,7 +516,7 @@ fn static_var_drops_pub() {
         name: "internal_counter".to_string(),
         initializer: Some(crate::parser::ast::Init::Expr("0".to_string())),
     };
-    let out = emit_var(&vd);
+    let out = emit_var(&vd, &KnownTypeNames::new());
     assert!(!out.contains("pub static mut"));
     assert!(out.contains("static mut internal_counter"));
 }

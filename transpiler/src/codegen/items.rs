@@ -6,13 +6,14 @@
 //! module-assembly concern, not an item-emission one).
 
 use super::ident::{ident, synthesize_nested_name};
+use super::init::render_scalar_init;
 use super::macros::{emit_define_function, emit_define_object};
 use super::types::{
     format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
 };
 use crate::parser::ast::{
-    ActiveBranch, CondGroup, EnumDecl, Field, FnSig, Item, ItemKind, RecordDecl, RecordKind,
-    Storage, TypedefDecl, VarDecl,
+    ActiveBranch, CondGroup, EnumDecl, Field, FnSig, Init, Item, ItemKind, RecordDecl, RecordKind,
+    Storage, Type, TypedefDecl, VarDecl,
 };
 use crate::parser::preproc::Directive;
 use crate::parser::stmt::expr::KnownTypeNames;
@@ -29,7 +30,7 @@ pub fn emit_item(item: &Item, known: &KnownTypeNames) -> String {
         ItemKind::Typedef(td) => emit_typedef(td),
         ItemKind::Record(rd) => emit_record(rd),
         ItemKind::Enum(ed) => emit_enum(ed),
-        ItemKind::Var(vd) => emit_var(vd),
+        ItemKind::Var(vd) => emit_var(vd, known),
         ItemKind::FunctionDecl(sig) => emit_function_decl(sig),
         ItemKind::FunctionDef(sig, _body) => emit_function_def(sig),
         ItemKind::Conditional(group) => emit_conditional(group, known),
@@ -298,7 +299,7 @@ fn is_static(storage: &[Storage]) -> bool {
     storage.contains(&Storage::Static)
 }
 
-fn emit_var(vd: &VarDecl) -> String {
+fn emit_var(vd: &VarDecl, known: &KnownTypeNames) -> String {
     if is_malformed(&vd.name) || type_is_malformed(&vd.ty) {
         // See `is_malformed`/`type_is_malformed` - real corpus example:
         // am_map.c's `fixed_t m_x2, m_y2;` (a multi-declarator top-level
@@ -325,16 +326,35 @@ fn emit_var(vd: &VarDecl) -> String {
     // definition - `merge_items`'s dedup rule in `codegen::module` uses the
     // same `Storage::Extern` signal, for the same reason).
     if vd.storage.contains(&Storage::Extern) {
-        format!("unsafe extern \"C\" {{\n    {vis}static mut {name}: {ty};\n}}\n\n")
-    } else {
-        // Zero matches C's own implicit-zero-initialization for a
-        // tentative definition either way, and stands in as a documented
-        // stub when a real explicit initializer exists too (translating it
-        // is deferred - see decision #3 in the approved plan).
-        format!(
-            "{vis}static mut {name}: {ty} = unsafe {{ std::mem::zeroed() }}; // TODO: initializer not yet translated\n\n"
-        )
+        return format!("unsafe extern \"C\" {{\n    {vis}static mut {name}: {ty};\n}}\n\n");
     }
+    // A scalar initializer against a scalar (non-`Array`) type is the only
+    // shape `codegen::init` handles so far - an `Array`-typed target (even
+    // with a scalar `Init::Expr`, e.g. `char rcsid[] = "...";`) and every
+    // `Init::Braced`/`Init::Conditional` shape are deferred to later phases
+    // of this arc (see the approved plan) and still fall through to the
+    // zeroed stub below.
+    if let Some(Init::Expr(text)) = &vd.initializer
+        && !matches!(vd.ty, Type::Array(_, _))
+        && let Some(rendered) = render_scalar_init(text, &vd.ty, known)
+    {
+        // Always wrapped in `unsafe {}`, matching the zeroed-stub path
+        // below - a plain literal doesn't need it, but a reference to
+        // another `static mut` (real corpus case: `r_main.c`'s
+        // `finecosine = &finesine[FINEANGLES/4]`) does, and this codegen
+        // has no cheap way to tell the two apart without a much bigger
+        // static-vs-const name lookup - an unnecessary `unsafe` block is
+        // harmless, an omitted necessary one is a compile error.
+        return format!("{vis}static mut {name}: {ty} = unsafe {{ {rendered} }};\n\n");
+    }
+    // Zero matches C's own implicit-zero-initialization for a tentative
+    // definition, and stands in as a documented stub when a real explicit
+    // initializer exists but isn't translatable yet (an `Array`/`Braced`/
+    // `Conditional` shape not yet covered, or one this codegen genuinely
+    // can't parse).
+    format!(
+        "{vis}static mut {name}: {ty} = unsafe {{ std::mem::zeroed() }}; // TODO: initializer not yet translated\n\n"
+    )
 }
 
 fn format_params(sig: &FnSig) -> String {

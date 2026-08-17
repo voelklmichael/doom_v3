@@ -29,7 +29,7 @@ unsafe extern "C" {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut mb_used: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut mb_used: std::ffi::c_int = unsafe { 6 };
 
 pub unsafe extern "C" fn I_Tactile(
     on: std::ffi::c_int,

@@ -24,7 +24,7 @@ pub const wipe_NUMWIPES: std::ffi::c_int = wipe_Melt + 1;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut go: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut go: boolean = unsafe { 0 };
 
 static mut wipe_scr_start: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
