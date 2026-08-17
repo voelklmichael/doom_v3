@@ -41,6 +41,12 @@ use crate::v_video::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
+pub const ST_HEIGHT: std::ffi::c_int = (32 * SCREEN_MUL);
+
+pub const ST_WIDTH: std::ffi::c_int = SCREENWIDTH;
+
+pub const ST_Y: std::ffi::c_int = (SCREENHEIGHT - ST_HEIGHT);
+
 pub const AutomapState: std::ffi::c_int = 0;
 pub const FirstPersonState: std::ffi::c_int = AutomapState + 1;
 
@@ -53,6 +59,238 @@ pub const GetChatState: std::ffi::c_int = WaitDestState + 1;
 pub type st_chatstateenum_t = std::ffi::c_int;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const STARTREDPALS: std::ffi::c_int = 1;
+
+pub const STARTBONUSPALS: std::ffi::c_int = 9;
+
+pub const NUMREDPALS: std::ffi::c_int = 8;
+
+pub const NUMBONUSPALS: std::ffi::c_int = 4;
+
+pub const RADIATIONPAL: std::ffi::c_int = 13;
+
+pub const ST_FACEPROBABILITY: std::ffi::c_int = 96;
+
+pub const ST_TOGGLECHAT: std::ffi::c_int = KEY_ENTER;
+
+pub const ST_X: std::ffi::c_int = 0;
+
+pub const ST_X2: std::ffi::c_int = 104;
+
+pub const ST_FX: std::ffi::c_int = 143;
+
+pub const ST_FY: std::ffi::c_int = 169;
+
+pub const ST_TALLNUMWIDTH: std::ffi::c_int = ((*tallnum[(0) as usize]).width);
+
+pub const ST_NUMPAINFACES: std::ffi::c_int = 5;
+
+pub const ST_NUMSTRAIGHTFACES: std::ffi::c_int = 3;
+
+pub const ST_NUMTURNFACES: std::ffi::c_int = 2;
+
+pub const ST_NUMSPECIALFACES: std::ffi::c_int = 3;
+
+pub const ST_FACESTRIDE: std::ffi::c_int =
+    ((ST_NUMSTRAIGHTFACES + ST_NUMTURNFACES) + ST_NUMSPECIALFACES);
+
+pub const ST_NUMEXTRAFACES: std::ffi::c_int = 2;
+
+pub const ST_NUMFACES: std::ffi::c_int = ((ST_FACESTRIDE * ST_NUMPAINFACES) + ST_NUMEXTRAFACES);
+
+pub const ST_TURNOFFSET: std::ffi::c_int = (ST_NUMSTRAIGHTFACES);
+
+pub const ST_OUCHOFFSET: std::ffi::c_int = (ST_TURNOFFSET + ST_NUMTURNFACES);
+
+pub const ST_EVILGRINOFFSET: std::ffi::c_int = (ST_OUCHOFFSET + 1);
+
+pub const ST_RAMPAGEOFFSET: std::ffi::c_int = (ST_EVILGRINOFFSET + 1);
+
+pub const ST_GODFACE: std::ffi::c_int = (ST_NUMPAINFACES * ST_FACESTRIDE);
+
+pub const ST_DEADFACE: std::ffi::c_int = (ST_GODFACE + 1);
+
+pub const ST_FACESX: std::ffi::c_int = 143;
+
+pub const ST_FACESY: std::ffi::c_int = 168;
+
+pub const ST_EVILGRINCOUNT: std::ffi::c_int = (2 * TICRATE);
+
+pub const ST_STRAIGHTFACECOUNT: std::ffi::c_int = (TICRATE / 2);
+
+pub const ST_TURNCOUNT: std::ffi::c_int = (1 * TICRATE);
+
+pub const ST_OUCHCOUNT: std::ffi::c_int = (1 * TICRATE);
+
+pub const ST_RAMPAGEDELAY: std::ffi::c_int = (2 * TICRATE);
+
+pub const ST_MUCHPAIN: std::ffi::c_int = 20;
+
+pub const ST_AMMOWIDTH: std::ffi::c_int = 3;
+
+pub const ST_AMMOX: std::ffi::c_int = 44;
+
+pub const ST_AMMOY: std::ffi::c_int = 171;
+
+pub const ST_HEALTHWIDTH: std::ffi::c_int = 3;
+
+pub const ST_HEALTHX: std::ffi::c_int = 90;
+
+pub const ST_HEALTHY: std::ffi::c_int = 171;
+
+pub const ST_ARMSX: std::ffi::c_int = 111;
+
+pub const ST_ARMSY: std::ffi::c_int = 172;
+
+pub const ST_ARMSBGX: std::ffi::c_int = 104;
+
+pub const ST_ARMSBGY: std::ffi::c_int = 168;
+
+pub const ST_ARMSXSPACE: std::ffi::c_int = 12;
+
+pub const ST_ARMSYSPACE: std::ffi::c_int = 10;
+
+pub const ST_FRAGSX: std::ffi::c_int = 138;
+
+pub const ST_FRAGSY: std::ffi::c_int = 171;
+
+pub const ST_FRAGSWIDTH: std::ffi::c_int = 2;
+
+pub const ST_ARMORWIDTH: std::ffi::c_int = 3;
+
+pub const ST_ARMORX: std::ffi::c_int = 221;
+
+pub const ST_ARMORY: std::ffi::c_int = 171;
+
+pub const ST_KEY0WIDTH: std::ffi::c_int = 8;
+
+pub const ST_KEY0HEIGHT: std::ffi::c_int = 5;
+
+pub const ST_KEY0X: std::ffi::c_int = 239;
+
+pub const ST_KEY0Y: std::ffi::c_int = 171;
+
+pub const ST_KEY1WIDTH: std::ffi::c_int = ST_KEY0WIDTH;
+
+pub const ST_KEY1X: std::ffi::c_int = 239;
+
+pub const ST_KEY1Y: std::ffi::c_int = 181;
+
+pub const ST_KEY2WIDTH: std::ffi::c_int = ST_KEY0WIDTH;
+
+pub const ST_KEY2X: std::ffi::c_int = 239;
+
+pub const ST_KEY2Y: std::ffi::c_int = 191;
+
+pub const ST_AMMO0WIDTH: std::ffi::c_int = 3;
+
+pub const ST_AMMO0HEIGHT: std::ffi::c_int = 6;
+
+pub const ST_AMMO0X: std::ffi::c_int = 288;
+
+pub const ST_AMMO0Y: std::ffi::c_int = 173;
+
+pub const ST_AMMO1WIDTH: std::ffi::c_int = ST_AMMO0WIDTH;
+
+pub const ST_AMMO1X: std::ffi::c_int = 288;
+
+pub const ST_AMMO1Y: std::ffi::c_int = 179;
+
+pub const ST_AMMO2WIDTH: std::ffi::c_int = ST_AMMO0WIDTH;
+
+pub const ST_AMMO2X: std::ffi::c_int = 288;
+
+pub const ST_AMMO2Y: std::ffi::c_int = 191;
+
+pub const ST_AMMO3WIDTH: std::ffi::c_int = ST_AMMO0WIDTH;
+
+pub const ST_AMMO3X: std::ffi::c_int = 288;
+
+pub const ST_AMMO3Y: std::ffi::c_int = 185;
+
+pub const ST_MAXAMMO0WIDTH: std::ffi::c_int = 3;
+
+pub const ST_MAXAMMO0HEIGHT: std::ffi::c_int = 5;
+
+pub const ST_MAXAMMO0X: std::ffi::c_int = 314;
+
+pub const ST_MAXAMMO0Y: std::ffi::c_int = 173;
+
+pub const ST_MAXAMMO1WIDTH: std::ffi::c_int = ST_MAXAMMO0WIDTH;
+
+pub const ST_MAXAMMO1X: std::ffi::c_int = 314;
+
+pub const ST_MAXAMMO1Y: std::ffi::c_int = 179;
+
+pub const ST_MAXAMMO2WIDTH: std::ffi::c_int = ST_MAXAMMO0WIDTH;
+
+pub const ST_MAXAMMO2X: std::ffi::c_int = 314;
+
+pub const ST_MAXAMMO2Y: std::ffi::c_int = 191;
+
+pub const ST_MAXAMMO3WIDTH: std::ffi::c_int = ST_MAXAMMO0WIDTH;
+
+pub const ST_MAXAMMO3X: std::ffi::c_int = 314;
+
+pub const ST_MAXAMMO3Y: std::ffi::c_int = 185;
+
+pub const ST_WEAPON0X: std::ffi::c_int = 110;
+
+pub const ST_WEAPON0Y: std::ffi::c_int = 172;
+
+pub const ST_WEAPON1X: std::ffi::c_int = 122;
+
+pub const ST_WEAPON1Y: std::ffi::c_int = 172;
+
+pub const ST_WEAPON2X: std::ffi::c_int = 134;
+
+pub const ST_WEAPON2Y: std::ffi::c_int = 172;
+
+pub const ST_WEAPON3X: std::ffi::c_int = 110;
+
+pub const ST_WEAPON3Y: std::ffi::c_int = 181;
+
+pub const ST_WEAPON4X: std::ffi::c_int = 122;
+
+pub const ST_WEAPON4Y: std::ffi::c_int = 181;
+
+pub const ST_WEAPON5X: std::ffi::c_int = 134;
+
+pub const ST_WEAPON5Y: std::ffi::c_int = 181;
+
+pub const ST_WPNSX: std::ffi::c_int = 109;
+
+pub const ST_WPNSY: std::ffi::c_int = 191;
+
+pub const ST_DETHX: std::ffi::c_int = 109;
+
+pub const ST_DETHY: std::ffi::c_int = 191;
+
+pub const ST_MSGTEXTX: std::ffi::c_int = 0;
+
+pub const ST_MSGTEXTY: std::ffi::c_int = 0;
+
+pub const ST_MSGWIDTH: std::ffi::c_int = 52;
+
+pub const ST_MSGHEIGHT: std::ffi::c_int = 1;
+
+pub const ST_OUTTEXTX: std::ffi::c_int = 0;
+
+pub const ST_OUTTEXTY: std::ffi::c_int = 6;
+
+pub const ST_OUTWIDTH: std::ffi::c_int = 52;
+
+pub const ST_OUTHEIGHT: std::ffi::c_int = 1;
+
+pub const ST_MAPWIDTH: std::ffi::c_int =
+    (strlen(mapnames[(((gameepisode - 1) * 9) + (gamemap - 1)) as usize]));
+
+pub const ST_MAPTITLEX: std::ffi::c_int = (SCREENWIDTH - (ST_MAPWIDTH * ST_CHATFONTWIDTH));
+
+pub const ST_MAPTITLEY: std::ffi::c_int = 0;
+
+pub const ST_MAPHEIGHT: std::ffi::c_int = 1;
 
 static mut plyr: *mut player_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

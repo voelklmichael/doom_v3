@@ -204,6 +204,8 @@ unsafe extern "C" {
     pub static mut playeringame: [boolean; (MAXPLAYERS) as usize];
 }
 
+pub const MAX_DM_STARTS: std::ffi::c_int = 10;
+
 unsafe extern "C" {
     pub static mut deathmatchstarts: [mapthing_t; (MAX_DM_STARTS) as usize];
 }

@@ -1,8 +1,28 @@
 use crate::m_fixed::*;
 
+pub const FINEANGLES: std::ffi::c_int = 8192;
+
+pub const FINEMASK: std::ffi::c_int = (FINEANGLES - 1);
+
+pub const ANGLETOFINESHIFT: std::ffi::c_int = 19;
+
 unsafe extern "C" {
     pub static mut finecosine: *mut fixed_t;
 }
+
+pub const ANG45: std::ffi::c_int = 0x20000000;
+
+pub const ANG90: std::ffi::c_int = 0x40000000;
+
+pub const ANG180: std::ffi::c_int = 0x80000000;
+
+pub const ANG270: std::ffi::c_int = 0xc0000000;
+
+pub const SLOPERANGE: std::ffi::c_int = 2048;
+
+pub const SLOPEBITS: std::ffi::c_int = 11;
+
+pub const DBITS: std::ffi::c_int = (FRACBITS - SLOPEBITS);
 
 pub type angle_t = std::ffi::c_uint;
 

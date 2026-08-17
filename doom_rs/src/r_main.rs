@@ -39,7 +39,23 @@ unsafe extern "C" {
     pub static mut viewwindowy: std::ffi::c_int;
 }
 
+pub const LIGHTLEVELS: std::ffi::c_int = 16;
+
+pub const LIGHTSEGSHIFT: std::ffi::c_int = 4;
+
+pub const MAXLIGHTSCALE: std::ffi::c_int = 48;
+
+pub const LIGHTSCALESHIFT: std::ffi::c_int = 12;
+
+pub const MAXLIGHTZ: std::ffi::c_int = 128;
+
+pub const LIGHTZSHIFT: std::ffi::c_int = 20;
+
+pub const NUMCOLORMAPS: std::ffi::c_int = 32;
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const FIELDOFVIEW: std::ffi::c_int = 2048;
 
 pub static mut viewangleoffset: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -171,6 +187,8 @@ pub unsafe extern "C" fn R_InitTables() {
 pub unsafe extern "C" fn R_InitTextureMapping() {
     todo!("body not yet translated")
 }
+
+pub const DISTMAP: std::ffi::c_int = 2;
 
 pub unsafe extern "C" fn R_InitLightTables() {
     todo!("body not yet translated")

@@ -102,7 +102,16 @@ pub fn run_rustfmt(paths: &[PathBuf]) -> io::Result<()> {
     if paths.is_empty() {
         return Ok(());
     }
-    let status = std::process::Command::new("rustfmt").args(paths).status()?;
+    // `rustfmt` invoked directly on file paths (not via `cargo fmt`) doesn't
+    // read `doom_rs/Cargo.toml`'s `edition = "2024"` - it defaults to 2015,
+    // which fails to even parse a `c"..."` C-string literal (added once
+    // `codegen::macros` started emitting them for string-valued `#define`s).
+    // Must match `doom_rs/Cargo.toml`'s edition exactly.
+    let status = std::process::Command::new("rustfmt")
+        .arg("--edition")
+        .arg("2024")
+        .args(paths)
+        .status()?;
     if !status.success() {
         eprintln!("warning: rustfmt exited with {status} - generated files may be unformatted");
     }

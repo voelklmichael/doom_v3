@@ -72,6 +72,8 @@ pub static mut xspeed: [fixed_t; (8) as usize] = unsafe { std::mem::zeroed() }; 
 
 pub static mut yspeed: [fixed_t; (8) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const MAXSPECIALCROSS: std::ffi::c_int = 8;
+
 unsafe extern "C" {
     pub static mut spechit: [*mut line_t; (MAXSPECIALCROSS) as usize];
 }
@@ -214,6 +216,8 @@ pub unsafe extern "C" fn A_VileAttack(actor: *mut mobj_t) {
     todo!("body not yet translated")
 }
 
+pub const FATSPREAD: std::ffi::c_int = (ANG90 / 8);
+
 pub unsafe extern "C" fn A_FatRaise(actor: *mut mobj_t) {
     todo!("body not yet translated")
 }
@@ -229,6 +233,8 @@ pub unsafe extern "C" fn A_FatAttack2(actor: *mut mobj_t) {
 pub unsafe extern "C" fn A_FatAttack3(actor: *mut mobj_t) {
     todo!("body not yet translated")
 }
+
+pub const SKULLSPEED: std::ffi::c_int = (20 * FRACUNIT);
 
 pub unsafe extern "C" fn A_SkullAttack(actor: *mut mobj_t) {
     todo!("body not yet translated")

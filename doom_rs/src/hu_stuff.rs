@@ -23,7 +23,53 @@ use crate::tables::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
+pub const HU_FONTSTART: std::ffi::c_int = (b'!' as std::ffi::c_int);
+
+pub const HU_FONTEND: std::ffi::c_int = (b'_' as std::ffi::c_int);
+
+pub const HU_FONTSIZE: std::ffi::c_int = ((HU_FONTEND - HU_FONTSTART) + 1);
+
+pub const HU_BROADCAST: std::ffi::c_int = 5;
+
+pub const HU_MSGREFRESH: std::ffi::c_int = KEY_ENTER;
+
+pub const HU_MSGX: std::ffi::c_int = 0;
+
+pub const HU_MSGY: std::ffi::c_int = 0;
+
+pub const HU_MSGWIDTH: std::ffi::c_int = 64;
+
+pub const HU_MSGHEIGHT: std::ffi::c_int = 1;
+
+pub const HU_MSGTIMEOUT: std::ffi::c_int = (4 * TICRATE);
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const HU_TITLE: std::ffi::c_int =
+    (mapnames[((((gameepisode - 1) * 9) + gamemap) - 1) as usize]);
+
+pub const HU_TITLE2: std::ffi::c_int = (mapnames2[(gamemap - 1) as usize]);
+
+pub const HU_TITLEP: std::ffi::c_int = (mapnamesp[(gamemap - 1) as usize]);
+
+pub const HU_TITLET: std::ffi::c_int = (mapnamest[(gamemap - 1) as usize]);
+
+pub const HU_TITLEHEIGHT: std::ffi::c_int = 1;
+
+pub const HU_TITLEX: std::ffi::c_int = 0;
+
+pub const HU_TITLEY: std::ffi::c_int = (167 - SHORT((*hu_font[(0) as usize]).height));
+
+pub const HU_INPUTTOGGLE: std::ffi::c_int = (b't' as std::ffi::c_int);
+
+pub const HU_INPUTX: std::ffi::c_int = HU_MSGX;
+
+pub const HU_INPUTY: std::ffi::c_int =
+    (HU_MSGY + (HU_MSGHEIGHT * (SHORT((*hu_font[(0) as usize]).height) + 1)));
+
+pub const HU_INPUTWIDTH: std::ffi::c_int = 64;
+
+pub const HU_INPUTHEIGHT: std::ffi::c_int = 1;
 
 pub static mut chat_macros: *mut *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -110,6 +156,8 @@ pub unsafe extern "C" fn HU_Erase() {
 pub unsafe extern "C" fn HU_Ticker() {
     todo!("body not yet translated")
 }
+
+pub const QUEUESIZE: std::ffi::c_int = 128;
 
 static mut chatchars: [std::ffi::c_char; (QUEUESIZE) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

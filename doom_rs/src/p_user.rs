@@ -28,6 +28,10 @@ use crate::tables::*;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const INVERSECOLORMAP: std::ffi::c_int = 32;
+
+pub const MAXBOB: std::ffi::c_int = 0x100000;
+
 pub static mut onground: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_Thrust(player: *mut player_t, angle: angle_t, move_: fixed_t) {
@@ -41,6 +45,8 @@ pub unsafe extern "C" fn P_CalcHeight(player: *mut player_t) {
 pub unsafe extern "C" fn P_MovePlayer(player: *mut player_t) {
     todo!("body not yet translated")
 }
+
+pub const ANG5: std::ffi::c_int = (ANG90 / 18);
 
 pub unsafe extern "C" fn P_DeathThink(player: *mut player_t) {
     todo!("body not yet translated")

@@ -37,6 +37,12 @@ unsafe extern "C" {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const MAXWIDTH: std::ffi::c_int = 1120;
+
+pub const MAXHEIGHT: std::ffi::c_int = 832;
+
+pub const SBARHEIGHT: std::ffi::c_int = 32;
+
 pub static mut viewimage: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut viewwidth: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -78,6 +84,10 @@ pub unsafe extern "C" fn R_DrawColumn() {
 pub unsafe extern "C" fn R_DrawColumnLow() {
     todo!("body not yet translated")
 }
+
+pub const FUZZTABLE: std::ffi::c_int = 50;
+
+pub const FUZZOFF: std::ffi::c_int = (SCREENWIDTH);
 
 pub static mut fuzzoffset: [std::ffi::c_int; (FUZZTABLE) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

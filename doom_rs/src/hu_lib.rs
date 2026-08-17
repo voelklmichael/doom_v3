@@ -23,6 +23,16 @@ use crate::r_things::*;
 use crate::tables::*;
 use crate::v_video::*;
 
+pub const BG: std::ffi::c_int = 1;
+
+pub const FG: std::ffi::c_int = 0;
+
+pub const HU_CHARERASE: std::ffi::c_int = KEY_BACKSPACE;
+
+pub const HU_MAXLINES: std::ffi::c_int = 4;
+
+pub const HU_MAXLINELENGTH: std::ffi::c_int = 80;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct hu_textline_t {
@@ -55,6 +65,8 @@ pub struct hu_itext_t {
 }
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const noterased: std::ffi::c_int = viewwindowx;
 
 unsafe extern "C" {
     pub static mut automapactive: boolean;

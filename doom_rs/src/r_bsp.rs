@@ -91,6 +91,8 @@ pub struct cliprange_t {
     pub last: std::ffi::c_int,
 }
 
+pub const MAXSEGS: std::ffi::c_int = 32;
+
 pub static mut newend: *mut cliprange_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut solidsegs: [cliprange_t; (MAXSEGS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

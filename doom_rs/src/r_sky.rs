@@ -14,6 +14,10 @@ use crate::r_defs::*;
 use crate::r_state::*;
 use crate::tables::*;
 
+pub const SKYFLATNAME: *const std::ffi::c_char = (c"F_SKY1").as_ptr();
+
+pub const ANGLETOSKYSHIFT: std::ffi::c_int = 22;
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut skyflatnum: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

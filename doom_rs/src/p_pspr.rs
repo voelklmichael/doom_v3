@@ -28,6 +28,10 @@ use crate::s_sound::*;
 use crate::sounds::*;
 use crate::tables::*;
 
+pub const FF_FULLBRIGHT: std::ffi::c_int = 0x8000;
+
+pub const FF_FRAMEMASK: std::ffi::c_int = 0x7fff;
+
 pub const ps_weapon: std::ffi::c_int = 0;
 pub const ps_flash: std::ffi::c_int = ps_weapon + 1;
 pub const NUMPSPRITES: std::ffi::c_int = ps_flash + 1;
@@ -44,6 +48,16 @@ pub struct pspdef_t {
 }
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const LOWERSPEED: std::ffi::c_int = (FRACUNIT * 6);
+
+pub const RAISESPEED: std::ffi::c_int = (FRACUNIT * 6);
+
+pub const WEAPONBOTTOM: std::ffi::c_int = (128 * FRACUNIT);
+
+pub const WEAPONTOP: std::ffi::c_int = (32 * FRACUNIT);
+
+pub const BFGCELLS: std::ffi::c_int = 40;
 
 pub unsafe extern "C" fn P_SetPsprite(
     player: *mut player_t,

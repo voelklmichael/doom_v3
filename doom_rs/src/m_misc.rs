@@ -42,6 +42,8 @@ pub unsafe extern "C" fn M_DrawText(
     todo!("body not yet translated")
 }
 
+pub const O_BINARY: std::ffi::c_int = 0;
+
 pub unsafe extern "C" fn M_WriteFile(
     name: (), /* TODO: unparsed param type, needs manual translation */
     source: *mut std::ffi::c_void,

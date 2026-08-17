@@ -101,6 +101,10 @@ pub unsafe extern "C" fn R_RenderMaskedSegRange(
     todo!("body not yet translated")
 }
 
+pub const HEIGHTBITS: std::ffi::c_int = 12;
+
+pub const HEIGHTUNIT: std::ffi::c_int = (1 << HEIGHTBITS);
+
 pub unsafe extern "C" fn R_RenderSegLoop() {
     todo!("body not yet translated")
 }

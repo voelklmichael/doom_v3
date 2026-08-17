@@ -6,6 +6,7 @@
 //! module-assembly concern, not an item-emission one).
 
 use super::ident::{ident, synthesize_nested_name};
+use super::macros::emit_define_object;
 use super::types::{
     format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
 };
@@ -13,11 +14,17 @@ use crate::parser::ast::{
     ActiveBranch, CondGroup, EnumDecl, Field, FnSig, Item, ItemKind, RecordDecl, RecordKind,
     Storage, TypedefDecl, VarDecl,
 };
+use crate::parser::preproc::Directive;
+use crate::parser::stmt::expr::KnownTypeNames;
 
 /// Emits Rust source text for one top-level `Item`. Never panics, never
 /// silently drops data: an unresolved conditional or an unparsed `Raw` item
 /// becomes a loudly-flagged comment rather than being skipped invisibly.
-pub fn emit_item(item: &Item) -> String {
+/// `known` is the emitting module's own `KnownTypeNames` (used only for
+/// `#define` bodies - see `codegen::macros` - since a macro's cast
+/// disambiguation needs the same corpus-derived type-name environment real
+/// function-body parsing already uses).
+pub fn emit_item(item: &Item, known: &KnownTypeNames) -> String {
     match &item.kind {
         ItemKind::Typedef(td) => emit_typedef(td),
         ItemKind::Record(rd) => emit_record(rd),
@@ -25,12 +32,15 @@ pub fn emit_item(item: &Item) -> String {
         ItemKind::Var(vd) => emit_var(vd),
         ItemKind::FunctionDecl(sig) => emit_function_decl(sig),
         ItemKind::FunctionDef(sig, _body) => emit_function_def(sig),
-        ItemKind::Conditional(group) => emit_conditional(group),
+        ItemKind::Conditional(group) => emit_conditional(group, known),
         ItemKind::Raw => emit_raw(&item.raw),
         // #include has no Rust equivalent (cross-module refs are handled via
-        // `use` imports at module-assembly time, see codegen::module); bare
-        // #define/#undef/#pragma/#error/#other are macros, out of scope this
-        // phase (any downstream use of one becomes a visible compile error,
+        // `use` imports at module-assembly time, see codegen::module).
+        ItemKind::Preproc(Directive::DefineObject { name, value }) => {
+            emit_define_object(name, value, known)
+        }
+        // Function-like macros, #undef/#pragma/#error/#other: out of scope
+        // this phase (any downstream use becomes a visible compile error,
         // an acceptable signal for this phase rather than a silent gap).
         ItemKind::Preproc(_) => String::new(),
     }
@@ -380,13 +390,13 @@ fn emit_function_def(sig: &FnSig) -> String {
     )
 }
 
-fn emit_conditional(group: &CondGroup) -> String {
+fn emit_conditional(group: &CondGroup, known: &KnownTypeNames) -> String {
     match group.active {
-        ActiveBranch::Branch(n) => emit_items(&group.branches[n].body),
+        ActiveBranch::Branch(n) => emit_items(&group.branches[n].body, known),
         ActiveBranch::Else => group
             .else_body
             .as_ref()
-            .map(|b| emit_items(b))
+            .map(|b| emit_items(b, known))
             .unwrap_or_default(),
         ActiveBranch::None => String::new(),
         ActiveBranch::Unknown => {
@@ -407,10 +417,13 @@ fn emit_raw(raw: &str) -> String {
 }
 
 /// Emits every item in `items` in order, concatenated - the driver both
-/// `codegen::mod`'s whole-module emission and `emit_conditional`'s recursive
+/// `main.rs`'s whole-module emission and `emit_conditional`'s recursive
 /// branch-body emission share.
-pub fn emit_items(items: &[(Item, crate::parser::ast::Trivia)]) -> String {
-    items.iter().map(|(item, _)| emit_item(item)).collect()
+pub fn emit_items(items: &[(Item, crate::parser::ast::Trivia)], known: &KnownTypeNames) -> String {
+    items
+        .iter()
+        .map(|(item, _)| emit_item(item, known))
+        .collect()
 }
 
 #[cfg(test)]
