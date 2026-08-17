@@ -56,6 +56,35 @@ fn unrecognized_name_colliding_with_a_keyword_gets_escaped() {
 }
 
 #[test]
+fn tag_based_type_reference_strips_the_c_keyword() {
+    // Real corpus shape (49 occurrences), e.g. p_mobj.h's `mobj_s` struct
+    // has a self-referential `struct mobj_s* snext;` field, declared via the
+    // tag since the `mobj_t` typedef isn't complete yet at that point.
+    assert_eq!(map_type(&named("struct mobj_s")), "mobj_s");
+    assert_eq!(map_type(&named("union foo")), "foo");
+    assert_eq!(map_type(&named("enum weapontype_e")), "weapontype_e");
+    assert_eq!(
+        map_type(&Type::Pointer(Box::new(named("struct mobj_s")))),
+        "*mut mobj_s"
+    );
+}
+
+#[test]
+fn tag_based_type_reference_with_keyword_colliding_tag_gets_escaped() {
+    assert_eq!(map_type(&named("struct type")), "type_");
+}
+
+#[test]
+fn bare_struct_or_union_with_no_tag_is_not_treated_as_tag_reference() {
+    // Only reached in practice via record.rs's synthesized nested-field
+    // placeholder, which codegen's item-emission substitutes before calling
+    // map_type - but map_type itself must still degrade sanely if it ever
+    // does see this shape, rather than producing an empty identifier.
+    assert_eq!(map_type(&named("union")), "union");
+    assert_eq!(map_type(&named("struct")), "struct_");
+}
+
+#[test]
 fn pointer_is_always_mut_never_const() {
     assert_eq!(
         map_type(&Type::Pointer(Box::new(named("char")))),

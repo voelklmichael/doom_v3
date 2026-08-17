@@ -5,9 +5,12 @@
 //! `/home/michael/.claude/plans/eager-marinating-axolotl.md` for the full
 //! phased design.
 //!
-//! PR A (this step): `types` (the `Type` -> Rust mapper) and `ident`
-//! (keyword escaping + nested-record name synthesis) only - no `ItemKind`
-//! dispatch, no file I/O yet.
+//! PR A: `types` (the `Type` -> Rust mapper) and `ident` (keyword escaping +
+//! nested-record name synthesis).
+//! PR B (this step): `items` (per-`ItemKind` emission), consuming a single
+//! already-parsed `ast::File`'s items directly - no cross-file merge or
+//! `use`-import resolution yet (a later PR), no file I/O yet.
 
 pub mod ident;
+pub mod items;
 pub mod types;
