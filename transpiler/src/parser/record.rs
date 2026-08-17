@@ -24,8 +24,8 @@ use super::ast::{
     split_top_level,
 };
 use super::decl::{
-    parse_declarator, parse_type_text, try_parse_typedef_flat, try_parse_var_braced,
-    try_parse_var_flat, wrap_array_dims,
+    parse_bare_declarator_suffix, parse_declarator, parse_declarator_with_base, parse_type_text,
+    try_parse_typedef_flat, try_parse_var_braced, try_parse_var_flat, wrap_array_dims,
 };
 use super::preproc::parse_directive;
 use super::stmt::expr::KnownTypeNames;
@@ -593,11 +593,47 @@ fn push_plain_field(
     if text.is_empty() {
         return;
     }
-    if let Some(mut f) = parse_field(text) {
-        f.trivia = Trivia { leading };
-        f.trailing_comment = trailing_comment;
-        fields.push(f);
+    let Some(mut group) = parse_field_group(text) else {
+        return;
+    };
+    if let Some(first) = group.first_mut() {
+        first.trivia = Trivia { leading };
     }
+    if let Some(last) = group.last_mut() {
+        last.trailing_comment = trailing_comment;
+    }
+    fields.append(&mut group);
+}
+
+/// Parses one semicolon-delimited field declaration, splitting on any
+/// top-level comma into multiple `Field`s sharing one base type (e.g.
+/// `long misc1, misc2;` - `info.h`'s `state_t`, a real corpus multi-
+/// declarator field; C forbids repeating the type word on a later
+/// declarator) - mirrors `stmt::decl::try_parse_decl_stmt`'s identical
+/// local-declaration handling one layer up, via the same
+/// `parse_declarator_with_base`/`parse_bare_declarator_suffix` pair. All-or-
+/// nothing: if any declarator in the group fails to parse, the whole group
+/// is dropped rather than guessing which subset is safe to keep - matches
+/// this function's pre-existing single-field failure behavior (an
+/// unparseable field was already silently dropped here, not changed by
+/// this fix).
+fn parse_field_group(text: &str) -> Option<Vec<Field>> {
+    let mut pieces = split_top_level(text, ',').into_iter();
+    let (first_field, base_ty) = parse_field_with_base(pieces.next()?.trim())?;
+    let mut out = vec![first_field];
+    for piece in pieces {
+        let (ty, name) = parse_bare_declarator_suffix(piece.trim(), &base_ty)?;
+        out.push(Field {
+            ty,
+            name,
+            storage: out[0].storage.clone(),
+            bitfield: None,
+            nested: None,
+            trivia: Trivia::default(),
+            trailing_comment: None,
+        });
+    }
+    Some(out)
 }
 
 fn push_opaque_group_field(
@@ -710,23 +746,30 @@ fn parse_nested_trailer(text: &str) -> Option<(String, Vec<Option<String>>)> {
     Some((name.to_string(), dims))
 }
 
-fn parse_field(decl_text: &str) -> Option<Field> {
+/// Parses one field declarator (already comma-split, if it was part of a
+/// multi-declarator group - see `parse_field_group`), also returning its
+/// base type so a sibling declarator sharing the same base can reuse it via
+/// `parse_bare_declarator_suffix`.
+fn parse_field_with_base(decl_text: &str) -> Option<(Field, Type)> {
     let (decl_text, bitfield) = match decl_text.rsplit_once(':') {
         Some((d, b)) if !b.trim().is_empty() && b.trim().chars().all(|c| c.is_ascii_digit()) => {
             (d.trim(), Some(b.trim().to_string()))
         }
         _ => (decl_text, None),
     };
-    let (storage, ty, name) = parse_declarator(decl_text)?;
-    Some(Field {
-        ty,
-        name,
-        storage,
-        bitfield,
-        nested: None,
-        trivia: Trivia::default(),
-        trailing_comment: None,
-    })
+    let (storage, base_ty, ty, name) = parse_declarator_with_base(decl_text)?;
+    Some((
+        Field {
+            ty,
+            name,
+            storage,
+            bitfield,
+            nested: None,
+            trivia: Trivia::default(),
+            trailing_comment: None,
+        },
+        base_ty,
+    ))
 }
 
 /// Splits `tokens` on top-level occurrences of `sep` (a `Code`-token

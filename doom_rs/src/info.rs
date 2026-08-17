@@ -1128,7 +1128,8 @@ pub struct state_t {
     pub tics: std::ffi::c_long,
     pub action: actionf_t,
     pub nextstate: statenum_t,
-    // TODO: unparsed multi-declarator field, needs manual translation: misc2: /* unrecognized type: long misc1, */,
+    pub misc1: std::ffi::c_long,
+    pub misc2: std::ffi::c_long,
 }
 
 pub const MT_PLAYER: std::ffi::c_int = 0;

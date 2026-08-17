@@ -56,6 +56,86 @@ fn enum_with_values() {
 }
 
 #[test]
+fn multi_declarator_field_splits_into_separate_fields() {
+    // info.h's real state_t shape: `long misc1, misc2;` - previously
+    // collapsed into one malformed Field with an embedded comma.
+    let src = "typedef struct\n{\n    long frame;\n    long misc1, misc2;\n    long nextstate;\n} state_t;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(r) => {
+            assert_eq!(r.fields.len(), 4);
+            assert_eq!(r.fields[0].name, "frame");
+            assert_eq!(r.fields[1].name, "misc1");
+            assert!(!r.fields[1].name.contains(','), "got: {:?}", r.fields[1]);
+            assert_eq!(r.fields[2].name, "misc2");
+            assert_eq!(r.fields[3].name, "nextstate");
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn multi_declarator_field_shares_pointer_and_array_decoration_independently() {
+    // am_map.c's real mpoint_t/fpoint_t shape: `fixed_t x, y;` (no stars),
+    // but the general grammar (mirroring stmt::decl's local-multi-declarator
+    // handling) must also let each declarator apply its own `*`/`[]` on top
+    // of the shared base type, e.g. `int *a, b[4];`.
+    let src = "struct\n{\n    int *a, b[4];\n} s;\n";
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(r) => {
+            assert_eq!(r.fields.len(), 2);
+            assert_eq!(r.fields[0].name, "a");
+            assert!(
+                matches!(r.fields[0].ty, Type::Pointer(_)),
+                "got: {:?}",
+                r.fields[0].ty
+            );
+            assert_eq!(r.fields[1].name, "b");
+            assert!(
+                matches!(r.fields[1].ty, Type::Array(_, _)),
+                "got: {:?}",
+                r.fields[1].ty
+            );
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn multi_declarator_field_leading_and_trailing_comments_attach_to_first_and_last() {
+    let src = "struct\n{\n    // doc\n    long misc1, misc2; // trailing\n} s;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(r) => {
+            assert_eq!(r.fields.len(), 2);
+            assert!(!r.fields[0].trivia.leading.is_empty());
+            assert!(r.fields[1].trivia.leading.is_empty());
+            assert!(r.fields[0].trailing_comment.is_none());
+            assert!(r.fields[1].trailing_comment.is_some());
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
+fn single_declarator_field_unaffected_by_multi_declarator_change() {
+    // No top-level comma at all - must behave exactly as before.
+    let src = "struct\n{\n    int x;\n} s;\n";
+    round_trip(src);
+    let items = build(src);
+    match &items[0].0.kind {
+        ItemKind::Record(r) => {
+            assert_eq!(r.fields.len(), 1);
+            assert_eq!(r.fields[0].name, "x");
+        }
+        other => panic!("expected Record, got {other:?}"),
+    }
+}
+
+#[test]
 fn function_body_is_parsed_and_raw_preserved() {
     let src = "int\nM_DrawText\n( int x,\n  int y )\n{\n    return x + y;\n}\n";
     round_trip(src);
