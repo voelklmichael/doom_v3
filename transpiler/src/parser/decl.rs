@@ -11,9 +11,10 @@
 //! opaque string, because step 1 already found the matching `{`/`}`.
 
 use super::ast::{
-    Chunk, Init, RawToken, Storage, Type, TypedefDecl, VarDecl, render_tokens_no_comments,
-    split_top_level,
+    ActiveBranch, Chunk, Init, InitCondBranch, InitCondGroup, RawToken, Storage, Type, TypedefDecl,
+    VarDecl, render_tokens_no_comments, split_top_level,
 };
+use super::preproc::{self, Directive};
 
 /// Parses a plain `;`-terminated statement with no top-level brace group,
 /// e.g. `static const char rcsid[] = "...";` (initializer) or
@@ -62,14 +63,35 @@ pub fn try_parse_var_braced(header: &str, inner: &[RawToken]) -> Option<VarDecl>
 }
 
 /// Splits a `{ ... }` initializer's contents on top-level `,` into its
-/// elements. Each element is either a nested `Init::Braced` sub-list (a
-/// literal `{` at this level, e.g. one row of a `mobjinfo[]`/`states[]`-
-/// style table) - recursively parsed the same way, so arbitrarily nested
-/// tables work for free - or a scalar `Init::Expr` kept as raw text.
-/// Comments are dropped, same reasoning as `render_tokens_no_comments`
-/// everywhere else: a trailing `// comment, with a comma` must not fracture
-/// the split.
+/// elements, and folds any `#if`/`#ifdef`/`#ifndef`...`#endif` run found
+/// between elements into a nested `Init::Conditional` (e.g. `m_misc.c`'s
+/// `defaults[]` table, whose `#ifdef NORMALUNIX`/`#ifdef SNDSERV`/`#ifdef
+/// LINUX` blocks gate whole rows - the directive lines sit inside this
+/// initializer's own opaque token stream, so they never become their own
+/// top-level `Item` and are invisible to `cond::fold_conditionals`). Each
+/// non-directive element is either a nested `Init::Braced` sub-list (a
+/// literal `{` at this level, e.g. one row of the table) - recursively
+/// parsed the same way, so arbitrarily nested tables work for free - or a
+/// scalar `Init::Expr` kept as raw text. Comments are dropped, same
+/// reasoning as `render_tokens_no_comments` everywhere else: a trailing
+/// `// comment, with a comma` must not fracture the split.
 fn parse_braced_init(inner: &[RawToken]) -> Vec<Init> {
+    fold_init_conditionals(collect_raw_elements(inner))
+}
+
+/// A flat piece of a braced initializer's contents, before conditional
+/// folding: either a real element, or a preprocessor directive line found
+/// between elements. `raw_text` on the directive variant is the directive
+/// line's own exact text - only used as a fallback (see
+/// `fold_init_conditionals`) if it turns out not to be part of a balanced
+/// `#if...#endif` run, which never happens in the real corpus but keeps
+/// this degrading gracefully rather than losing the line's content.
+enum RawElem {
+    Value(Init),
+    Directive { raw_text: String, parsed: Directive },
+}
+
+fn collect_raw_elements(inner: &[RawToken]) -> Vec<RawElem> {
     let chunks = super::brace::group_braces(inner.to_vec());
     let mut elements = Vec::new();
     let mut pending = String::new();
@@ -77,15 +99,32 @@ fn parse_braced_init(inner: &[RawToken]) -> Vec<Init> {
     for chunk in chunks {
         match chunk {
             Chunk::Flat(toks) => {
-                let text = render_tokens_no_comments(&toks);
-                let combined = format!("{pending}{text}");
-                let complete = combined.trim_end().ends_with(',') || combined.trim().is_empty();
-                let mut parts = split_top_level(&combined, ',');
-                let leftover = if complete { None } else { parts.pop() };
-                for part in &parts {
-                    push_expr_element(part, &mut elements);
+                for run in split_on_preproc_lines(&toks) {
+                    match run {
+                        FlatRun::Code(sub_toks) => {
+                            let text = render_tokens_no_comments(&sub_toks);
+                            let combined = format!("{pending}{text}");
+                            let complete =
+                                combined.trim_end().ends_with(',') || combined.trim().is_empty();
+                            let mut parts = split_top_level(&combined, ',');
+                            let leftover = if complete { None } else { parts.pop() };
+                            for part in &parts {
+                                push_expr_element(part, &mut elements);
+                            }
+                            pending = leftover.unwrap_or_default();
+                        }
+                        FlatRun::Directive(raw_text) => {
+                            // A directive always sits on its own line, so
+                            // `pending` right before it is normally just
+                            // whitespace (or empty) - flush it as a
+                            // best-effort element first in case it isn't.
+                            push_expr_element(&pending, &mut elements);
+                            pending.clear();
+                            let parsed = preproc::parse_directive(&raw_text);
+                            elements.push(RawElem::Directive { raw_text, parsed });
+                        }
+                    }
                 }
-                pending = leftover.unwrap_or_default();
             }
             Chunk::Group { inner: ginner, .. } => {
                 // A brace group at the top level of an initializer list is
@@ -97,7 +136,7 @@ fn parse_braced_init(inner: &[RawToken]) -> Vec<Init> {
                 // its own best-effort scalar element rather than dropped.
                 push_expr_element(&pending, &mut elements);
                 pending.clear();
-                elements.push(Init::Braced(parse_braced_init(&ginner)));
+                elements.push(RawElem::Value(Init::Braced(parse_braced_init(&ginner))));
             }
         }
     }
@@ -105,10 +144,162 @@ fn parse_braced_init(inner: &[RawToken]) -> Vec<Init> {
     elements
 }
 
-fn push_expr_element(text: &str, elements: &mut Vec<Init>) {
+enum FlatRun {
+    Code(Vec<RawToken>),
+    Directive(String),
+}
+
+/// Splits a flat run of tokens into alternating code/directive-line pieces,
+/// so multiple adjacent directive lines (e.g. `m_misc.c`'s `#endif` /
+/// `#endif` / `#ifdef LINUX` sitting back-to-back with only whitespace
+/// between them) each become their own `Directive` piece instead of gluing
+/// into one unparseable blob.
+fn split_on_preproc_lines(toks: &[RawToken]) -> Vec<FlatRun> {
+    let mut out = Vec::new();
+    let mut cur = Vec::new();
+    for tok in toks {
+        if let RawToken::PreprocLine(span) = tok {
+            if !cur.is_empty() {
+                out.push(FlatRun::Code(std::mem::take(&mut cur)));
+            }
+            out.push(FlatRun::Directive(span.text.clone()));
+        } else {
+            cur.push(tok.clone());
+        }
+    }
+    if !cur.is_empty() {
+        out.push(FlatRun::Code(cur));
+    }
+    out
+}
+
+fn push_expr_element(text: &str, elements: &mut Vec<RawElem>) {
     let text = text.trim();
     if !text.is_empty() {
-        elements.push(Init::Expr(text.to_string()));
+        elements.push(RawElem::Value(Init::Expr(text.to_string())));
+    }
+}
+
+/// What an in-progress `InitCondBuilder` is currently accumulating a body
+/// for - mirrors `cond::Cur`.
+enum InitCur {
+    Branch(Directive),
+    Else,
+}
+
+/// Mirrors `cond::Builder`, but accumulates `Init` elements (no trivia/raw
+/// bookkeeping needed - see `InitCondBranch`'s doc comment).
+struct InitCondBuilder {
+    branches: Vec<InitCondBranch>,
+    cur: InitCur,
+    cur_body: Vec<Init>,
+    else_body: Option<Vec<Init>>,
+}
+
+impl InitCondBuilder {
+    fn new(directive: Directive) -> Self {
+        InitCondBuilder {
+            branches: Vec::new(),
+            cur: InitCur::Branch(directive),
+            cur_body: Vec::new(),
+            else_body: None,
+        }
+    }
+
+    fn push_body(&mut self, init: Init) {
+        self.cur_body.push(init);
+    }
+
+    fn advance(&mut self, next: InitCur) {
+        let body = std::mem::take(&mut self.cur_body);
+        match std::mem::replace(&mut self.cur, next) {
+            InitCur::Branch(directive) => self.branches.push(InitCondBranch { directive, body }),
+            InitCur::Else => self.else_body = Some(body),
+        }
+    }
+
+    fn finish(mut self) -> InitCondGroup {
+        let body = std::mem::take(&mut self.cur_body);
+        match std::mem::replace(&mut self.cur, InitCur::Else) {
+            InitCur::Branch(directive) => self.branches.push(InitCondBranch { directive, body }),
+            InitCur::Else => self.else_body = Some(body),
+        }
+        InitCondGroup {
+            branches: self.branches,
+            else_body: self.else_body,
+            active: ActiveBranch::Unknown,
+        }
+    }
+}
+
+/// Concatenates every element across all of a group's branches/else body,
+/// dropping the conditional structure itself. Used only for an unterminated
+/// `#if` at EOF (see `fold_init_conditionals`) - never exercised by the
+/// real corpus, which is fully balanced, but keeps every real element
+/// reachable rather than losing it under a dropped opener.
+fn flatten_group(group: InitCondGroup) -> Vec<Init> {
+    let mut out = Vec::new();
+    for branch in group.branches {
+        out.extend(branch.body);
+    }
+    if let Some(else_body) = group.else_body {
+        out.extend(else_body);
+    }
+    out
+}
+
+/// Folds a flat `RawElem` sequence into `Init`s, matching `#if`/`#ifdef`/
+/// `#ifndef`...`#elif`...`#else`...`#endif` runs into `Init::Conditional` -
+/// the same single left-to-right stack-based algorithm as
+/// `cond::fold_conditionals`, specialized for initializer elements (no
+/// trivia/raw bytes to carry, since `Init` isn't part of the file's
+/// round-trip contract). A stray `#elif`/`#else`/`#endif` with no open
+/// group, or any other directive shape (e.g. a stray `#define`), degrades
+/// to a scalar `Init::Expr` holding the directive's own raw text rather
+/// than being dropped - matching this parser's usual "never lose data"
+/// fallback stance, even though this path isn't exercised by the real
+/// corpus (which is fully balanced).
+fn fold_init_conditionals(elements: Vec<RawElem>) -> Vec<Init> {
+    let mut stack: Vec<InitCondBuilder> = Vec::new();
+    let mut top: Vec<Init> = Vec::new();
+
+    for elem in elements {
+        match elem {
+            RawElem::Value(v) => push_current(&mut stack, &mut top, v),
+            RawElem::Directive { raw_text, parsed } => match parsed {
+                Directive::If { .. } | Directive::IfDef { .. } => {
+                    stack.push(InitCondBuilder::new(parsed));
+                }
+                Directive::Elif { .. } if !stack.is_empty() => {
+                    stack.last_mut().unwrap().advance(InitCur::Branch(parsed));
+                }
+                Directive::Else if !stack.is_empty() => {
+                    stack.last_mut().unwrap().advance(InitCur::Else);
+                }
+                Directive::Endif if !stack.is_empty() => {
+                    let group = stack.pop().unwrap().finish();
+                    push_current(&mut stack, &mut top, Init::Conditional(group));
+                }
+                _ => push_current(&mut stack, &mut top, Init::Expr(raw_text)),
+            },
+        }
+    }
+
+    // Unterminated `#if` at EOF: flatten rather than lose the elements
+    // accumulated inside it (see `flatten_group`).
+    while let Some(builder) = stack.pop() {
+        for v in flatten_group(builder.finish()) {
+            push_current(&mut stack, &mut top, v);
+        }
+    }
+
+    top
+}
+
+fn push_current(stack: &mut [InitCondBuilder], top: &mut Vec<Init>, v: Init) {
+    match stack.last_mut() {
+        Some(b) => b.push_body(v),
+        None => top.push(v),
     }
 }
 
