@@ -27,6 +27,8 @@ use crate::tables::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
+pub const MAXVISSPRITES: std::ffi::c_int = 128;
+
 unsafe extern "C" {
     pub fn R_AddPSprites();
 }
@@ -40,6 +42,10 @@ unsafe extern "C" {
 }
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const MINZ: std::ffi::c_int = (FRACUNIT * 4);
+
+pub const BASEYCENTER: std::ffi::c_int = 100;
 
 #[repr(C)]
 #[derive(Copy, Clone)]

@@ -54,6 +54,10 @@ unsafe extern "C" {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const SAVEGAMESIZE: std::ffi::c_int = 0x2c000;
+
+pub const SAVESTRINGSIZE: std::ffi::c_int = 24;
+
 unsafe extern "C" {
     pub fn G_DoVictory();
 }
@@ -165,11 +169,19 @@ pub static mut joybuse: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO
 
 pub static mut joybspeed: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const MAXPLMOVE: std::ffi::c_int = (forwardmove[(1) as usize]);
+
+pub const TURBOTHRESHOLD: std::ffi::c_int = 0x32;
+
 pub static mut forwardmove: [fixed_t; (2) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut sidemove: [fixed_t; (2) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut angleturn: [fixed_t; (3) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const SLOWTURNTICS: std::ffi::c_int = 6;
+
+pub const NUMKEYS: std::ffi::c_int = 256;
 
 pub static mut gamekeydown: [boolean; (NUMKEYS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -206,6 +218,8 @@ pub static mut joybuttons: *mut boolean = unsafe { std::mem::zeroed() }; // TODO
 pub static mut savegameslot: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut savedescription: [std::ffi::c_char; (32) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const BODYQUESIZE: std::ffi::c_int = 32;
 
 pub static mut bodyque: [*mut mobj_t; (BODYQUESIZE) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -317,6 +331,8 @@ pub unsafe extern "C" fn G_LoadGame(name: *mut std::ffi::c_char) {
     todo!("body not yet translated")
 }
 
+pub const VERSIONSIZE: std::ffi::c_int = 16;
+
 pub unsafe extern "C" fn G_DoLoadGame() {
     todo!("body not yet translated")
 }
@@ -354,6 +370,8 @@ unsafe extern "C" {
 pub unsafe extern "C" fn G_InitNew(skill: skill_t, episode: std::ffi::c_int, map: std::ffi::c_int) {
     todo!("body not yet translated")
 }
+
+pub const DEMOMARKER: std::ffi::c_int = 0x80;
 
 pub unsafe extern "C" fn G_ReadDemoTiccmd(cmd: *mut ticcmd_t) {
     todo!("body not yet translated")

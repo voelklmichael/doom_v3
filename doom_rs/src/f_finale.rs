@@ -33,6 +33,10 @@ pub static mut finalestage: std::ffi::c_int = unsafe { std::mem::zeroed() }; // 
 
 pub static mut finalecount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const TEXTSPEED: std::ffi::c_int = 3;
+
+pub const TEXTWAIT: std::ffi::c_int = 250;
+
 pub static mut e1text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut e2text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

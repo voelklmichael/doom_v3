@@ -36,6 +36,32 @@ static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe {
 
 pub static mut snd_prefixen: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const S_MAX_VOLUME: std::ffi::c_int = 127;
+
+pub const S_CLIPPING_DIST: std::ffi::c_int = (1200 * 0x10000);
+
+pub const S_CLOSE_DIST: std::ffi::c_int = (160 * 0x10000);
+
+pub const S_ATTENUATOR: std::ffi::c_int = ((S_CLIPPING_DIST - S_CLOSE_DIST) >> FRACBITS);
+
+pub const NORM_VOLUME: std::ffi::c_int = snd_MaxVolume;
+
+pub const NORM_PITCH: std::ffi::c_int = 128;
+
+pub const NORM_PRIORITY: std::ffi::c_int = 64;
+
+pub const NORM_SEP: std::ffi::c_int = 128;
+
+pub const S_PITCH_PERTURB: std::ffi::c_int = 1;
+
+pub const S_STEREO_SWING: std::ffi::c_int = (96 * 0x10000);
+
+pub const S_IFRACVOL: std::ffi::c_int = 30;
+
+pub const NA: std::ffi::c_int = 0;
+
+pub const S_NUMCHANNELS: std::ffi::c_int = 2;
+
 unsafe extern "C" {
     pub static mut snd_MusicDevice: std::ffi::c_int;
 }

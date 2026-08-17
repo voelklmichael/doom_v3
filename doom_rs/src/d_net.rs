@@ -18,6 +18,12 @@ use crate::p_mobj::*;
 use crate::p_pspr::*;
 use crate::tables::*;
 
+pub const DOOMCOM_ID: std::ffi::c_int = 0x12345678;
+
+pub const MAXNETNODES: std::ffi::c_int = 8;
+
+pub const BACKUPTICS: std::ffi::c_int = 12;
+
 pub const CMD_SEND: std::ffi::c_int = 1;
 pub const CMD_GET: std::ffi::c_int = 2;
 
@@ -70,9 +76,23 @@ pub struct doomcom_t {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const NCMD_EXIT: std::ffi::c_int = 0x80000000;
+
+pub const NCMD_RETRANSMIT: std::ffi::c_int = 0x40000000;
+
+pub const NCMD_SETUP: std::ffi::c_int = 0x20000000;
+
+pub const NCMD_KILL: std::ffi::c_int = 0x10000000;
+
+pub const NCMD_CHECKSUM: std::ffi::c_int = 0x0fffffff;
+
 pub static mut doomcom: *mut doomcom_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut netbuffer: *mut doomdata_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const RESENDCOUNT: std::ffi::c_int = 10;
+
+pub const PL_DRONE: std::ffi::c_int = 0x80;
 
 pub static mut localcmds: [ticcmd_t; (BACKUPTICS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

@@ -33,6 +33,8 @@ use crate::tables::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
+pub const MO_TELEPORTMAN: std::ffi::c_int = 14;
+
 unsafe extern "C" {
     pub fn P_UseSpecialLine(
         thing: *mut mobj_t,
@@ -84,6 +86,14 @@ pub struct glow_t {
     pub maxlight: std::ffi::c_int,
     pub direction: std::ffi::c_int,
 }
+
+pub const GLOWSPEED: std::ffi::c_int = 8;
+
+pub const STROBEBRIGHT: std::ffi::c_int = 5;
+
+pub const FASTDARK: std::ffi::c_int = 15;
+
+pub const SLOWDARK: std::ffi::c_int = 35;
 
 unsafe extern "C" {
     pub fn P_SpawnFireFlicker(sector: *mut sector_t);
@@ -153,6 +163,12 @@ pub struct button_t {
     pub soundorg: *mut mobj_t,
 }
 
+pub const MAXSWITCHES: std::ffi::c_int = 50;
+
+pub const MAXBUTTONS: std::ffi::c_int = 16;
+
+pub const BUTTONTIME: std::ffi::c_int = 35;
+
 unsafe extern "C" {
     pub static mut buttonlist: [button_t; (MAXBUTTONS) as usize];
 }
@@ -196,6 +212,12 @@ pub struct plat_t {
     pub tag: std::ffi::c_int,
     pub type_: plattype_e,
 }
+
+pub const PLATWAIT: std::ffi::c_int = 3;
+
+pub const PLATSPEED: std::ffi::c_int = FRACUNIT;
+
+pub const MAXPLATS: std::ffi::c_int = 30;
 
 unsafe extern "C" {
     pub static mut activeplats: [*mut plat_t; (MAXPLATS) as usize];
@@ -253,6 +275,10 @@ pub struct vldoor_t {
     pub topcountdown: std::ffi::c_int,
 }
 
+pub const VDOORSPEED: std::ffi::c_int = (FRACUNIT * 2);
+
+pub const VDOORWAIT: std::ffi::c_int = 150;
+
 unsafe extern "C" {
     pub fn EV_VerticalDoor(line: *mut line_t, thing: *mut mobj_t);
 }
@@ -304,6 +330,12 @@ pub struct ceiling_t {
     pub tag: std::ffi::c_int,
     pub olddirection: std::ffi::c_int,
 }
+
+pub const CEILSPEED: std::ffi::c_int = FRACUNIT;
+
+pub const CEILWAIT: std::ffi::c_int = 150;
+
+pub const MAXCEILINGS: std::ffi::c_int = 30;
 
 unsafe extern "C" {
     pub static mut activeceilings: [*mut ceiling_t; (MAXCEILINGS) as usize];
@@ -368,6 +400,8 @@ pub struct floormove_t {
     pub speed: fixed_t,
 }
 
+pub const FLOORSPEED: std::ffi::c_int = FRACUNIT;
+
 pub const ok: std::ffi::c_int = 0;
 pub const crushed: std::ffi::c_int = ok + 1;
 pub const pastdest: std::ffi::c_int = crushed + 1;
@@ -426,11 +460,15 @@ pub struct animdef_t {
     pub speed: std::ffi::c_int,
 }
 
+pub const MAXANIMS: std::ffi::c_int = 32;
+
 pub static mut animdefs: *mut animdef_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut anims: [anim_t; (MAXANIMS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut lastanim: *mut anim_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const MAXLINEANIMS: std::ffi::c_int = 64;
 
 pub unsafe extern "C" fn P_InitPicAnims() {
     todo!("body not yet translated")
@@ -470,6 +508,8 @@ pub unsafe extern "C" fn P_FindLowestFloorSurrounding(sec: *mut sector_t) -> fix
 pub unsafe extern "C" fn P_FindHighestFloorSurrounding(sec: *mut sector_t) -> fixed_t {
     todo!("body not yet translated")
 }
+
+pub const MAX_ADJOINING_SECTORS: std::ffi::c_int = 20;
 
 pub unsafe extern "C" fn P_FindNextHighestFloor(
     sec: *mut sector_t,

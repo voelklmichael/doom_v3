@@ -23,12 +23,36 @@ pub const unknown: std::ffi::c_int = german + 1;
 
 pub type Language_t = std::ffi::c_int;
 
+pub const SNDSERV: std::ffi::c_int = 1;
+
+pub const BASE_WIDTH: std::ffi::c_int = 320;
+
+pub const SCREEN_MUL: std::ffi::c_int = 1;
+
+pub const INV_ASPECT_RATIO: std::ffi::c_double = 0.625;
+
+pub const SCREENWIDTH: std::ffi::c_int = 320;
+
+pub const SCREENHEIGHT: std::ffi::c_int = 200;
+
+pub const MAXPLAYERS: std::ffi::c_int = 4;
+
+pub const TICRATE: std::ffi::c_int = 35;
+
 pub const GS_LEVEL: std::ffi::c_int = 0;
 pub const GS_INTERMISSION: std::ffi::c_int = GS_LEVEL + 1;
 pub const GS_FINALE: std::ffi::c_int = GS_INTERMISSION + 1;
 pub const GS_DEMOSCREEN: std::ffi::c_int = GS_FINALE + 1;
 
 pub type gamestate_t = std::ffi::c_int;
+
+pub const MTF_EASY: std::ffi::c_int = 1;
+
+pub const MTF_NORMAL: std::ffi::c_int = 2;
+
+pub const MTF_HARD: std::ffi::c_int = 4;
+
+pub const MTF_AMBUSH: std::ffi::c_int = 8;
 
 pub const sk_baby: std::ffi::c_int = 0;
 pub const sk_easy: std::ffi::c_int = sk_baby + 1;
@@ -87,6 +111,60 @@ pub const INFRATICS: std::ffi::c_int = (120 * TICRATE);
 pub const IRONTICS: std::ffi::c_int = (60 * TICRATE);
 
 pub type powerduration_t = std::ffi::c_int;
+
+pub const KEY_RIGHTARROW: std::ffi::c_int = 0xae;
+
+pub const KEY_LEFTARROW: std::ffi::c_int = 0xac;
+
+pub const KEY_UPARROW: std::ffi::c_int = 0xad;
+
+pub const KEY_DOWNARROW: std::ffi::c_int = 0xaf;
+
+pub const KEY_ESCAPE: std::ffi::c_int = 27;
+
+pub const KEY_ENTER: std::ffi::c_int = 13;
+
+pub const KEY_TAB: std::ffi::c_int = 9;
+
+pub const KEY_F1: std::ffi::c_int = (0x80 + 0x3b);
+
+pub const KEY_F2: std::ffi::c_int = (0x80 + 0x3c);
+
+pub const KEY_F3: std::ffi::c_int = (0x80 + 0x3d);
+
+pub const KEY_F4: std::ffi::c_int = (0x80 + 0x3e);
+
+pub const KEY_F5: std::ffi::c_int = (0x80 + 0x3f);
+
+pub const KEY_F6: std::ffi::c_int = (0x80 + 0x40);
+
+pub const KEY_F7: std::ffi::c_int = (0x80 + 0x41);
+
+pub const KEY_F8: std::ffi::c_int = (0x80 + 0x42);
+
+pub const KEY_F9: std::ffi::c_int = (0x80 + 0x43);
+
+pub const KEY_F10: std::ffi::c_int = (0x80 + 0x44);
+
+pub const KEY_F11: std::ffi::c_int = (0x80 + 0x57);
+
+pub const KEY_F12: std::ffi::c_int = (0x80 + 0x58);
+
+pub const KEY_BACKSPACE: std::ffi::c_int = 127;
+
+pub const KEY_PAUSE: std::ffi::c_int = 0xff;
+
+pub const KEY_EQUALS: std::ffi::c_int = 0x3d;
+
+pub const KEY_MINUS: std::ffi::c_int = 0x2d;
+
+pub const KEY_RSHIFT: std::ffi::c_int = (0x80 + 0x36);
+
+pub const KEY_RCTRL: std::ffi::c_int = (0x80 + 0x1d);
+
+pub const KEY_RALT: std::ffi::c_int = (0x80 + 0x38);
+
+pub const KEY_LALT: std::ffi::c_int = KEY_RALT;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

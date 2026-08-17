@@ -7,6 +7,16 @@ use crate::m_fixed::*;
 use crate::p_mobj::*;
 use crate::tables::*;
 
+pub const SIL_NONE: std::ffi::c_int = 0;
+
+pub const SIL_BOTTOM: std::ffi::c_int = 1;
+
+pub const SIL_TOP: std::ffi::c_int = 2;
+
+pub const SIL_BOTH: std::ffi::c_int = 3;
+
+pub const MAXDRAWSEGS: std::ffi::c_int = 256;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct vertex_t {

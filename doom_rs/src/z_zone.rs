@@ -4,6 +4,22 @@ use crate::doomdef::*;
 use crate::doomtype::*;
 use crate::i_system::*;
 
+pub const PU_STATIC: std::ffi::c_int = 1;
+
+pub const PU_SOUND: std::ffi::c_int = 2;
+
+pub const PU_MUSIC: std::ffi::c_int = 3;
+
+pub const PU_DAVE: std::ffi::c_int = 4;
+
+pub const PU_LEVEL: std::ffi::c_int = 50;
+
+pub const PU_LEVSPEC: std::ffi::c_int = 51;
+
+pub const PU_PURGELEVEL: std::ffi::c_int = 100;
+
+pub const PU_CACHE: std::ffi::c_int = 101;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct memblock_t {
@@ -18,6 +34,8 @@ pub struct memblock_t {
 pub type memblock_s = memblock_t;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const ZONEID: std::ffi::c_int = 0x1d4a11;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -40,6 +58,8 @@ pub unsafe extern "C" fn Z_Init() {
 pub unsafe extern "C" fn Z_Free(ptr: *mut std::ffi::c_void) {
     todo!("body not yet translated")
 }
+
+pub const MINFRAGMENT: std::ffi::c_int = 64;
 
 pub unsafe extern "C" fn Z_Malloc(
     size: std::ffi::c_int,

@@ -45,7 +45,13 @@ use crate::w_wad::*;
 use crate::wi_stuff::*;
 use crate::z_zone::*;
 
+pub const MAXWADFILES: std::ffi::c_int = 20;
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const BGCOLOR: std::ffi::c_int = 7;
+
+pub const FGCOLOR: std::ffi::c_int = 8;
 
 pub static mut wadfiles: [*mut std::ffi::c_char; (MAXWADFILES) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

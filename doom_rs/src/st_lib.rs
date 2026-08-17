@@ -28,6 +28,10 @@ use crate::v_video::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
+pub const BG: std::ffi::c_int = 4;
+
+pub const FG: std::ffi::c_int = 0;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct st_number_t {

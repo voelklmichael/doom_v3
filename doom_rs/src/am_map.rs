@@ -34,7 +34,118 @@ use crate::v_video::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
+pub const AM_MSGHEADER: std::ffi::c_int =
+    (((b'a' as std::ffi::c_int) << 24) + ((b'm' as std::ffi::c_int) << 16));
+
+pub const AM_MSGENTERED: std::ffi::c_int = (AM_MSGHEADER | ((b'e' as std::ffi::c_int) << 8));
+
+pub const AM_MSGEXITED: std::ffi::c_int = (AM_MSGHEADER | ((b'x' as std::ffi::c_int) << 8));
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const REDS: std::ffi::c_int = (256 - (5 * 16));
+
+pub const REDRANGE: std::ffi::c_int = 16;
+
+pub const BLUES: std::ffi::c_int = ((256 - (4 * 16)) + 8);
+
+pub const BLUERANGE: std::ffi::c_int = 8;
+
+pub const GREENS: std::ffi::c_int = (7 * 16);
+
+pub const GREENRANGE: std::ffi::c_int = 16;
+
+pub const GRAYS: std::ffi::c_int = (6 * 16);
+
+pub const GRAYSRANGE: std::ffi::c_int = 16;
+
+pub const BROWNS: std::ffi::c_int = (4 * 16);
+
+pub const BROWNRANGE: std::ffi::c_int = 16;
+
+pub const YELLOWS: std::ffi::c_int = ((256 - 32) + 7);
+
+pub const YELLOWRANGE: std::ffi::c_int = 1;
+
+pub const BLACK: std::ffi::c_int = 0;
+
+pub const WHITE: std::ffi::c_int = (256 - 47);
+
+pub const BACKGROUND: std::ffi::c_int = BLACK;
+
+pub const YOURCOLORS: std::ffi::c_int = WHITE;
+
+pub const YOURRANGE: std::ffi::c_int = 0;
+
+pub const WALLCOLORS: std::ffi::c_int = REDS;
+
+pub const WALLRANGE: std::ffi::c_int = REDRANGE;
+
+pub const TSWALLCOLORS: std::ffi::c_int = GRAYS;
+
+pub const TSWALLRANGE: std::ffi::c_int = GRAYSRANGE;
+
+pub const FDWALLCOLORS: std::ffi::c_int = BROWNS;
+
+pub const FDWALLRANGE: std::ffi::c_int = BROWNRANGE;
+
+pub const CDWALLCOLORS: std::ffi::c_int = YELLOWS;
+
+pub const CDWALLRANGE: std::ffi::c_int = YELLOWRANGE;
+
+pub const THINGCOLORS: std::ffi::c_int = GREENS;
+
+pub const THINGRANGE: std::ffi::c_int = GREENRANGE;
+
+pub const SECRETWALLCOLORS: std::ffi::c_int = WALLCOLORS;
+
+pub const SECRETWALLRANGE: std::ffi::c_int = WALLRANGE;
+
+pub const GRIDCOLORS: std::ffi::c_int = (GRAYS + (GRAYSRANGE / 2));
+
+pub const GRIDRANGE: std::ffi::c_int = 0;
+
+pub const XHAIRCOLORS: std::ffi::c_int = GRAYS;
+
+pub const FB: std::ffi::c_int = 0;
+
+pub const AM_PANDOWNKEY: std::ffi::c_int = KEY_DOWNARROW;
+
+pub const AM_PANUPKEY: std::ffi::c_int = KEY_UPARROW;
+
+pub const AM_PANRIGHTKEY: std::ffi::c_int = KEY_RIGHTARROW;
+
+pub const AM_PANLEFTKEY: std::ffi::c_int = KEY_LEFTARROW;
+
+pub const AM_ZOOMINKEY: std::ffi::c_int = (b'=' as std::ffi::c_int);
+
+pub const AM_ZOOMOUTKEY: std::ffi::c_int = (b'-' as std::ffi::c_int);
+
+pub const AM_STARTKEY: std::ffi::c_int = KEY_TAB;
+
+pub const AM_ENDKEY: std::ffi::c_int = KEY_TAB;
+
+pub const AM_GOBIGKEY: std::ffi::c_int = (b'0' as std::ffi::c_int);
+
+pub const AM_FOLLOWKEY: std::ffi::c_int = (b'f' as std::ffi::c_int);
+
+pub const AM_GRIDKEY: std::ffi::c_int = (b'g' as std::ffi::c_int);
+
+pub const AM_MARKKEY: std::ffi::c_int = (b'm' as std::ffi::c_int);
+
+pub const AM_CLEARMARKKEY: std::ffi::c_int = (b'c' as std::ffi::c_int);
+
+pub const AM_NUMMARKPOINTS: std::ffi::c_int = 10;
+
+pub const INITSCALEMTOF: std::ffi::c_int = (0.2 * FRACUNIT);
+
+pub const F_PANINC: std::ffi::c_int = 4;
+
+pub const M_ZOOMIN: std::ffi::c_int = ((1.02 * FRACUNIT) as std::ffi::c_int);
+
+pub const M_ZOOMOUT: std::ffi::c_int = ((FRACUNIT / 1.02) as std::ffi::c_int);
+
+pub const LINE_NEVERSEE: std::ffi::c_int = ML_DONTDRAW;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -68,11 +179,25 @@ pub struct islope_t {
 
 pub static mut player_arrow: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const NUMPLYRLINES: std::ffi::c_int =
+    (std::mem::size_of_val(&(player_arrow)) / std::mem::size_of::<mline_t>());
+
 pub static mut cheat_player_arrow: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const NUMCHEATPLYRLINES: std::ffi::c_int =
+    (std::mem::size_of_val(&(cheat_player_arrow)) / std::mem::size_of::<mline_t>());
 
 pub static mut triangle_guy: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const NUMTRIANGLEGUYLINES: std::ffi::c_int =
+    (std::mem::size_of_val(&(triangle_guy)) / std::mem::size_of::<mline_t>());
+
+pub const R: std::ffi::c_int = (FRACUNIT);
+
 pub static mut thintriangle_guy: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const NUMTHINTRIANGLEGUYLINES: std::ffi::c_int =
+    (std::mem::size_of_val(&(thintriangle_guy)) / std::mem::size_of::<mline_t>());
 
 static mut cheating: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

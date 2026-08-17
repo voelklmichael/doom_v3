@@ -22,6 +22,38 @@ use crate::r_state::*;
 use crate::r_things::*;
 use crate::tables::*;
 
+pub const FLOATSPEED: std::ffi::c_int = (FRACUNIT * 4);
+
+pub const MAXHEALTH: std::ffi::c_int = 100;
+
+pub const VIEWHEIGHT: std::ffi::c_int = (41 * FRACUNIT);
+
+pub const MAPBLOCKUNITS: std::ffi::c_int = 128;
+
+pub const MAPBLOCKSIZE: std::ffi::c_int = (MAPBLOCKUNITS * FRACUNIT);
+
+pub const MAPBLOCKSHIFT: std::ffi::c_int = (FRACBITS + 7);
+
+pub const MAPBMASK: std::ffi::c_int = (MAPBLOCKSIZE - 1);
+
+pub const MAPBTOFRAC: std::ffi::c_int = (MAPBLOCKSHIFT - FRACBITS);
+
+pub const PLAYERRADIUS: std::ffi::c_int = (16 * FRACUNIT);
+
+pub const MAXRADIUS: std::ffi::c_int = (32 * FRACUNIT);
+
+pub const GRAVITY: std::ffi::c_int = FRACUNIT;
+
+pub const MAXMOVE: std::ffi::c_int = (30 * FRACUNIT);
+
+pub const USERANGE: std::ffi::c_int = (64 * FRACUNIT);
+
+pub const MELEERANGE: std::ffi::c_int = (64 * FRACUNIT);
+
+pub const MISSILERANGE: std::ffi::c_int = ((32 * 64) * FRACUNIT);
+
+pub const BASETHRESHOLD: std::ffi::c_int = 100;
+
 unsafe extern "C" {
     pub static mut thinkercap: thinker_t;
 }
@@ -53,6 +85,12 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn P_PlayerThink(player: *mut player_t);
 }
+
+pub const ONFLOORZ: std::ffi::c_int = MININT;
+
+pub const ONCEILINGZ: std::ffi::c_int = MAXINT;
+
+pub const ITEMQUESIZE: std::ffi::c_int = 128;
 
 unsafe extern "C" {
     pub static mut itemrespawnque: [mapthing_t; (ITEMQUESIZE) as usize];
@@ -100,7 +138,7 @@ unsafe extern "C" {
 
 unsafe extern "C" {
     pub fn P_SpawnMissile(source: *mut mobj_t, dest: *mut mobj_t, type_: mobjtype_t)
-        -> *mut mobj_t;
+    -> *mut mobj_t;
 }
 
 unsafe extern "C" {
@@ -134,6 +172,8 @@ pub struct intercept_t {
     pub isaline: boolean,
     pub d: intercept_t_d,
 }
+
+pub const MAXINTERCEPTS: std::ffi::c_int = 128;
 
 unsafe extern "C" {
     pub static mut intercepts: [intercept_t; (MAXINTERCEPTS) as usize];
@@ -204,6 +244,12 @@ unsafe extern "C" {
         func: Option<unsafe extern "C" fn(*mut mobj_t) -> boolean>,
     ) -> boolean;
 }
+
+pub const PT_ADDLINES: std::ffi::c_int = 1;
+
+pub const PT_ADDTHINGS: std::ffi::c_int = 2;
+
+pub const PT_EARLYOUT: std::ffi::c_int = 4;
 
 unsafe extern "C" {
     pub static mut trace: divline_t;

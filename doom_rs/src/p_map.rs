@@ -53,6 +53,8 @@ pub static mut tmdropoffz: fixed_t = unsafe { std::mem::zeroed() }; // TODO: ini
 
 pub static mut ceilingline: *mut line_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const MAXSPECIALCROSS: std::ffi::c_int = 8;
+
 pub static mut spechit: [*mut line_t; (MAXSPECIALCROSS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut numspechit: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

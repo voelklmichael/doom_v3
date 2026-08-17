@@ -3,6 +3,10 @@ use crate::d_ticcmd::*;
 use crate::doomtype::*;
 use crate::i_system::*;
 
+pub const FRACBITS: std::ffi::c_int = 16;
+
+pub const FRACUNIT: std::ffi::c_int = (1 << FRACBITS);
+
 pub type fixed_t = std::ffi::c_int;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

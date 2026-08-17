@@ -43,6 +43,8 @@ pub const BTS_SAVESHIFT: std::ffi::c_int = 2;
 
 pub type buttoncode_t = std::ffi::c_int;
 
+pub const MAXEVENTS: std::ffi::c_int = 64;
+
 unsafe extern "C" {
     pub static mut events: [event_t; (MAXEVENTS) as usize];
 }

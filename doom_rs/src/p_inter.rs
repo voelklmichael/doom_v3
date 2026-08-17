@@ -35,6 +35,8 @@ use crate::tables::*;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const BONUSADD: std::ffi::c_int = 6;
+
 pub static mut maxammo: [std::ffi::c_int; (NUMAMMO) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut clipammo: [std::ffi::c_int; (NUMAMMO) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

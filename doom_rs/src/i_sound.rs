@@ -28,6 +28,18 @@ pub static mut sndserver_filename: *mut std::ffi::c_char = unsafe { std::mem::ze
 
 static mut flag: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const SAMPLECOUNT: std::ffi::c_int = 512;
+
+pub const NUM_CHANNELS: std::ffi::c_int = 8;
+
+pub const BUFMUL: std::ffi::c_int = 4;
+
+pub const MIXBUFFERSIZE: std::ffi::c_int = (SAMPLECOUNT * BUFMUL);
+
+pub const SAMPLERATE: std::ffi::c_int = 11025;
+
+pub const SAMPLESIZE: std::ffi::c_int = 2;
+
 pub static mut lengths: [std::ffi::c_int; (NUMSFX) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut audio_fd: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

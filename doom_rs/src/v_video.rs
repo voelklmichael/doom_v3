@@ -25,6 +25,8 @@ use crate::r_state::*;
 use crate::r_things::*;
 use crate::tables::*;
 
+pub const CENTERY: std::ffi::c_int = (SCREENHEIGHT / 2);
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut screens: [*mut byte; (5) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

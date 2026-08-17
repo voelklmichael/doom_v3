@@ -215,6 +215,35 @@ fn collect_stronger_names(items: &[(Item, Trivia)]) -> (HashSet<String>, HashSet
     (has_def, has_real_var_def)
 }
 
+/// A `#define`d name, from either directive shape.
+fn macro_name(kind: &ItemKind) -> Option<&str> {
+    match kind {
+        ItemKind::Preproc(Directive::DefineObject { name, .. })
+        | ItemKind::Preproc(Directive::DefineFunction { name, .. }) => Some(name),
+        _ => None,
+    }
+}
+
+/// Maps each `#define`d name to the sequential index (in `for_each_active_item`
+/// traversal order) of its *last* active occurrence - `#define`/`#undef`
+/// redefinition (e.g. `m_swap.h`'s endian-gated `SHORT`/`LONG`, `am_map.c`'s
+/// `R` scoping trick around array literals) is a normal, intentional C idiom,
+/// unlike the ODR-violation-safety-net "first wins" rule
+/// `collect_stronger_names`/`dedup_active` use for `Typedef`/`Record`/`Enum`/
+/// `Var` - so macros need the *opposite* direction: last active definition in
+/// file order is the one that's actually in effect.
+fn compute_last_macro_indices(items: &[(Item, Trivia)]) -> HashMap<String, usize> {
+    let mut last = HashMap::new();
+    let mut idx = 0usize;
+    for_each_active_item(items, &mut |item| {
+        if let Some(name) = macro_name(&item.kind) {
+            last.insert(name.to_string(), idx);
+        }
+        idx += 1;
+    });
+    last
+}
+
 /// Recursively drops items superseded by a stronger version elsewhere in
 /// the same merged module (a `FunctionDecl` when a same-name `FunctionDef`
 /// exists, or an `extern`-declared `Var` when a same-name real definition
@@ -235,49 +264,77 @@ fn dedup_active(
     items: &mut Vec<(Item, Trivia)>,
     has_def: &HashSet<String>,
     has_real_var_def: &HashSet<String>,
+    last_macro_index: &HashMap<String, usize>,
+    next_index: &mut usize,
     seen_types: &mut HashSet<String>,
     seen_vars: &mut HashSet<String>,
 ) {
-    items.retain_mut(|(item, _)| match &mut item.kind {
-        ItemKind::Conditional(group) => {
-            match &group.active {
-                ActiveBranch::Branch(n) => {
-                    let n = *n;
-                    dedup_active(
-                        &mut group.branches[n].body,
-                        has_def,
-                        has_real_var_def,
-                        seen_types,
-                        seen_vars,
-                    );
-                }
-                ActiveBranch::Else => {
-                    if let Some(body) = &mut group.else_body {
-                        dedup_active(body, has_def, has_real_var_def, seen_types, seen_vars);
+    items.retain_mut(|(item, _)| {
+        // Mirrors `compute_last_macro_indices`'s traversal exactly: every
+        // item this closure sees except `Conditional` itself (which recurses
+        // instead of being counted, same as `for_each_active_item`) advances
+        // the shared counter, so `idx` here lines up with the index recorded
+        // there regardless of which arm below actually handles the item.
+        let idx = *next_index;
+        if !matches!(item.kind, ItemKind::Conditional(_)) {
+            *next_index += 1;
+        }
+        match &mut item.kind {
+            ItemKind::Conditional(group) => {
+                match &group.active {
+                    ActiveBranch::Branch(n) => {
+                        let n = *n;
+                        dedup_active(
+                            &mut group.branches[n].body,
+                            has_def,
+                            has_real_var_def,
+                            last_macro_index,
+                            next_index,
+                            seen_types,
+                            seen_vars,
+                        );
                     }
+                    ActiveBranch::Else => {
+                        if let Some(body) = &mut group.else_body {
+                            dedup_active(
+                                body,
+                                has_def,
+                                has_real_var_def,
+                                last_macro_index,
+                                next_index,
+                                seen_types,
+                                seen_vars,
+                            );
+                        }
+                    }
+                    ActiveBranch::None | ActiveBranch::Unknown => {}
                 }
-                ActiveBranch::None | ActiveBranch::Unknown => {}
+                true
             }
-            true
-        }
-        ItemKind::FunctionDecl(sig) => !has_def.contains(&sig.name),
-        ItemKind::Var(vd) => {
-            if vd.storage.contains(&Storage::Extern) && has_real_var_def.contains(&vd.name) {
-                false
-            } else {
-                seen_vars.insert(vd.name.clone())
+            ItemKind::FunctionDecl(sig) => !has_def.contains(&sig.name),
+            ItemKind::Var(vd) => {
+                if vd.storage.contains(&Storage::Extern) && has_real_var_def.contains(&vd.name) {
+                    false
+                } else {
+                    seen_vars.insert(vd.name.clone())
+                }
             }
+            ItemKind::Typedef(td) => seen_types.insert(td.name.clone()),
+            ItemKind::Record(rd) => match record_name(rd) {
+                Some(name) => seen_types.insert(name.to_string()),
+                None => true,
+            },
+            ItemKind::Enum(ed) => match enum_name(ed) {
+                Some(name) => seen_types.insert(name.to_string()),
+                None => true,
+            },
+            other => match macro_name(other) {
+                // Keep a `#define` only at its last active occurrence, drop
+                // every earlier one shadowed by a later redefinition.
+                Some(name) => last_macro_index.get(name) == Some(&idx),
+                None => true,
+            },
         }
-        ItemKind::Typedef(td) => seen_types.insert(td.name.clone()),
-        ItemKind::Record(rd) => match record_name(rd) {
-            Some(name) => seen_types.insert(name.to_string()),
-            None => true,
-        },
-        ItemKind::Enum(ed) => match enum_name(ed) {
-            Some(name) => seen_types.insert(name.to_string()),
-            None => true,
-        },
-        _ => true,
     });
 }
 
@@ -299,12 +356,16 @@ pub fn merge_items(
         combined.extend(s.iter().cloned());
     }
     let (has_def, has_real_var_def) = collect_stronger_names(&combined);
+    let last_macro_index = compute_last_macro_indices(&combined);
+    let mut next_index = 0usize;
     let mut seen_types = HashSet::new();
     let mut seen_vars = HashSet::new();
     dedup_active(
         &mut combined,
         &has_def,
         &has_real_var_def,
+        &last_macro_index,
+        &mut next_index,
         &mut seen_types,
         &mut seen_vars,
     );

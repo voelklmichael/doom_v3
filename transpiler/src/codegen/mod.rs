@@ -13,8 +13,10 @@
 //! PR D (this step): `write` (filesystem + `rustfmt` invocation) - see
 //! `main.rs`'s `--emit-rust` flag for the full pipeline wiring.
 
+pub mod expr;
 pub mod ident;
 pub mod items;
+pub mod macros;
 pub mod module;
 pub mod types;
 pub mod write;

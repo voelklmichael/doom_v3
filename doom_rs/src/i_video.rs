@@ -39,6 +39,8 @@ unsafe extern "C" {
     pub fn XShmGetEventBase(dpy: *mut Display) -> std::ffi::c_int;
 }
 
+pub const POINTER_WARP_COUNTDOWN: std::ffi::c_int = 1;
+
 pub static mut X_display: *mut Display = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut X_mainWindow: Window = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

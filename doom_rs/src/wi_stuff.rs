@@ -41,6 +41,45 @@ pub type stateenum_t = std::ffi::c_int;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const NUMEPISODES: std::ffi::c_int = 4;
+
+pub const NUMMAPS: std::ffi::c_int = 9;
+
+pub const WI_TITLEY: std::ffi::c_int = 2;
+
+pub const WI_SPACINGY: std::ffi::c_int = 33;
+
+pub const SP_STATSX: std::ffi::c_int = 50;
+
+pub const SP_STATSY: std::ffi::c_int = 50;
+
+pub const SP_TIMEX: std::ffi::c_int = 16;
+
+pub const SP_TIMEY: std::ffi::c_int = (SCREENHEIGHT - 32);
+
+pub const NG_STATSY: std::ffi::c_int = 50;
+
+pub const NG_STATSX: std::ffi::c_int =
+    ((32 + (SHORT((*star).width) / 2)) + (32 * (((dofrags) == 0) as std::ffi::c_int)));
+
+pub const NG_SPACINGX: std::ffi::c_int = 64;
+
+pub const DM_MATRIXX: std::ffi::c_int = 42;
+
+pub const DM_MATRIXY: std::ffi::c_int = 68;
+
+pub const DM_SPACINGX: std::ffi::c_int = 40;
+
+pub const DM_TOTALSX: std::ffi::c_int = 269;
+
+pub const DM_KILLERSX: std::ffi::c_int = 10;
+
+pub const DM_KILLERSY: std::ffi::c_int = 100;
+
+pub const DM_VICTIMSX: std::ffi::c_int = 5;
+
+pub const DM_VICTIMSY: std::ffi::c_int = 50;
+
 pub const ANIM_ALWAYS: std::ffi::c_int = 0;
 pub const ANIM_RANDOM: std::ffi::c_int = ANIM_ALWAYS + 1;
 pub const ANIM_LEVEL: std::ffi::c_int = ANIM_RANDOM + 1;
@@ -82,6 +121,24 @@ static mut epsd2animinfo: *mut anim_t /* TODO: was unsized array */ = unsafe { s
 static mut NUMANIMS: [std::ffi::c_int; (NUMEPISODES) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 static mut anims: [*mut anim_t; (NUMEPISODES) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const FB: std::ffi::c_int = 0;
+
+pub const SP_KILLS: std::ffi::c_int = 0;
+
+pub const SP_ITEMS: std::ffi::c_int = 2;
+
+pub const SP_SECRET: std::ffi::c_int = 4;
+
+pub const SP_FRAGS: std::ffi::c_int = 6;
+
+pub const SP_TIME: std::ffi::c_int = 8;
+
+pub const SP_PAR: std::ffi::c_int = ST_TIME;
+
+pub const SP_PAUSE: std::ffi::c_int = 1;
+
+pub const SHOWNEXTLOCDELAY: std::ffi::c_int = 4;
 
 static mut acceleratestage: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

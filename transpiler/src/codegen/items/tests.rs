@@ -621,7 +621,7 @@ fn conditional_emits_only_the_active_branch() {
         else_body: Some(vec![(inner_var("b"), Trivia::default())]),
         active: ActiveBranch::Branch(0),
     };
-    let out = emit_conditional(&group);
+    let out = emit_conditional(&group, &KnownTypeNames::new());
     assert!(out.contains(" a:"));
     assert!(!out.contains(" b:"));
 }
@@ -647,7 +647,7 @@ fn conditional_none_emits_nothing() {
         else_body: None,
         active: ActiveBranch::None,
     };
-    assert_eq!(emit_conditional(&group), "");
+    assert_eq!(emit_conditional(&group, &KnownTypeNames::new()), "");
 }
 
 #[test]
@@ -662,7 +662,7 @@ fn conditional_unknown_is_flagged_not_silently_dropped() {
         else_body: None,
         active: ActiveBranch::Unknown,
     };
-    let out = emit_conditional(&group);
+    let out = emit_conditional(&group, &KnownTypeNames::new());
     assert!(out.contains("TODO"));
     assert!(out.contains("unresolved"));
 }
@@ -688,14 +688,29 @@ fn empty_raw_item_emits_nothing() {
 
 #[test]
 fn bare_preproc_item_emits_nothing() {
-    let out = emit_item(&item(ItemKind::Preproc(Directive::Include {
-        path: "foo.h".to_string(),
-        angled: false,
-    })));
+    let known = KnownTypeNames::new();
+    let out = emit_item(
+        &item(ItemKind::Preproc(Directive::Include {
+            path: "foo.h".to_string(),
+            angled: false,
+        })),
+        &known,
+    );
     assert_eq!(out, "");
-    let out = emit_item(&item(ItemKind::Preproc(Directive::DefineObject {
-        name: "FOO".to_string(),
-        value: "1".to_string(),
-    })));
-    assert_eq!(out, "");
+}
+
+#[test]
+fn define_object_item_emits_a_const() {
+    // Full coverage of value parsing/type-inference lives in
+    // `codegen::macros::tests` - this just checks `emit_item` wires the
+    // `DefineObject` case through instead of dropping it.
+    let known = KnownTypeNames::new();
+    let out = emit_item(
+        &item(ItemKind::Preproc(Directive::DefineObject {
+            name: "FOO".to_string(),
+            value: "1".to_string(),
+        })),
+        &known,
+    );
+    assert_eq!(out, "pub const FOO: std::ffi::c_int = 1;\n\n");
 }

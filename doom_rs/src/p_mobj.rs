@@ -121,6 +121,10 @@ pub unsafe extern "C" fn P_ExplodeMissile(mo: *mut mobj_t) {
     todo!("body not yet translated")
 }
 
+pub const STOPSPEED: std::ffi::c_int = 0x1000;
+
+pub const FRICTION: std::ffi::c_int = 0xe800;
+
 pub unsafe extern "C" fn P_XYMovement(mo: *mut mobj_t) {
     todo!("body not yet translated")
 }

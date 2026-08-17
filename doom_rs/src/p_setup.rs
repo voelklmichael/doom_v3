@@ -83,6 +83,8 @@ pub static mut blocklinks: *mut *mut mobj_t = unsafe { std::mem::zeroed() }; // 
 
 pub static mut rejectmatrix: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const MAX_DEATHMATCH_STARTS: std::ffi::c_int = 10;
+
 pub static mut deathmatchstarts: [mapthing_t; (MAX_DEATHMATCH_STARTS) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

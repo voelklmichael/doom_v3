@@ -42,6 +42,24 @@ pub struct maplinedef_t {
     pub sidenum: [std::ffi::c_short; (2) as usize],
 }
 
+pub const ML_BLOCKING: std::ffi::c_int = 1;
+
+pub const ML_BLOCKMONSTERS: std::ffi::c_int = 2;
+
+pub const ML_TWOSIDED: std::ffi::c_int = 4;
+
+pub const ML_DONTPEGTOP: std::ffi::c_int = 8;
+
+pub const ML_DONTPEGBOTTOM: std::ffi::c_int = 16;
+
+pub const ML_SECRET: std::ffi::c_int = 32;
+
+pub const ML_SOUNDBLOCK: std::ffi::c_int = 64;
+
+pub const ML_DONTDRAW: std::ffi::c_int = 128;
+
+pub const ML_MAPPED: std::ffi::c_int = 256;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mapsector_t {
@@ -71,6 +89,8 @@ pub struct mapseg_t {
     pub side: std::ffi::c_short,
     pub offset: std::ffi::c_short,
 }
+
+pub const NF_SUBSECTOR: std::ffi::c_int = 0x8000;
 
 #[repr(C)]
 #[derive(Copy, Clone)]

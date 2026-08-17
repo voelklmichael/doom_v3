@@ -32,11 +32,15 @@ pub struct lumpinfo_t {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const O_BINARY: std::ffi::c_int = 0;
+
 pub static mut lumpinfo: *mut lumpinfo_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut numlumps: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut lumpcache: *mut *mut std::ffi::c_void = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const strcmpi: std::ffi::c_int = strcasecmp;
 
 pub unsafe extern "C" fn strupr(s: *mut std::ffi::c_char) {
     todo!("body not yet translated")

@@ -39,6 +39,8 @@ pub static mut floorfunc: planefunction_t = unsafe { std::mem::zeroed() }; // TO
 
 pub static mut ceilingfunc: planefunction_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const MAXVISPLANES: std::ffi::c_int = 128;
+
 pub static mut visplanes: [visplane_t; (MAXVISPLANES) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut lastvisplane: *mut visplane_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -46,6 +48,8 @@ pub static mut lastvisplane: *mut visplane_t = unsafe { std::mem::zeroed() }; //
 pub static mut floorplane: *mut visplane_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut ceilingplane: *mut visplane_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const MAXOPENINGS: std::ffi::c_int = (SCREENWIDTH * 64);
 
 pub static mut openings: [std::ffi::c_short; (MAXOPENINGS) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

@@ -79,6 +79,8 @@ pub static mut messageNeedsInput: boolean = unsafe { std::mem::zeroed() }; // TO
 pub static mut messageRoutine: Option<unsafe extern "C" fn(std::ffi::c_int)> =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
+pub const SAVESTRINGSIZE: std::ffi::c_int = 24;
+
 pub static mut gammamsg: [[std::ffi::c_char; (26) as usize]; (5) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -94,6 +96,10 @@ pub static mut saveOldString: [std::ffi::c_char; (SAVESTRINGSIZE) as usize] =
 pub static mut inhelpscreens: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut menuactive: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub const SKULLXOFF: std::ffi::c_int = (-(32));
+
+pub const LINEHEIGHT: std::ffi::c_int = 16;
 
 unsafe extern "C" {
     pub static mut sendpause: boolean;
