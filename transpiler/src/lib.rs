@@ -1,3 +1,4 @@
+pub mod codegen;
 pub mod parser;
 
 use parser::ast::File;
