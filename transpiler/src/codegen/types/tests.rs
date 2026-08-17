@@ -51,6 +51,24 @@ fn unrecognized_name_passes_through_verbatim() {
 }
 
 #[test]
+fn unrecognized_multi_word_blob_is_flagged_not_passed_through() {
+    // Real corpus case (m_misc.c's M_ReadFile/M_WriteFile params): a
+    // trailing `const` qualifier (`char const *x`) that decl.rs only
+    // recognizes when *leading*, so it stays glued into the type text
+    // instead of being separated into storage. "char const" isn't a
+    // builtin and isn't a single clean identifier - passing it through
+    // verbatim would leak the bare `const` keyword into a type position,
+    // which doesn't just fail to typecheck, it fails to *parse*. Must be
+    // flagged via the same embedded-comma signal every call site in
+    // codegen::items checks for (`is_malformed`), not passed through.
+    let out = map_type(&named("char const"));
+    assert!(
+        out.contains(','),
+        "expected the malformed-type signal, got: {out}"
+    );
+}
+
+#[test]
 fn unrecognized_name_colliding_with_a_keyword_gets_escaped() {
     assert_eq!(map_type(&named("type")), "type_");
 }
@@ -99,10 +117,21 @@ fn pointer_is_always_mut_never_const() {
 }
 
 #[test]
-fn sized_array_reuses_dim_verbatim() {
+fn sized_array_reuses_dim_verbatim_cast_to_usize() {
+    // Rust array lengths must be `usize` specifically - a symbolic dim
+    // (typically one of our own std::ffi::c_int-typed enum constants) would
+    // otherwise fail to typecheck. `as usize` is a legal const-context cast
+    // and fixes both a plain literal and a symbolic name uniformly.
     assert_eq!(
         map_type(&Type::Array(Box::new(named("int")), Some("4".to_string()))),
-        "[std::ffi::c_int; 4]"
+        "[std::ffi::c_int; (4) as usize]"
+    );
+    assert_eq!(
+        map_type(&Type::Array(
+            Box::new(named("int")),
+            Some("NUMAMMO".to_string())
+        )),
+        "[std::ffi::c_int; (NUMAMMO) as usize]"
     );
 }
 
@@ -117,7 +146,10 @@ fn multi_dimensional_array_preserves_outermost_first_order() {
         Box::new(Type::Array(Box::new(named("int")), Some("4".to_string()))),
         Some("3".to_string()),
     );
-    assert_eq!(map_type(&ty), "[[std::ffi::c_int; 4]; 3]");
+    assert_eq!(
+        map_type(&ty),
+        "[[std::ffi::c_int; (4) as usize]; (3) as usize]"
+    );
 }
 
 #[test]

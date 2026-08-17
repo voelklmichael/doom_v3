@@ -9,10 +9,12 @@
 //! nested-record name synthesis).
 //! PR B: `items` (per-`ItemKind` emission), consuming a single already-
 //! parsed `ast::File`'s items directly.
-//! PR C (this step): `module` (`.c`+`.h` merge/dedup + cross-module `use`
-//! resolution) - no file I/O yet.
+//! PR C: `module` (`.c`+`.h` merge/dedup + cross-module `use` resolution).
+//! PR D (this step): `write` (filesystem + `rustfmt` invocation) - see
+//! `main.rs`'s `--emit-rust` flag for the full pipeline wiring.
 
 pub mod ident;
 pub mod items;
 pub mod module;
 pub mod types;
+pub mod write;

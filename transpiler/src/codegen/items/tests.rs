@@ -37,6 +37,17 @@ fn typedef_simple() {
 }
 
 #[test]
+fn typedef_malformed_multi_declarator_underlying_is_flagged_not_emitted_broken() {
+    let td = TypedefDecl {
+        underlying: named("int a,"),
+        name: "b".to_string(),
+    };
+    let out = emit_typedef(&td);
+    assert!(!out.contains("pub type"));
+    assert!(out.contains("TODO"));
+}
+
+#[test]
 fn typedef_function_pointer() {
     // d_think.h's actionf_v: typedef void (*actionf_v)();
     let td = TypedefDecl {
@@ -50,6 +61,31 @@ fn typedef_function_pointer() {
         emit_typedef(&td),
         "pub type actionf_v = Option<unsafe extern \"C\" fn()>;\n\n"
     );
+}
+
+#[test]
+fn typedef_function_pointer_with_multiple_params_is_not_mistaken_for_malformed() {
+    // Regression test: d_think.h's real actionf_p2 typedef (two void*
+    // params) was a real false-positive bug - an earlier version of the
+    // malformed-type check ran against the *final mapped text*
+    // (`Option<unsafe extern "C" fn(*mut c_void, *mut c_void)>`), which
+    // legitimately contains a comma from the parameter list, and wrongly
+    // flagged this perfectly valid typedef as an unparsed multi-declarator
+    // artifact. The check must run against the raw `Type` tree's `Named`
+    // leaves instead (see `types::type_is_malformed`).
+    let td = TypedefDecl {
+        underlying: Type::FunctionPointer {
+            ret: Box::new(named("void")),
+            params: vec![
+                Type::Pointer(Box::new(named("void"))),
+                Type::Pointer(Box::new(named("void"))),
+            ],
+        },
+        name: "actionf_p2".to_string(),
+    };
+    let out = emit_typedef(&td);
+    assert!(out.starts_with("pub type actionf_p2 ="), "got: {out}");
+    assert!(!out.contains("TODO"));
 }
 
 // ---- Record ----
@@ -151,6 +187,28 @@ fn record_multi_declarator_field_bug_is_commented_out_not_emitted_broken() {
     // Neighboring, correctly-parsed fields must still emit normally.
     assert!(out.contains("pub frame: std::ffi::c_long,"));
     assert!(out.contains("pub nextstate: statenum_t,"));
+}
+
+#[test]
+fn record_multi_declarator_bug_landing_on_the_name_half_is_also_caught() {
+    // Real corpus shape (am_map.c's mpoint_t: `int x, y;`): the stray comma
+    // from an unsplit multi-declarator field can land on the *name* instead
+    // of the type, depending on exactly where the parser's token stream got
+    // cut - both variants must be caught, not just the type-side one above.
+    let rd = RecordDecl {
+        kind: RecordKind::Struct,
+        tag: None,
+        fields: vec![field("x,y", named("fixed_t"))],
+        names: vec![],
+        typedef_name: Some("mpoint_t".to_string()),
+    };
+    let out = emit_record(&rd);
+    assert!(
+        !out.contains("pub x"),
+        "must not emit a broken field declaration"
+    );
+    assert!(out.contains("TODO"));
+    assert!(out.contains("unparsed multi-declarator field"));
 }
 
 #[test]
@@ -314,6 +372,30 @@ fn enum_names_includes_the_typedef_name_itself_and_must_not_duplicate_the_alias(
 }
 
 #[test]
+fn enum_garbage_name_from_trailing_comment_is_silently_skipped() {
+    // Real corpus case (m_bbox.h's anonymous bbox enum): a bare `};	// bbox
+    // coordinates` with no real extra declarator leaks the trailing
+    // `;`/comment text into `names` as one garbage, non-identifier "name" -
+    // must not be emitted as a type alias (broken syntax) nor as a TODO
+    // comment (it's noise, not real content - same precedent as
+    // `emit_raw`'s whitespace-only case).
+    let ed = EnumDecl {
+        tag: None,
+        variants: vec![crate::parser::ast::EnumVariant {
+            name: "BOXTOP".to_string(),
+            value: None,
+            trivia: Trivia::default(),
+            trailing_comment: None,
+        }],
+        names: vec![";\t// bbox coordinates".to_string()],
+        typedef_name: None,
+    };
+    let out = emit_enum(&ed);
+    assert!(!out.contains("pub type ;"));
+    assert!(!out.contains("bbox coordinates"));
+}
+
+#[test]
 fn enum_value_with_c_integer_suffix_is_sanitized() {
     let ed = EnumDecl {
         tag: None,
@@ -331,6 +413,23 @@ fn enum_value_with_c_integer_suffix_is_sanitized() {
 }
 
 // ---- Var ----
+
+#[test]
+fn var_malformed_multi_declarator_type_is_flagged_not_emitted_broken() {
+    // Real corpus bug (am_map.c's `fixed_t m_x2, m_y2;`, a top-level
+    // multi-declarator variable - same parser gap as the struct-field case,
+    // just at file scope): decl::try_parse_var_flat doesn't split it into
+    // separate VarDecls, so `ty` ends up with a literal embedded comma.
+    let vd = VarDecl {
+        storage: vec![],
+        ty: named("fixed_t m_x2,"),
+        name: "m_y2".to_string(),
+        initializer: None,
+    };
+    let out = emit_var(&vd);
+    assert!(!out.contains("static mut m_y2: fixed_t m_x2,"));
+    assert!(out.contains("TODO"));
+}
 
 #[test]
 fn var_without_initializer_becomes_extern_block() {
@@ -418,6 +517,30 @@ fn function_def_anonymous_param_becomes_underscore() {
     };
     let out = emit_function_def(&sig);
     assert!(out.contains("_: std::ffi::c_short"));
+}
+
+#[test]
+fn function_def_malformed_param_type_gets_a_placeholder_not_broken_syntax() {
+    // Real corpus case (m_misc.c's M_ReadFile/M_WriteFile): a `char const
+    // *` param maps to a malformed-type signal, not a clean Rust type. A
+    // param can't be commented out like a struct field without breaking
+    // the enclosing parenthesized list - must substitute a placeholder
+    // type instead so the whole signature stays syntactically valid.
+    let sig = FnSig {
+        storage: vec![],
+        ret_ty: named("boolean"),
+        name: "M_WriteFile".to_string(),
+        params: vec![crate::parser::ast::Param {
+            ty: named("char const"),
+            name: "name".to_string(),
+            storage: vec![],
+        }],
+        variadic: false,
+    };
+    let out = emit_function_def(&sig);
+    assert!(!out.contains("char const"));
+    assert!(out.contains("name: ()"));
+    assert!(out.contains("TODO"));
 }
 
 #[test]
