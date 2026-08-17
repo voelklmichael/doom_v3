@@ -88,13 +88,13 @@ pub struct channel_t {
 
 static mut channels: *mut channel_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut snd_SfxVolume: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut snd_SfxVolume: std::ffi::c_int = unsafe { 15 };
 
-pub static mut snd_MusicVolume: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut snd_MusicVolume: std::ffi::c_int = unsafe { 15 };
 
 static mut mus_paused: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut mus_playing: *mut musicinfo_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut mus_playing: *mut musicinfo_t = unsafe { std::ptr::null_mut() };
 
 pub static mut numChannels: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

@@ -288,7 +288,7 @@ pub unsafe extern "C" fn WI_updateNoState() {
     todo!("body not yet translated")
 }
 
-static mut snl_pointeron: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut snl_pointeron: boolean = unsafe { false_ };
 
 pub unsafe extern "C" fn WI_initShowNextLoc() {
     todo!("body not yet translated")

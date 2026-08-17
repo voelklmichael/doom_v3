@@ -126,7 +126,7 @@ pub static mut demoend: *mut byte = unsafe { std::mem::zeroed() }; // TODO: init
 
 pub static mut singledemo: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut precache: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut precache: boolean = unsafe { true_ };
 
 pub static mut wminfo: wbstartstruct_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -189,7 +189,8 @@ pub static mut turnheld: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TOD
 
 pub static mut mousearray: [boolean; (4) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut mousebuttons: *mut boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut mousebuttons: *mut boolean =
+    unsafe { (&(mousearray[(1) as usize]) as *const _ as *mut _) };
 
 pub static mut mousex: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -213,7 +214,8 @@ pub static mut joyymove: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TOD
 
 pub static mut joyarray: [boolean; (5) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut joybuttons: *mut boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut joybuttons: *mut boolean =
+    unsafe { (&(joyarray[(1) as usize]) as *const _ as *mut _) };
 
 pub static mut savegameslot: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

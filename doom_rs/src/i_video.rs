@@ -41,7 +41,7 @@ unsafe extern "C" {
 
 pub const POINTER_WARP_COUNTDOWN: std::ffi::c_int = 1;
 
-pub static mut X_display: *mut Display = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_display: *mut Display = unsafe { std::ptr::null_mut() };
 
 pub static mut X_mainWindow: Window = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -71,9 +71,9 @@ pub static mut X_shmeventtype: std::ffi::c_int = unsafe { std::mem::zeroed() }; 
 
 pub static mut grabMouse: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut doPointerWarp: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut doPointerWarp: std::ffi::c_int = unsafe { POINTER_WARP_COUNTDOWN };
 
-static mut multiply: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut multiply: std::ffi::c_int = unsafe { 1 };
 
 pub unsafe extern "C" fn xlatekey() -> std::ffi::c_int {
     todo!("body not yet translated")
@@ -87,11 +87,11 @@ pub unsafe extern "C" fn I_StartFrame() {
     todo!("body not yet translated")
 }
 
-static mut lastmousex: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut lastmousex: std::ffi::c_int = unsafe { 0 };
 
-static mut lastmousey: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut lastmousey: std::ffi::c_int = unsafe { 0 };
 
-pub static mut mousemoved: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut mousemoved: boolean = unsafe { false_ };
 
 pub static mut shmFinished: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

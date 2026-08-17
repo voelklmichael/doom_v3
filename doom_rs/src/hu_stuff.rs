@@ -87,7 +87,7 @@ pub static mut chat_on: boolean = unsafe { std::mem::zeroed() }; // TODO: initia
 
 static mut w_chat: hu_itext_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut always_off: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut always_off: boolean = unsafe { false_ };
 
 static mut chat_dest: [std::ffi::c_char; (MAXPLAYERS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -111,7 +111,7 @@ unsafe extern "C" {
     pub static mut automapactive: boolean;
 }
 
-static mut headsupactive: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut headsupactive: boolean = unsafe { false_ };
 
 pub static mut mapnames: *mut *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -161,9 +161,9 @@ pub const QUEUESIZE: std::ffi::c_int = 128;
 
 static mut chatchars: [std::ffi::c_char; (QUEUESIZE) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut head: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut head: std::ffi::c_int = unsafe { 0 };
 
-static mut tail: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut tail: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn HU_queueChatChar(c: std::ffi::c_char) {
     todo!("body not yet translated")

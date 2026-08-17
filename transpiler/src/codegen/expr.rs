@@ -148,7 +148,11 @@ fn render_unary(op: UnaryOp, expr: &Expr) -> Option<String> {
         UnaryOp::Neg => format!("(-({e}))"),
         // C's unary `+` is a no-op; Rust has no unary `+` operator at all.
         UnaryOp::Plus => format!("({e})"),
-        UnaryOp::AddrOf => format!("(&({e}) as *mut _)"),
+        // A shared reference can't cast directly to `*mut _` (E0606, real
+        // corpus example: g_game.c's `mousebuttons = &mousearray[1]`) -
+        // must go through `*const _` first, matching how `map_type` already
+        // always emits `*mut` for every C pointer.
+        UnaryOp::AddrOf => format!("(&({e}) as *const _ as *mut _)"),
         UnaryOp::Deref => format!("(*({e}))"),
         UnaryOp::PreInc => format!("{{ {e} += 1; {e} }}"),
         UnaryOp::PreDec => format!("{{ {e} -= 1; {e} }}"),

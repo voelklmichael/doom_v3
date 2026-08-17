@@ -15,6 +15,7 @@
 
 pub mod expr;
 pub mod ident;
+pub mod init;
 pub mod items;
 pub mod macros;
 pub mod module;

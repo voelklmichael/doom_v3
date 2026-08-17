@@ -15,7 +15,7 @@ pub struct cheatseq_t {
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut firsttime: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut firsttime: std::ffi::c_int = unsafe { 1 };
 
 static mut cheat_xlate_table: [std::ffi::c_uchar; (256) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

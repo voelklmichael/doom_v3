@@ -37,49 +37,49 @@ pub const TEXTSPEED: std::ffi::c_int = 3;
 
 pub const TEXTWAIT: std::ffi::c_int = 250;
 
-pub static mut e1text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut e1text: *mut std::ffi::c_char = unsafe { E1TEXT };
 
-pub static mut e2text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut e2text: *mut std::ffi::c_char = unsafe { E2TEXT };
 
-pub static mut e3text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut e3text: *mut std::ffi::c_char = unsafe { E3TEXT };
 
-pub static mut e4text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut e4text: *mut std::ffi::c_char = unsafe { E4TEXT };
 
-pub static mut c1text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut c1text: *mut std::ffi::c_char = unsafe { C1TEXT };
 
-pub static mut c2text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut c2text: *mut std::ffi::c_char = unsafe { C2TEXT };
 
-pub static mut c3text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut c3text: *mut std::ffi::c_char = unsafe { C3TEXT };
 
-pub static mut c4text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut c4text: *mut std::ffi::c_char = unsafe { C4TEXT };
 
-pub static mut c5text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut c5text: *mut std::ffi::c_char = unsafe { C5TEXT };
 
-pub static mut c6text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut c6text: *mut std::ffi::c_char = unsafe { C6TEXT };
 
-pub static mut p1text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut p1text: *mut std::ffi::c_char = unsafe { P1TEXT };
 
-pub static mut p2text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut p2text: *mut std::ffi::c_char = unsafe { P2TEXT };
 
-pub static mut p3text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut p3text: *mut std::ffi::c_char = unsafe { P3TEXT };
 
-pub static mut p4text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut p4text: *mut std::ffi::c_char = unsafe { P4TEXT };
 
-pub static mut p5text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut p5text: *mut std::ffi::c_char = unsafe { P5TEXT };
 
-pub static mut p6text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut p6text: *mut std::ffi::c_char = unsafe { P6TEXT };
 
-pub static mut t1text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut t1text: *mut std::ffi::c_char = unsafe { T1TEXT };
 
-pub static mut t2text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut t2text: *mut std::ffi::c_char = unsafe { T2TEXT };
 
-pub static mut t3text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut t3text: *mut std::ffi::c_char = unsafe { T3TEXT };
 
-pub static mut t4text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut t4text: *mut std::ffi::c_char = unsafe { T4TEXT };
 
-pub static mut t5text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut t5text: *mut std::ffi::c_char = unsafe { T5TEXT };
 
-pub static mut t6text: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut t6text: *mut std::ffi::c_char = unsafe { T6TEXT };
 
 pub static mut finaletext: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

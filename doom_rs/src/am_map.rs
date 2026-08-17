@@ -220,17 +220,17 @@ pub static mut thintriangle_guy: *mut mline_t /* TODO: was unsized array */ = un
 pub const NUMTHINTRIANGLEGUYLINES: std::ffi::c_int =
     (std::mem::size_of_val(&(thintriangle_guy)) / std::mem::size_of::<mline_t>());
 
-static mut cheating: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut cheating: std::ffi::c_int = unsafe { 0 };
 
-static mut grid: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut grid: std::ffi::c_int = unsafe { 0 };
 
-static mut leveljuststarted: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut leveljuststarted: std::ffi::c_int = unsafe { 1 };
 
-pub static mut automapactive: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut automapactive: boolean = unsafe { false_ };
 
-static mut finit_width: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut finit_width: std::ffi::c_int = unsafe { SCREENWIDTH };
 
-static mut finit_height: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut finit_height: std::ffi::c_int = unsafe { (SCREENHEIGHT - 32) };
 
 static mut f_x: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -286,7 +286,7 @@ static mut max_scale_mtof: fixed_t = unsafe { std::mem::zeroed() }; // TODO: ini
 
 static mut f_oldloc: mpoint_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut scale_mtof: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut scale_mtof: fixed_t = unsafe { INITSCALEMTOF };
 
 static mut scale_ftom: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -296,15 +296,15 @@ static mut marknums: [*mut patch_t; (10) as usize] = unsafe { std::mem::zeroed()
 
 static mut markpoints: [mpoint_t; (AM_NUMMARKPOINTS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut markpointnum: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut markpointnum: std::ffi::c_int = unsafe { 0 };
 
-static mut followplayer: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut followplayer: std::ffi::c_int = unsafe { 1 };
 
 static mut cheat_amap_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 static mut cheat_amap: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-static mut stopped: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut stopped: boolean = unsafe { true_ };
 
 unsafe extern "C" {
     pub static mut viewactive: boolean;

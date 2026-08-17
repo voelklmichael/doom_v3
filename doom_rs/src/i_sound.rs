@@ -22,11 +22,11 @@ use crate::z_zone::*;
 
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut sndserver: *mut FILE = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut sndserver: *mut FILE = unsafe { std::ptr::null_mut() };
 
-pub static mut sndserver_filename: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut sndserver_filename: *mut std::ffi::c_char = unsafe { (c"./sndserver ").as_ptr() };
 
-static mut flag: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut flag: std::ffi::c_int = unsafe { 0 };
 
 pub const SAMPLECOUNT: std::ffi::c_int = 512;
 
@@ -169,9 +169,9 @@ pub unsafe extern "C" fn I_ShutdownMusic() {
     todo!("body not yet translated")
 }
 
-static mut looping: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut looping: std::ffi::c_int = unsafe { 0 };
 
-static mut musicdies: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut musicdies: std::ffi::c_int = unsafe { (-(1)) };
 
 pub unsafe extern "C" fn I_PlaySong(handle: std::ffi::c_int, looping: std::ffi::c_int) {
     todo!("body not yet translated")
@@ -203,9 +203,9 @@ pub unsafe extern "C" fn I_QrySongPlaying(handle: std::ffi::c_int) -> std::ffi::
 
 pub type tSigSet = std::ffi::c_int;
 
-static mut itimer: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut itimer: std::ffi::c_int = unsafe { ITIMER_REAL };
 
-static mut sig: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut sig: std::ffi::c_int = unsafe { SIGALRM };
 
 pub unsafe extern "C" fn I_HandleSoundTimer(ignore: std::ffi::c_int) {
     todo!("body not yet translated")
