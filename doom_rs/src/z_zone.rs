@@ -33,6 +33,15 @@ pub struct memblock_t {
 
 pub type memblock_s = memblock_t;
 
+/* TODO: statement-shaped macro body, needs manual translation:
+#define Z_ChangeTag(...) \
+{ \
+      if (( (memblock_t *)( (byte *)(p) - sizeof(memblock_t)))->id!=0x1d4a11) \
+      I_Error("Z_CT at "__FILE__":%i",__LINE__); \
+      Z_ChangeTag2(p,t); \
+};
+*/
+
 static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub const ZONEID: std::ffi::c_int = 0x1d4a11;
