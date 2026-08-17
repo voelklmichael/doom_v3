@@ -166,31 +166,36 @@ pub const LINE_NEVERSEE: std::ffi::c_int = ML_DONTDRAW;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct fpoint_t {
-    // TODO: unparsed multi-declarator field, needs manual translation: y: /* unrecognized type: int x, */,
+    pub x: std::ffi::c_int,
+    pub y: std::ffi::c_int,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct fline_t {
-    // TODO: unparsed multi-declarator field, needs manual translation: b: /* unrecognized type: fpoint_t a, */,
+    pub a: fpoint_t,
+    pub b: fpoint_t,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mpoint_t {
-    // TODO: unparsed multi-declarator field, needs manual translation: x,y
+    pub x: fixed_t,
+    pub y: fixed_t,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mline_t {
-    // TODO: unparsed multi-declarator field, needs manual translation: b: /* unrecognized type: mpoint_t a, */,
+    pub a: mpoint_t,
+    pub b: mpoint_t,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct islope_t {
-    // TODO: unparsed multi-declarator field, needs manual translation: islp: /* unrecognized type: fixed_t slp, */,
+    pub slp: fixed_t,
+    pub islp: fixed_t,
 }
 
 pub static mut player_arrow: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
