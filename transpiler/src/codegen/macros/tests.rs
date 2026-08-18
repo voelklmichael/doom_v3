@@ -1,19 +1,28 @@
 use super::{emit_define_function, emit_define_object};
+use crate::parser::ast::Type;
 use crate::parser::stmt::expr::KnownTypeNames;
+use std::collections::HashMap;
 
 fn known() -> KnownTypeNames {
     KnownTypeNames::new()
 }
 
+fn no_globals() -> HashMap<String, Type> {
+    HashMap::new()
+}
+
 #[test]
 fn empty_value_flag_macro_emits_nothing() {
-    assert_eq!(emit_define_object("RANGECHECK", "", &known()), "");
+    assert_eq!(
+        emit_define_object("RANGECHECK", "", &known(), &no_globals()),
+        ""
+    );
 }
 
 #[test]
 fn simple_int_const() {
     assert_eq!(
-        emit_define_object("MAXPLAYERS", "4", &known()),
+        emit_define_object("MAXPLAYERS", "4", &known(), &no_globals()),
         "pub const MAXPLAYERS: std::ffi::c_int = 4;\n\n"
     );
 }
@@ -21,7 +30,7 @@ fn simple_int_const() {
 #[test]
 fn hex_const_with_suffix() {
     assert_eq!(
-        emit_define_object("NCMD_KILL", "0x10000000", &known()),
+        emit_define_object("NCMD_KILL", "0x10000000", &known(), &no_globals()),
         "pub const NCMD_KILL: std::ffi::c_int = 0x10000000;\n\n"
     );
 }
@@ -29,7 +38,7 @@ fn hex_const_with_suffix() {
 #[test]
 fn float_const_gets_double_type() {
     assert_eq!(
-        emit_define_object("INV_ASPECT_RATIO", "0.625", &known()),
+        emit_define_object("INV_ASPECT_RATIO", "0.625", &known(), &no_globals()),
         "pub const INV_ASPECT_RATIO: std::ffi::c_double = 0.625;\n\n"
     );
 }
@@ -42,7 +51,7 @@ fn bare_float_arithmetic_infers_double_not_int() {
     // via the usual arithmetic conversions (mixing float and int promotes
     // the whole expression to float) - must not default to c_int.
     assert_eq!(
-        emit_define_object("INITSCALEMTOF", "(.2*FRACUNIT)", &known()),
+        emit_define_object("INITSCALEMTOF", "(.2*FRACUNIT)", &known(), &no_globals()),
         "pub const INITSCALEMTOF: std::ffi::c_double = ((0.2 * ((FRACUNIT) as f64)));\n\n"
     );
 }
@@ -60,7 +69,12 @@ fn bare_sizeof_division_gets_a_truncating_cast() {
     let mut k = known();
     k.insert("mline_t");
     assert_eq!(
-        emit_define_object("NUMPLYRLINES", "(sizeof(player_arrow)/sizeof(mline_t))", &k),
+        emit_define_object(
+            "NUMPLYRLINES",
+            "(sizeof(player_arrow)/sizeof(mline_t))",
+            &k,
+            &no_globals()
+        ),
         "pub const NUMPLYRLINES: std::ffi::c_int = (((std::mem::size_of_val(&((player_arrow))) / std::mem::size_of::<mline_t>()))) as std::ffi::c_int;\n\n"
     );
 }
@@ -70,7 +84,7 @@ fn char_const_gets_c_int_type() {
     // A C char literal is int-typed, not char-typed (integer promotion
     // applies to the literal itself) - see `render_expr`'s `CharLit` case.
     assert_eq!(
-        emit_define_object("AM_ZOOMINKEY", "'='", &known()),
+        emit_define_object("AM_ZOOMINKEY", "'='", &known(), &no_globals()),
         "pub const AM_ZOOMINKEY: std::ffi::c_int = (b'=' as std::ffi::c_int);\n\n"
     );
 }
@@ -78,7 +92,7 @@ fn char_const_gets_c_int_type() {
 #[test]
 fn string_const_gets_c_char_ptr_type() {
     assert_eq!(
-        emit_define_object("STSTR_FAADDED", "\"Ammo Added\"", &known()),
+        emit_define_object("STSTR_FAADDED", "\"Ammo Added\"", &known(), &no_globals()),
         "pub const STSTR_FAADDED: *const std::ffi::c_char = (c\"Ammo Added\").as_ptr();\n\n"
     );
 }
@@ -87,7 +101,7 @@ fn string_const_gets_c_char_ptr_type() {
 fn cast_shaped_value_uses_cast_target_type() {
     // Mirrors am_map.c's M_ZOOMIN: `((int) (1.02*FRACUNIT))`.
     assert_eq!(
-        emit_define_object("M_ZOOMIN", "((int) (1*FRACUNIT))", &known()),
+        emit_define_object("M_ZOOMIN", "((int) (1*FRACUNIT))", &known(), &no_globals()),
         "pub const M_ZOOMIN: std::ffi::c_int = (((((1 * FRACUNIT))) as std::ffi::c_int));\n\n"
     );
 }
@@ -96,7 +110,12 @@ fn cast_shaped_value_uses_cast_target_type() {
 fn arithmetic_referencing_other_macros() {
     // Mirrors am_map.c's GRIDCOLORS: `(GRAYS + GRAYSRANGE/2)`.
     assert_eq!(
-        emit_define_object("GRIDCOLORS", "(GRAYS + GRAYSRANGE/2)", &known()),
+        emit_define_object(
+            "GRIDCOLORS",
+            "(GRAYS + GRAYSRANGE/2)",
+            &known(),
+            &no_globals()
+        ),
         "pub const GRIDCOLORS: std::ffi::c_int = ((GRAYS + (GRAYSRANGE / 2)));\n\n"
     );
 }
@@ -104,7 +123,7 @@ fn arithmetic_referencing_other_macros() {
 #[test]
 fn keyword_colliding_name_gets_escaped() {
     assert_eq!(
-        emit_define_object("type", "1", &known()),
+        emit_define_object("type", "1", &known(), &no_globals()),
         "pub const type_: std::ffi::c_int = 1;\n\n"
     );
 }
@@ -119,6 +138,7 @@ fn simple_expression_macro_becomes_a_function() {
         &["x".to_string()],
         "(FixedMul((x),scale_mtof)>>16)",
         &known(),
+        &no_globals(),
     );
     assert_eq!(
         out,
@@ -134,6 +154,7 @@ fn cast_shaped_body_infers_return_type_from_cast() {
         &["x".to_string()],
         "((short)SwapSHORT((unsigned short) (x)))",
         &known(),
+        &no_globals(),
     );
     assert!(
         out.starts_with(
@@ -151,6 +172,7 @@ fn zero_param_macro_mutating_a_global_still_emits() {
         &[],
         "save_p += (4 - ((int) save_p & 3)) & 3",
         &known(),
+        &no_globals(),
     );
     assert!(out.starts_with("pub unsafe extern \"C\" fn PADSAVEP() -> std::ffi::c_int {"));
     assert!(out.contains("save_p +="));
@@ -161,7 +183,7 @@ fn assigned_param_gets_mut_binding() {
     // am_map.c's PUTDOT: `fb[(yy)*f_w+(xx)]=(cc)` - doesn't reassign a
     // param itself, so this is a synthetic case exercising the `mut`
     // inference directly: a param assigned to in the body needs `mut`.
-    let out = emit_define_function("SET", &["x".to_string()], "x = 1", &known());
+    let out = emit_define_function("SET", &["x".to_string()], "x = 1", &known(), &no_globals());
     assert!(out.contains("fn SET(mut x: std::ffi::c_int)"), "got: {out}");
 }
 
@@ -180,6 +202,7 @@ fn pointer_cast_param_gets_pointer_type() {
         &["p".to_string()],
         "((memblock_t *)(p))->id",
         &known,
+        &no_globals(),
     );
     assert!(
         out.contains("fn TAGOF(p: *mut std::ffi::c_void)"),
@@ -197,6 +220,7 @@ fn statement_shaped_body_is_flagged_not_mis_parsed() {
         &["oc".to_string(), "mx".to_string(), "my".to_string()],
         "(oc) = 0; if ((my) < 0) (oc) |= 1; else if ((my) >= 2) (oc) |= 2;",
         &known(),
+        &no_globals(),
     );
     assert!(out.contains("TODO"));
     assert!(!out.contains("fn DOOUTCODE"));
@@ -210,6 +234,7 @@ fn block_shaped_body_is_flagged_not_mis_parsed() {
         &["p".to_string(), "t".to_string()],
         "{ if (1) I_Error(\"x\"); Z_ChangeTag2(p,t); }",
         &known(),
+        &no_globals(),
     );
     assert!(out.contains("TODO"));
     assert!(!out.contains("fn Z_ChangeTag"));
@@ -226,6 +251,7 @@ fn line_continued_body_is_joined_before_parsing() {
         &["x".to_string()],
         "((unsigned long int)((((unsigned long int)(x) & 0x000000ffU) << 24) | \\\n(((unsigned long int)(x) & 0x0000ff00U) << 8)))",
         &known(),
+        &no_globals(),
     );
     assert!(
         out.starts_with("pub unsafe extern \"C\" fn ntohl"),
@@ -246,6 +272,7 @@ fn multiline_fallback_comment_is_block_style_not_line_style() {
         &["oc".to_string()],
         "(oc) = 0;\nif (1) (oc) |= 1;",
         &known(),
+        &no_globals(),
     );
     assert!(out.trim_start().starts_with("/*"), "got: {out}");
     assert!(out.trim_end().ends_with("*/"), "got: {out}");

@@ -23,7 +23,7 @@
 //! one of `paths` are ignored - they contribute no names (best-effort, not
 //! a real preprocessor).
 
-use super::ast::{CondGroup, File, FnSig, Item, ItemKind, RecordDecl, Trivia, Type};
+use super::ast::{CondGroup, File, FnSig, Init, Item, ItemKind, RecordDecl, Trivia, Type, VarDecl};
 use super::preproc::Directive;
 use super::stmt::expr::KnownTypeNames;
 use std::collections::{HashMap, HashSet};
@@ -320,7 +320,7 @@ fn collect_global_types(items: &[(Item, Trivia)], globals: &mut HashMap<String, 
         match &item.kind {
             ItemKind::Var(vds) => {
                 for vd in vds {
-                    globals.insert(vd.name.clone(), vd.ty.clone());
+                    globals.insert(vd.name.clone(), real_global_type(vd));
                 }
             }
             ItemKind::Conditional(cg) => {
@@ -334,6 +334,30 @@ fn collect_global_types(items: &[(Item, Trivia)], globals: &mut HashMap<String, 
             _ => {}
         }
     }
+}
+
+/// A `VarDecl`'s *real* eventual `Type`, correcting for one specific gap in
+/// the declarator's own raw AST shape: `char* mapnames[] = {...};`'s
+/// declarator parses as `Array(_, None)` (the C source's own empty
+/// brackets), identical to a genuinely unsized `extern` declaration with no
+/// initializer anywhere (e.g. `m_misc.c`'s `extern char* chat_macros[];`) -
+/// but `codegen::init::render_array_init` infers the *real* length from a
+/// `Braced` initializer's own element count and emits a real `[T; N]` array,
+/// not the `Array(_, None) -> *mut T` fallback `codegen::types::map_type`
+/// uses for a truly unsized one. Consumers of `known_globals` (see
+/// `codegen::expr`'s `Index` case, `codegen::init`'s array-decay
+/// `.as_mut_ptr()` case) need to tell these two apart - real corpus bug
+/// found via the actual `--emit-rust` + build run: `hu_stuff.c`'s own
+/// `mapnames`/`mapnames2`/... (real initialized arrays) were misidentified
+/// as unsized, producing an invalid `.add()` call on what's actually a real
+/// `[*mut i8; N]` array.
+fn real_global_type(vd: &VarDecl) -> Type {
+    if let Type::Array(elem, None) = &vd.ty
+        && let Some(Init::Braced(elements)) = &vd.initializer
+    {
+        return Type::Array(elem.clone(), Some(elements.len().to_string()));
+    }
+    vd.ty.clone()
 }
 
 fn own_function_sigs(items: &[(Item, Trivia)]) -> HashMap<String, FnSig> {

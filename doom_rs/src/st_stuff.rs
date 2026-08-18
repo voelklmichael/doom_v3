@@ -338,7 +338,7 @@ pub const ST_OUTWIDTH: std::ffi::c_int = 52;
 pub const ST_OUTHEIGHT: std::ffi::c_int = 1;
 
 pub const ST_MAPWIDTH: std::ffi::c_int =
-    (strlen(mapnames[(((gameepisode - 1) * 9) + (gamemap - 1)) as usize]));
+    (strlen((*mapnames.add((((gameepisode - 1) * 9) + (gamemap - 1)) as usize))));
 
 pub const ST_MAPTITLEX: std::ffi::c_int = (SCREENWIDTH - (ST_MAPWIDTH * ST_CHATFONTWIDTH));
 
