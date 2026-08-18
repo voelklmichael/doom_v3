@@ -176,51 +176,55 @@ pub unsafe extern "C" fn R_DrawColumnInCache(
     originy: std::ffi::c_int,
     cacheheight: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_GenerateComposite(texnum: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_GenerateLookup(texnum: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_GetColumn(tex: std::ffi::c_int, col: std::ffi::c_int) -> *mut byte {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_InitTextures() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitFlats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitSpriteLumps() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitColormaps() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitData() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_FlatNumForName(name: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_CheckTextureNumForName(name: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_TextureNumForName(name: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut flatmemory: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -230,5 +234,5 @@ pub static mut texturememory: std::ffi::c_int = unsafe { std::mem::zeroed() }; /
 pub static mut spritememory: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_PrecacheLevel() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

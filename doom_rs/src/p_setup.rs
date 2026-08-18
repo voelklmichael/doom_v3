@@ -146,43 +146,43 @@ pub static mut deathmatch_p: *mut mapthing_t = unsafe { std::mem::zeroed() }; //
 pub static mut playerstarts: [mapthing_t; (MAXPLAYERS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_LoadVertexes(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadSegs(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadSubsectors(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadSectors(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadNodes(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadThings(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadLineDefs(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadSideDefs(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_LoadBlockMap(lump: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_GroupLines() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SetupLevel(
@@ -191,9 +191,9 @@ pub unsafe extern "C" fn P_SetupLevel(
     playermask: std::ffi::c_int,
     skill: skill_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

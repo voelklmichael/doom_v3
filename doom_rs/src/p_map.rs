@@ -111,31 +111,38 @@ pub static mut spechit: [*mut line_t; (MAXSPECIALCROSS) as usize] = unsafe { std
 pub static mut numspechit: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn PIT_StompThing(thing: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_TeleportMove(thing: *mut mobj_t, x: fixed_t, y: fixed_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn PIT_CheckLine(ld: *mut line_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn PIT_CheckThing(thing: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_CheckPosition(thing: *mut mobj_t, x: fixed_t, y: fixed_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_TryMove(thing: *mut mobj_t, x: fixed_t, y: fixed_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_ThingHeightClip(thing: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut bestslidefrac: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -153,15 +160,16 @@ pub static mut tmxmove: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initia
 pub static mut tmymove: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_HitSlideLine(ld: *mut line_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn PTR_SlideTraverse(in_: *mut intercept_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_SlideMove(mo: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut linetarget: *mut mobj_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -185,11 +193,13 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn PTR_AimTraverse(in_: *mut intercept_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn PTR_ShootTraverse(in_: *mut intercept_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_AimLineAttack(
@@ -197,7 +207,8 @@ pub unsafe extern "C" fn P_AimLineAttack(
     angle: angle_t,
     distance: fixed_t,
 ) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_LineAttack(
@@ -207,17 +218,18 @@ pub unsafe extern "C" fn P_LineAttack(
     slope: fixed_t,
     damage: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut usething: *mut mobj_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn PTR_UseTraverse(in_: *mut intercept_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_UseLines(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut bombsource: *mut mobj_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -227,7 +239,8 @@ pub static mut bombspot: *mut mobj_t = unsafe { std::mem::zeroed() }; // TODO: i
 pub static mut bombdamage: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn PIT_RadiusAttack(thing: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_RadiusAttack(
@@ -235,7 +248,7 @@ pub unsafe extern "C" fn P_RadiusAttack(
     source: *mut mobj_t,
     damage: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut crushchange: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -243,9 +256,11 @@ pub static mut crushchange: boolean = unsafe { std::mem::zeroed() }; // TODO: in
 pub static mut nofit: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn PIT_ChangeSector(thing: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_ChangeSector(sector: *mut sector_t, crunch: boolean) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

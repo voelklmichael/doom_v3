@@ -590,85 +590,87 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn ST_refreshBackground() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_Responder(ev: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn ST_calcPainOffset() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn ST_updateFaceWidget() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_updateWidgets() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_Ticker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut st_palette: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn ST_doPaletteStuff() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_drawWidgets(refresh: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_doRefresh() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_diffDraw() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_Drawer(fullscreen: boolean, refresh: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_loadGraphics() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_loadData() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_unloadGraphics() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_unloadData() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_initData() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_createWidgets() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut st_stopped: boolean = unsafe { true_ };
 
 pub unsafe extern "C" fn ST_Start() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_Stop() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn ST_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

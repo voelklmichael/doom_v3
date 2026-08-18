@@ -141,15 +141,15 @@ pub static mut cachedxstep: [fixed_t; (SCREENHEIGHT) as usize] = unsafe { std::m
 pub static mut cachedystep: [fixed_t; (SCREENHEIGHT) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_InitPlanes() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_MapPlane(y: std::ffi::c_int, x1: std::ffi::c_int, x2: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ClearPlanes() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_FindPlane(
@@ -157,7 +157,8 @@ pub unsafe extern "C" fn R_FindPlane(
     picnum: std::ffi::c_int,
     lightlevel: std::ffi::c_int,
 ) -> *mut visplane_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_CheckPlane(
@@ -165,7 +166,8 @@ pub unsafe extern "C" fn R_CheckPlane(
     start: std::ffi::c_int,
     stop: std::ffi::c_int,
 ) -> *mut visplane_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_MakeSpans(
@@ -175,9 +177,9 @@ pub unsafe extern "C" fn R_MakeSpans(
     t2: std::ffi::c_int,
     b2: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawPlanes() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

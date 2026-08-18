@@ -86,7 +86,7 @@ static mut rcsid: [std::ffi::c_char; 50] = unsafe {
 };
 
 pub unsafe extern "C" fn T_VerticalDoor(door: *mut vldoor_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_DoLockedDoor(
@@ -94,21 +94,23 @@ pub unsafe extern "C" fn EV_DoLockedDoor(
     type_: vldoor_e,
     thing: *mut mobj_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn EV_DoDoor(line: *mut line_t, type_: vldoor_e) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn EV_VerticalDoor(line: *mut line_t, thing: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnDoorCloseIn30(sec: *mut sector_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnDoorRaiseIn5Mins(sec: *mut sector_t, secnum: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

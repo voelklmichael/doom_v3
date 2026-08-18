@@ -79,13 +79,15 @@ pub static mut rndindex: std::ffi::c_int = unsafe { 0 };
 pub static mut prndindex: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn P_Random() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn M_Random() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn M_ClearRandom() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

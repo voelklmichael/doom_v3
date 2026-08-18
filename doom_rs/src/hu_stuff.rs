@@ -750,31 +750,32 @@ pub static mut frenchKeyMap: [std::ffi::c_char; 128] = unsafe {
 };
 
 pub unsafe extern "C" fn ForeignTranslation(ch: std::ffi::c_uchar) -> std::ffi::c_char {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HU_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HU_Stop() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HU_Start() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HU_Drawer() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HU_Erase() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HU_Ticker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const QUEUESIZE: std::ffi::c_int = 128;
@@ -786,13 +787,15 @@ static mut head: std::ffi::c_int = unsafe { 0 };
 static mut tail: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn HU_queueChatChar(c: std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HU_dequeueChatChar() -> std::ffi::c_char {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HU_Responder(ev: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

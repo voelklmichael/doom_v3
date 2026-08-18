@@ -157,11 +157,11 @@ pub static mut eventhead: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TO
 pub static mut eventtail: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn D_PostEvent(ev: *mut event_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_ProcessEvents() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut wipegamestate: gamestate_t = unsafe { GS_DEMOSCREEN };
@@ -179,7 +179,7 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn D_Display() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -187,7 +187,7 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn D_DoomLoop() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut demosequence: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -197,39 +197,39 @@ pub static mut pagetic: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO
 pub static mut pagename: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn D_PageTicker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_PageDrawer() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_AdvanceDemo() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_DoAdvanceDemo() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_StartTitle() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut title: [std::ffi::c_char; (128) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn D_AddFile(file: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn IdentifyVersion() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn FindResponseFile() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_DoomMain() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

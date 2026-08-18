@@ -91,17 +91,20 @@ pub unsafe extern "C" fn T_MovePlane(
     floorOrCeiling: std::ffi::c_int,
     direction: std::ffi::c_int,
 ) -> result_e {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn T_MoveFloor(floor: *mut floormove_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_DoFloor(line: *mut line_t, floortype: floor_e) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn EV_BuildStairs(line: *mut line_t, type_: stair_e) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

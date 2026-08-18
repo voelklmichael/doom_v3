@@ -64,13 +64,16 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
 };
 
 pub unsafe extern "C" fn FixedMul(a: fixed_t, b: fixed_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn FixedDiv(a: fixed_t, b: fixed_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn FixedDiv2(a: fixed_t, b: fixed_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

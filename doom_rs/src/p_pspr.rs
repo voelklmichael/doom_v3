@@ -116,7 +116,7 @@ pub unsafe extern "C" fn P_SetPsprite(
     position: std::ffi::c_int,
     stnum: statenum_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut swingx: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -124,119 +124,120 @@ pub static mut swingx: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initial
 pub static mut swingy: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_CalcSwing(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_BringUpWeapon(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_CheckAmmo(player: *mut player_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FireWeapon(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_DropWeapon(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_WeaponReady(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_ReFire(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_CheckReload(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Lower(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Raise(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_GunFlash(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Punch(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Saw(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FireMissile(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FireBFG(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FirePlasma(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut bulletslope: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_BulletSlope(mo: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_GunShot(mo: *mut mobj_t, accurate: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FirePistol(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FireShotgun(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FireShotgun2(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_FireCGun(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Light0(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Light1(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_Light2(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_BFGSpray(mo: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn A_BFGsound(player: *mut player_t, psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SetupPsprites(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_MovePsprites(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

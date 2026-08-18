@@ -140,15 +140,16 @@ pub static mut finaletext: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }
 pub static mut finaleflat: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn F_StartFinale() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn F_Responder(event: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn F_Ticker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -156,7 +157,7 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn F_TextWrite() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 #[repr(C)]
@@ -262,19 +263,20 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn F_StartCast() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn F_CastTicker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn F_CastResponder(ev: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn F_CastPrint(text: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -287,7 +289,7 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn F_CastDrawer() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn F_DrawPatchCol(
@@ -295,13 +297,13 @@ pub unsafe extern "C" fn F_DrawPatchCol(
     patch: *mut patch_t,
     col: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn F_BunnyScroll() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn F_Drawer() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

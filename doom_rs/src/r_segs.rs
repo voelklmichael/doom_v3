@@ -150,7 +150,7 @@ pub unsafe extern "C" fn R_RenderMaskedSegRange(
     x1: std::ffi::c_int,
     x2: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const HEIGHTBITS: std::ffi::c_int = 12;
@@ -158,9 +158,9 @@ pub const HEIGHTBITS: std::ffi::c_int = 12;
 pub const HEIGHTUNIT: std::ffi::c_int = (1 << HEIGHTBITS);
 
 pub unsafe extern "C" fn R_RenderSegLoop() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_StoreWallRange(start: std::ffi::c_int, stop: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

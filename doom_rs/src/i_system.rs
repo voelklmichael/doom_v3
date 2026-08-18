@@ -88,49 +88,54 @@ pub unsafe extern "C" fn I_Tactile(
     off: std::ffi::c_int,
     total: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut emptycmd: ticcmd_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn I_BaseTiccmd() -> *mut ticcmd_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_GetHeapSize() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_ZoneBase(size: *mut std::ffi::c_int) -> *mut byte {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_GetTime() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_Quit() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_WaitVBL(count: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_BeginRead() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_EndRead() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_AllocLow(length: std::ffi::c_int) -> *mut byte {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 unsafe extern "C" {
@@ -138,5 +143,5 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn I_Error(error: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 } // TODO: variadic definition not supported, C variadic marker dropped

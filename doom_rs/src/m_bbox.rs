@@ -60,9 +60,9 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
 };
 
 pub unsafe extern "C" fn M_ClearBox(box_: *mut fixed_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn M_AddToBox(box_: *mut fixed_t, x: fixed_t, y: fixed_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

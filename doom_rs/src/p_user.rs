@@ -87,23 +87,23 @@ pub const MAXBOB: std::ffi::c_int = 0x100000;
 pub static mut onground: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_Thrust(player: *mut player_t, angle: angle_t, move_: fixed_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_CalcHeight(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_MovePlayer(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const ANG5: std::ffi::c_int = (ANG90 / 18);
 
 pub unsafe extern "C" fn P_DeathThink(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_PlayerThink(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

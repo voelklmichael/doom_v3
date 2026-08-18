@@ -62,5 +62,6 @@ pub unsafe extern "C" fn main(
     argc: std::ffi::c_int,
     argv: *mut *mut std::ffi::c_char,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

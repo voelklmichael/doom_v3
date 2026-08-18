@@ -99,7 +99,8 @@ pub unsafe extern "C" fn P_GiveAmmo(
     ammo: ammotype_t,
     num: std::ffi::c_int,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_GiveWeapon(
@@ -107,31 +108,35 @@ pub unsafe extern "C" fn P_GiveWeapon(
     weapon: weapontype_t,
     dropped: boolean,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_GiveBody(player: *mut player_t, num: std::ffi::c_int) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_GiveArmor(player: *mut player_t, armortype: std::ffi::c_int) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_GiveCard(player: *mut player_t, card: card_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_GivePower(player: *mut player_t, power: std::ffi::c_int) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_TouchSpecialThing(special: *mut mobj_t, toucher: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_KillMobj(source: *mut mobj_t, target: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_DamageMobj(
@@ -140,5 +145,5 @@ pub unsafe extern "C" fn P_DamageMobj(
     source: *mut mobj_t,
     damage: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

@@ -86,5 +86,6 @@ pub unsafe extern "C" fn EV_Teleport(
     side: std::ffi::c_int,
     thing: *mut mobj_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

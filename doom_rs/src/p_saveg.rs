@@ -89,19 +89,19 @@ pub unsafe extern "C" fn PADSAVEP() -> std::ffi::c_int {
 }
 
 pub unsafe extern "C" fn P_ArchivePlayers() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_UnArchivePlayers() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_ArchiveWorld() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_UnArchiveWorld() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const tc_end: std::ffi::c_int = 0;
@@ -110,11 +110,11 @@ pub const tc_mobj: std::ffi::c_int = tc_end + 1;
 pub type thinkerclass_t = std::ffi::c_int;
 
 pub unsafe extern "C" fn P_ArchiveThinkers() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_UnArchiveThinkers() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const tc_ceiling: std::ffi::c_int = 0;
@@ -129,9 +129,9 @@ pub const tc_endspecials: std::ffi::c_int = tc_glow + 1;
 pub type specials_e = std::ffi::c_int;
 
 pub unsafe extern "C" fn P_ArchiveSpecials() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_UnArchiveSpecials() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

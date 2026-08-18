@@ -57,5 +57,6 @@ pub static mut myargc: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO:
 pub static mut myargv: *mut *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn M_CheckParm(check: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

@@ -572,8 +572,17 @@ fn emit_function_def(sig: &FnSig) -> String {
     } else {
         ""
     };
+    // Spike step (per the function-body codegen plan): verify the
+    // unsafe-wrapping + trailing-todo shape alone doesn't move the
+    // `cargo build -p doom_rs` baseline before building the real
+    // statement renderer on top of it.
+    let tail = if ret.is_empty() {
+        String::new()
+    } else {
+        "todo!(\"fell off the end of a non-void C function\")\n".to_string()
+    };
     format!(
-        "{vis}unsafe extern \"C\" fn {name}({params}){ret} {{ todo!(\"body not yet translated\") }}{variadic_comment}\n\n"
+        "{vis}unsafe extern \"C\" fn {name}({params}){ret} {{\nunsafe {{ todo!(\"body not yet translated\") }}\n{tail}}}{variadic_comment}\n\n"
     )
 }
 

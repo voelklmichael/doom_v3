@@ -99,21 +99,26 @@ pub unsafe extern "C" fn P_DivlineSide(
     y: fixed_t,
     node: *mut divline_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_InterceptVector2(v2: *mut divline_t, v1: *mut divline_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_CrossSubsector(num: std::ffi::c_int) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_CrossBSPNode(bspnum: std::ffi::c_int) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_CheckSight(t1: *mut mobj_t, t2: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

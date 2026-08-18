@@ -76,9 +76,10 @@ pub unsafe extern "C" fn cht_CheckCheat(
     cht: *mut cheatseq_t,
     key: std::ffi::c_char,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn cht_GetParam(cht: *mut cheatseq_t, buffer: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

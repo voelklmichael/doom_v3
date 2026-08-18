@@ -166,11 +166,12 @@ unsafe extern "C" {
 pub static mut test: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_SetMobjState(mobj: *mut mobj_t, state: statenum_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_ExplodeMissile(mo: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const STOPSPEED: std::ffi::c_int = 0x1000;
@@ -178,19 +179,19 @@ pub const STOPSPEED: std::ffi::c_int = 0x1000;
 pub const FRICTION: std::ffi::c_int = 0xe800;
 
 pub unsafe extern "C" fn P_XYMovement(mo: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_ZMovement(mo: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_NightmareRespawn(mobj: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_MobjThinker(mobj: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnMobj(
@@ -199,7 +200,8 @@ pub unsafe extern "C" fn P_SpawnMobj(
     z: fixed_t,
     type_: mobjtype_t,
 ) -> *mut mobj_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut itemrespawnque: [mapthing_t; (ITEMQUESIZE) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -212,19 +214,19 @@ pub static mut iquehead: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TOD
 pub static mut iquetail: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_RemoveMobj(mobj: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_RespawnSpecials() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnPlayer(mthing: *mut mapthing_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnMapThing(mthing: *mut mapthing_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -232,15 +234,15 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn P_SpawnPuff(x: fixed_t, y: fixed_t, z: fixed_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnBlood(x: fixed_t, y: fixed_t, z: fixed_t, damage: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_CheckMissileSpawn(th: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnMissile(
@@ -248,9 +250,10 @@ pub unsafe extern "C" fn P_SpawnMissile(
     dest: *mut mobj_t,
     type_: mobjtype_t,
 ) -> *mut mobj_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_SpawnPlayerMissile(source: *mut mobj_t, type_: mobjtype_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

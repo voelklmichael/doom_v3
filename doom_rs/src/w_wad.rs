@@ -96,15 +96,16 @@ pub static mut lumpcache: *mut *mut std::ffi::c_void = unsafe { std::mem::zeroed
 */
 
 pub unsafe extern "C" fn strupr(s: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn filelength(handle: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn ExtractFileBase(path: *mut std::ffi::c_char, dest: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut reloadlump: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -112,53 +113,59 @@ pub static mut reloadlump: std::ffi::c_int = unsafe { std::mem::zeroed() }; // T
 pub static mut reloadname: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn W_AddFile(filename: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn W_Reload() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn W_InitMultipleFiles(filenames: *mut *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn W_InitFile(filename: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn W_NumLumps() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn W_CheckNumForName(name: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn W_GetNumForName(name: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn W_LumpLength(lump: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn W_ReadLump(lump: std::ffi::c_int, dest: *mut std::ffi::c_void) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn W_CacheLumpNum(
     lump: std::ffi::c_int,
     tag: std::ffi::c_int,
 ) -> *mut std::ffi::c_void {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn W_CacheLumpName(
     name: *mut std::ffi::c_char,
     tag: std::ffi::c_int,
 ) -> *mut std::ffi::c_void {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut info: [[std::ffi::c_int; (10) as usize]; (2500) as usize] =
@@ -167,5 +174,5 @@ pub static mut info: [[std::ffi::c_int; (10) as usize]; (2500) as usize] =
 pub static mut profilecount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn W_Profile() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

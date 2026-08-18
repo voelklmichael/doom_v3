@@ -286,11 +286,12 @@ pub static mut bodyqueslot: std::ffi::c_int = unsafe { std::mem::zeroed() }; // 
 pub static mut statcopy: *mut std::ffi::c_void = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn G_CmdChecksum(cmd: *mut ticcmd_t) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn G_BuildTiccmd(cmd: *mut ticcmd_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -298,27 +299,28 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn G_DoLoadLevel() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_Responder(ev: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn G_Ticker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_InitPlayer(player: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_PlayerFinishLevel(player: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_PlayerReborn(player: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -329,19 +331,20 @@ pub unsafe extern "C" fn G_CheckSpot(
     playernum: std::ffi::c_int,
     mthing: *mut mapthing_t,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn G_DeathMatchSpawnPlayer(playernum: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_DoReborn(playernum: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_ScreenShot() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut pars: [[std::ffi::c_int; 10]; 4] = unsafe {
@@ -378,23 +381,23 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn G_ExitLevel() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_SecretExitLevel() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_DoCompleted() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_WorldDone() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_DoWorldDone() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -408,21 +411,21 @@ unsafe extern "C" {
 pub static mut savename: [std::ffi::c_char; (256) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn G_LoadGame(name: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const VERSIONSIZE: std::ffi::c_int = 16;
 
 pub unsafe extern "C" fn G_DoLoadGame() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_SaveGame(slot: std::ffi::c_int, description: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_DoSaveGame() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut d_skill: skill_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -436,11 +439,11 @@ pub unsafe extern "C" fn G_DeferedInitNew(
     episode: std::ffi::c_int,
     map: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_DoNewGame() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -448,41 +451,42 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn G_InitNew(skill: skill_t, episode: std::ffi::c_int, map: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const DEMOMARKER: std::ffi::c_int = 0x80;
 
 pub unsafe extern "C" fn G_ReadDemoTiccmd(cmd: *mut ticcmd_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_WriteDemoTiccmd(cmd: *mut ticcmd_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_RecordDemo(name: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_BeginRecording() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut defdemoname: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn G_DeferedPlayDemo(name: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_DoPlayDemo() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_TimeDemo(name: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn G_CheckDemoStatus() -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

@@ -132,7 +132,7 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn R_ClearDrawSegs() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 #[repr(C)]
@@ -149,19 +149,19 @@ pub static mut newend: *mut cliprange_t = unsafe { std::mem::zeroed() }; // TODO
 pub static mut solidsegs: [cliprange_t; (MAXSEGS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_ClipSolidWallSegment(first: std::ffi::c_int, last: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ClipPassWallSegment(first: std::ffi::c_int, last: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ClearClipSegs() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_AddLine(line: *mut seg_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut checkcoord: [[std::ffi::c_int; 4]; 12] = unsafe {
@@ -192,13 +192,14 @@ pub static mut checkcoord: [[std::ffi::c_int; 4]; 12] = unsafe {
 };
 
 pub unsafe extern "C" fn R_CheckBBox(bspcoord: *mut fixed_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_Subsector(num: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_RenderBSPNode(bspnum: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

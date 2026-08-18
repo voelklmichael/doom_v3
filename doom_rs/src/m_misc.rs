@@ -91,7 +91,8 @@ pub unsafe extern "C" fn M_DrawText(
     direct: boolean,
     string: *mut std::ffi::c_char,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub const O_BINARY: std::ffi::c_int = 0;
@@ -101,14 +102,16 @@ pub unsafe extern "C" fn M_WriteFile(
     source: *mut std::ffi::c_void,
     length: std::ffi::c_int,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn M_ReadFile(
     name: (), /* TODO: unparsed param type, needs manual translation */
     buffer: *mut *mut byte,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut usemouse: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -496,7 +499,7 @@ pub static mut numdefaults: std::ffi::c_int = unsafe { std::mem::zeroed() }; // 
 pub static mut defaultfile: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn M_SaveDefaults() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -504,7 +507,7 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn M_LoadDefaults() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 #[repr(C)]
@@ -536,11 +539,11 @@ pub unsafe extern "C" fn WritePCXfile(
     height: std::ffi::c_int,
     palette: *mut byte,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn M_ScreenShot() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 const ZEROED_default_t: default_t = unsafe { std::mem::zeroed() };

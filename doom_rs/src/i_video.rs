@@ -125,15 +125,16 @@ pub static mut doPointerWarp: std::ffi::c_int = unsafe { POINTER_WARP_COUNTDOWN 
 static mut multiply: std::ffi::c_int = unsafe { 1 };
 
 pub unsafe extern "C" fn xlatekey() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_ShutdownGraphics() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_StartFrame() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut lastmousex: std::ffi::c_int = unsafe { 0 };
@@ -145,65 +146,66 @@ pub static mut mousemoved: boolean = unsafe { false_ };
 pub static mut shmFinished: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn I_GetEvent() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn createnullcursor(
     display: *mut x11::xlib::Display,
     root: x11::xlib::Window,
 ) -> x11::xlib::Cursor {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_StartTic() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_UpdateNoBlit() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_FinishUpdate() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_ReadScreen(scr: *mut byte) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut colors: [x11::xlib::XColor; (256) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn UploadNewPalette(cmap: x11::xlib::Colormap, palette: *mut byte) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_SetPalette(palette: *mut byte) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn grabsharedmemory(size: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_InitGraphics() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut exptable: [std::ffi::c_uint; (256) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn InitExpand() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut exptable2: [std::ffi::c_double; (256 * 256) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn InitExpand2() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut inited: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn Expand4(lineptr: *mut std::ffi::c_uint, xline: *mut std::ffi::c_double) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

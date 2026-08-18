@@ -191,43 +191,47 @@ pub static mut reboundpacket: boolean = unsafe { std::mem::zeroed() }; // TODO: 
 pub static mut reboundstore: doomdata_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn NetbufferSize() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn NetbufferChecksum() -> std::ffi::c_uint {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn ExpandTics(low: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HSendPacket(node: std::ffi::c_int, flags: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HGetPacket() -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut exitmsg: [std::ffi::c_char; (80) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn GetPackets() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut gametime: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn NetUpdate() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn CheckAbort() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_ArbitrateNetStart() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -235,11 +239,11 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn D_CheckNetGame() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn D_QuitNetGame() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut frametics: [std::ffi::c_int; (4) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -255,5 +259,5 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn TryRunTics() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

@@ -182,7 +182,7 @@ pub unsafe extern "C" fn V_MarkRect(
     width: std::ffi::c_int,
     height: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_CopyRect(
@@ -195,7 +195,7 @@ pub unsafe extern "C" fn V_CopyRect(
     desty: std::ffi::c_int,
     destscrn: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_DrawPatch(
@@ -204,7 +204,7 @@ pub unsafe extern "C" fn V_DrawPatch(
     scrn: std::ffi::c_int,
     patch: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_DrawPatchFlipped(
@@ -213,7 +213,7 @@ pub unsafe extern "C" fn V_DrawPatchFlipped(
     scrn: std::ffi::c_int,
     patch: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_DrawPatchDirect(
@@ -222,7 +222,7 @@ pub unsafe extern "C" fn V_DrawPatchDirect(
     scrn: std::ffi::c_int,
     patch: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_DrawBlock(
@@ -233,7 +233,7 @@ pub unsafe extern "C" fn V_DrawBlock(
     height: std::ffi::c_int,
     src: *mut byte,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_GetBlock(
@@ -244,9 +244,9 @@ pub unsafe extern "C" fn V_GetBlock(
     height: std::ffi::c_int,
     dest: *mut byte,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn V_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

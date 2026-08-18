@@ -139,11 +139,11 @@ pub unsafe extern "C" fn R_InstallSpriteLump(
     rotation: std::ffi::c_uint,
     flipped: boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitSpriteDefs(namelist: *mut *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut vissprites: [vissprite_t; (MAXVISSPRITES) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -153,17 +153,18 @@ pub static mut vissprite_p: *mut vissprite_t = unsafe { std::mem::zeroed() }; //
 pub static mut newvissprite: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_InitSprites(namelist: *mut *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ClearSprites() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut overflowsprite: vissprite_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_NewVisSprite() -> *mut vissprite_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut mfloorclip: *mut std::ffi::c_short = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -175,7 +176,7 @@ pub static mut spryscale: fixed_t = unsafe { std::mem::zeroed() }; // TODO: init
 pub static mut sprtopscreen: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_DrawMaskedColumn(column: *mut column_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawVisSprite(
@@ -183,35 +184,35 @@ pub unsafe extern "C" fn R_DrawVisSprite(
     x1: std::ffi::c_int,
     x2: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ProjectSprite(thing: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_AddSprites(sec: *mut sector_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawPSprite(psp: *mut pspdef_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawPlayerSprites() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut vsprsortedhead: vissprite_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_SortVisSprites() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawSprite(spr: *mut vissprite_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawMasked() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

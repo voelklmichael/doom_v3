@@ -520,38 +520,39 @@ static mut bp: [*mut patch_t; (MAXPLAYERS) as usize] = unsafe { std::mem::zeroed
 static mut lnames: *mut *mut patch_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn WI_slamBackground() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_Responder(ev: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn WI_drawLF() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawEL() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawOnLnode(
     n: std::ffi::c_int,
     c: *mut *mut patch_t, /* TODO: was unsized array */
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_initAnimatedBack() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_updateAnimatedBack() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawAnimatedBack() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawNum(
@@ -560,7 +561,8 @@ pub unsafe extern "C" fn WI_drawNum(
     n: std::ffi::c_int,
     digits: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn WI_drawPercent(
@@ -568,45 +570,46 @@ pub unsafe extern "C" fn WI_drawPercent(
     y: std::ffi::c_int,
     p: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawTime(x: std::ffi::c_int, y: std::ffi::c_int, t: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_End() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_initNoState() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_updateNoState() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut snl_pointeron: boolean = unsafe { false_ };
 
 pub unsafe extern "C" fn WI_initShowNextLoc() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_updateShowNextLoc() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawShowNextLoc() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawNoState() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_fragSum(playernum: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 static mut dm_state: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -617,15 +620,15 @@ static mut dm_frags: [[std::ffi::c_int; (MAXPLAYERS) as usize]; (MAXPLAYERS) as 
 static mut dm_totals: [std::ffi::c_int; (MAXPLAYERS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn WI_initDeathmatchStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_updateDeathmatchStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawDeathmatchStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut cnt_frags: [std::ffi::c_int; (MAXPLAYERS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -635,57 +638,57 @@ static mut dofrags: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: in
 static mut ng_state: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn WI_initNetgameStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_updateNetgameStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawNetgameStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut sp_state: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn WI_initStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_updateStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_drawStats() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_checkForAccelerate() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_Ticker() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_loadData() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_unloadData() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_Drawer() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_initVariables(wbstartstruct: *mut wbstartstruct_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn WI_Start(wbstartstruct: *mut wbstartstruct_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 const ZEROED_anim_t: anim_t = unsafe { std::mem::zeroed() };

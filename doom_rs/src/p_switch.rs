@@ -1104,7 +1104,7 @@ pub static mut numswitches: std::ffi::c_int = unsafe { std::mem::zeroed() }; // 
 pub static mut buttonlist: [button_t; (MAXBUTTONS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_InitSwitchList() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_StartButton(
@@ -1113,11 +1113,11 @@ pub unsafe extern "C" fn P_StartButton(
     texture: std::ffi::c_int,
     time: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_ChangeSwitchTexture(line: *mut line_t, useAgain: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_UseSpecialLine(
@@ -1125,5 +1125,6 @@ pub unsafe extern "C" fn P_UseSpecialLine(
     line: *mut line_t,
     side: std::ffi::c_int,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

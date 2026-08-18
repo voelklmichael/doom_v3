@@ -125,11 +125,11 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn HUlib_init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_clearTextLine(t: *mut hu_textline_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_initTextLine(
@@ -139,26 +139,28 @@ pub unsafe extern "C" fn HUlib_initTextLine(
     f: *mut *mut patch_t,
     sc: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_addCharToTextLine(
     t: *mut hu_textline_t,
     ch: std::ffi::c_char,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HUlib_delCharFromTextLine(t: *mut hu_textline_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HUlib_drawTextLine(l: *mut hu_textline_t, drawcursor: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_eraseTextLine(l: *mut hu_textline_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_initSText(
@@ -170,11 +172,11 @@ pub unsafe extern "C" fn HUlib_initSText(
     startchar: std::ffi::c_int,
     on: *mut boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_addLineToSText(s: *mut hu_stext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_addMessageToSText(
@@ -182,15 +184,15 @@ pub unsafe extern "C" fn HUlib_addMessageToSText(
     prefix: *mut std::ffi::c_char,
     msg: *mut std::ffi::c_char,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_drawSText(s: *mut hu_stext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_eraseSText(s: *mut hu_stext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_initIText(
@@ -201,33 +203,34 @@ pub unsafe extern "C" fn HUlib_initIText(
     startchar: std::ffi::c_int,
     on: *mut boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_delCharFromIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_eraseLineFromIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_resetIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_addPrefixToIText(it: *mut hu_itext_t, str: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_keyInIText(it: *mut hu_itext_t, ch: std::ffi::c_uchar) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HUlib_drawIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn HUlib_eraseIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

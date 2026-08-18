@@ -758,7 +758,37 @@ fn function_def_stub_body() {
     };
     let out = emit_function_def(&sig);
     assert!(out.contains("pub unsafe extern \"C\" fn P_Random() -> std::ffi::c_int"));
-    assert!(out.contains("todo!(\"body not yet translated\")"));
+    assert!(out.contains("unsafe { todo!(\"body not yet translated\") }"));
+}
+
+#[test]
+fn function_def_non_void_gets_a_fell_off_the_end_todo() {
+    // A non-void C function can fall off its own end without an explicit
+    // `return` (undefined behavior in C, but real source - the resulting
+    // Rust must still compile) - the trailing todo!() stands in for that
+    // path without needing rustc's own divergence analysis to line up.
+    let sig = FnSig {
+        storage: vec![],
+        ret_ty: named("int"),
+        name: "P_Random".to_string(),
+        params: vec![],
+        variadic: false,
+    };
+    let out = emit_function_def(&sig);
+    assert!(out.contains("fell off the end of a non-void C function"));
+}
+
+#[test]
+fn function_def_void_gets_no_fell_off_the_end_todo() {
+    let sig = FnSig {
+        storage: vec![],
+        ret_ty: named("void"),
+        name: "P_Init".to_string(),
+        params: vec![],
+        variadic: false,
+    };
+    let out = emit_function_def(&sig);
+    assert!(!out.contains("fell off the end"));
 }
 
 #[test]

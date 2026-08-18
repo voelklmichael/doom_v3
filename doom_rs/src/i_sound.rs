@@ -136,14 +136,15 @@ pub unsafe extern "C" fn myioctl(
     command: std::ffi::c_int,
     arg: *mut std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn getsfx(
     sfxname: *mut std::ffi::c_char,
     len: *mut std::ffi::c_int,
 ) -> *mut std::ffi::c_void {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn addsfx(
@@ -152,23 +153,25 @@ pub unsafe extern "C" fn addsfx(
     step: std::ffi::c_int,
     seperation: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_SetChannels() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_SetSfxVolume(volume: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_SetMusicVolume(volume: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_GetSfxLumpNum(sfx: *mut sfxinfo_t) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_StartSound(
@@ -178,23 +181,25 @@ pub unsafe extern "C" fn I_StartSound(
     pitch: std::ffi::c_int,
     priority: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_StopSound(handle: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_SoundIsPlaying(handle: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_UpdateSound() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_SubmitSound() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_UpdateSoundParams(
@@ -203,23 +208,23 @@ pub unsafe extern "C" fn I_UpdateSoundParams(
     sep: std::ffi::c_int,
     pitch: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_ShutdownSound() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_InitSound() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_InitMusic() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_ShutdownMusic() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 static mut looping: std::ffi::c_int = unsafe { 0 };
@@ -227,31 +232,33 @@ static mut looping: std::ffi::c_int = unsafe { 0 };
 static mut musicdies: std::ffi::c_int = unsafe { (-(1)) };
 
 pub unsafe extern "C" fn I_PlaySong(handle: std::ffi::c_int, looping: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_PauseSong(handle: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_ResumeSong(handle: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_StopSong(handle: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_UnRegisterSong(handle: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_RegisterSong(data: *mut std::ffi::c_void) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_QrySongPlaying(handle: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub type tSigSet = std::ffi::c_int;
@@ -261,13 +268,14 @@ static mut itimer: std::ffi::c_int = unsafe { libc::ITIMER_REAL };
 static mut sig: std::ffi::c_int = unsafe { libc::SIGALRM };
 
 pub unsafe extern "C" fn I_HandleSoundTimer(ignore: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn I_SoundSetTimer(duration_of_tick: std::ffi::c_int) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn I_SoundDelTimer() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

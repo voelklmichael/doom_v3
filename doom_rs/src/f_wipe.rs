@@ -89,7 +89,7 @@ pub unsafe extern "C" fn wipe_shittyColMajorXform(
     width: std::ffi::c_int,
     height: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn wipe_initColorXForm(
@@ -97,7 +97,8 @@ pub unsafe extern "C" fn wipe_initColorXForm(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_doColorXForm(
@@ -105,7 +106,8 @@ pub unsafe extern "C" fn wipe_doColorXForm(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_exitColorXForm(
@@ -113,7 +115,8 @@ pub unsafe extern "C" fn wipe_exitColorXForm(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 static mut y: *mut std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -123,7 +126,8 @@ pub unsafe extern "C" fn wipe_initMelt(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_doMelt(
@@ -131,7 +135,8 @@ pub unsafe extern "C" fn wipe_doMelt(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_exitMelt(
@@ -139,7 +144,8 @@ pub unsafe extern "C" fn wipe_exitMelt(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_StartScreen(
@@ -148,7 +154,8 @@ pub unsafe extern "C" fn wipe_StartScreen(
     width: std::ffi::c_int,
     height: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_EndScreen(
@@ -157,7 +164,8 @@ pub unsafe extern "C" fn wipe_EndScreen(
     width: std::ffi::c_int,
     height: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_ScreenWipe(
@@ -168,5 +176,6 @@ pub unsafe extern "C" fn wipe_ScreenWipe(
     height: std::ffi::c_int,
     ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

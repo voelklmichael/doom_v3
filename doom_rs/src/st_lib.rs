@@ -137,7 +137,7 @@ unsafe extern "C" {
 pub static mut sttminus: *mut patch_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn STlib_init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_initNum(
@@ -149,15 +149,15 @@ pub unsafe extern "C" fn STlib_initNum(
     on: *mut boolean,
     width: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_drawNum(n: *mut st_number_t, refresh: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_updateNum(n: *mut st_number_t, refresh: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_initPercent(
@@ -169,11 +169,11 @@ pub unsafe extern "C" fn STlib_initPercent(
     on: *mut boolean,
     percent: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_updatePercent(per: *mut st_percent_t, refresh: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_initMultIcon(
@@ -184,11 +184,11 @@ pub unsafe extern "C" fn STlib_initMultIcon(
     inum: *mut std::ffi::c_int,
     on: *mut boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_updateMultIcon(mi: *mut st_multicon_t, refresh: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_initBinIcon(
@@ -199,9 +199,9 @@ pub unsafe extern "C" fn STlib_initBinIcon(
     val: *mut boolean,
     on: *mut boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn STlib_updateBinIcon(bi: *mut st_binicon_t, refresh: boolean) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

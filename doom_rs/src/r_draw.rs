@@ -130,11 +130,11 @@ pub static mut dc_source: *mut byte = unsafe { std::mem::zeroed() }; // TODO: in
 pub static mut dccount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_DrawColumn() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawColumnLow() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const FUZZTABLE: std::ffi::c_int = 50;
@@ -199,7 +199,7 @@ pub static mut fuzzoffset: [std::ffi::c_int; (FUZZTABLE) as usize] = unsafe {
 pub static mut fuzzpos: std::ffi::c_int = unsafe { 0 };
 
 pub unsafe extern "C" fn R_DrawFuzzColumn() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut dc_translation: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -207,11 +207,11 @@ pub static mut dc_translation: *mut byte = unsafe { std::mem::zeroed() }; // TOD
 pub static mut translationtables: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_DrawTranslatedColumn() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitTranslationTables() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut ds_y: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -235,23 +235,23 @@ pub static mut ds_source: *mut byte = unsafe { std::mem::zeroed() }; // TODO: in
 pub static mut dscount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_DrawSpan() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_DrawSpanLow() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitBuffer(width: std::ffi::c_int, height: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_FillBackScreen() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_VideoErase(ofs: std::ffi::c_uint, count: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -264,5 +264,5 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn R_DrawViewBorder() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

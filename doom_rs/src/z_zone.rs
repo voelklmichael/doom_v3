@@ -109,15 +109,15 @@ pub struct memzone_t {
 pub static mut mainzone: *mut memzone_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn Z_ClearZone(zone: *mut memzone_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_Free(ptr: *mut std::ffi::c_void) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const MINFRAGMENT: std::ffi::c_int = 64;
@@ -127,29 +127,31 @@ pub unsafe extern "C" fn Z_Malloc(
     tag: std::ffi::c_int,
     user: *mut std::ffi::c_void,
 ) -> *mut std::ffi::c_void {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn Z_FreeTags(lowtag: std::ffi::c_int, hightag: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_DumpHeap(lowtag: std::ffi::c_int, hightag: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_FileDumpHeap(f: *mut libc::FILE) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_CheckHeap() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_ChangeTag2(ptr: *mut std::ffi::c_void, tag: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn Z_FreeMemory() -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

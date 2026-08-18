@@ -189,7 +189,7 @@ pub unsafe extern "C" fn R_AddPointToBox(
     y: std::ffi::c_int,
     box_: *mut fixed_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_PointOnSide(
@@ -197,7 +197,8 @@ pub unsafe extern "C" fn R_PointOnSide(
     y: fixed_t,
     node: *mut node_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_PointOnSegSide(
@@ -205,11 +206,13 @@ pub unsafe extern "C" fn R_PointOnSegSide(
     y: fixed_t,
     line: *mut seg_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_PointToAngle(x: fixed_t, y: fixed_t) -> angle_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_PointToAngle2(
@@ -218,33 +221,36 @@ pub unsafe extern "C" fn R_PointToAngle2(
     x2: fixed_t,
     y2: fixed_t,
 ) -> angle_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_PointToDist(x: fixed_t, y: fixed_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_InitPointToAngle() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ScaleFromGlobalAngle(visangle: angle_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_InitTables() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_InitTextureMapping() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub const DISTMAP: std::ffi::c_int = 2;
 
 pub unsafe extern "C" fn R_InitLightTables() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut setsizeneeded: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -254,11 +260,11 @@ pub static mut setblocks: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TO
 pub static mut setdetail: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_SetViewSize(blocks: std::ffi::c_int, detail: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_ExecuteSetViewSize() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 unsafe extern "C" {
@@ -270,17 +276,18 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn R_Init() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_PointInSubsector(x: fixed_t, y: fixed_t) -> *mut subsector_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn R_SetupFrame(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn R_RenderPlayerView(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

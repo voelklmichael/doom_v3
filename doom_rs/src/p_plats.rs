@@ -89,7 +89,7 @@ static mut rcsid: [std::ffi::c_char; 50] = unsafe {
 pub static mut activeplats: [*mut plat_t; (MAXPLATS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn T_PlatRaise(plat: *mut plat_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_DoPlat(
@@ -97,21 +97,22 @@ pub unsafe extern "C" fn EV_DoPlat(
     type_: plattype_e,
     amount: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_ActivateInStasis(tag: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_StopPlat(line: *mut line_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_AddActivePlat(plat: *mut plat_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_RemoveActivePlat(plat: *mut plat_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

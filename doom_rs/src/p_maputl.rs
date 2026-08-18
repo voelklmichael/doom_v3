@@ -81,7 +81,8 @@ static mut rcsid: [std::ffi::c_char; 51] = unsafe {
 };
 
 pub unsafe extern "C" fn P_AproxDistance(dx: fixed_t, dy: fixed_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_PointOnLineSide(
@@ -89,11 +90,13 @@ pub unsafe extern "C" fn P_PointOnLineSide(
     y: fixed_t,
     line: *mut line_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_BoxOnLineSide(tmbox: *mut fixed_t, ld: *mut line_t) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_PointOnDivlineSide(
@@ -101,15 +104,17 @@ pub unsafe extern "C" fn P_PointOnDivlineSide(
     y: fixed_t,
     line: *mut divline_t,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_MakeDivline(li: *mut line_t, dl: *mut divline_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_InterceptVector(v2: *mut divline_t, v1: *mut divline_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut opentop: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -121,15 +126,15 @@ pub static mut openrange: fixed_t = unsafe { std::mem::zeroed() }; // TODO: init
 pub static mut lowfloor: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_LineOpening(linedef: *mut line_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_UnsetThingPosition(thing: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SetThingPosition(thing: *mut mobj_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_BlockLinesIterator(
@@ -137,7 +142,8 @@ pub unsafe extern "C" fn P_BlockLinesIterator(
     y: std::ffi::c_int,
     func: Option<unsafe extern "C" fn(*mut line_t) -> boolean>,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_BlockThingsIterator(
@@ -145,7 +151,8 @@ pub unsafe extern "C" fn P_BlockThingsIterator(
     y: std::ffi::c_int,
     func: Option<unsafe extern "C" fn(*mut mobj_t) -> boolean>,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut intercepts: [intercept_t; (MAXINTERCEPTS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -159,15 +166,18 @@ pub static mut earlyout: boolean = unsafe { std::mem::zeroed() }; // TODO: initi
 pub static mut ptflags: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn PIT_AddLineIntercepts(ld: *mut line_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn PIT_AddThingIntercepts(thing: *mut mobj_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_TraverseIntercepts(func: traverser_t, maxfrac: fixed_t) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_PathTraverse(
@@ -178,5 +188,6 @@ pub unsafe extern "C" fn P_PathTraverse(
     flags: std::ffi::c_int,
     trav: Option<unsafe extern "C" fn(*mut intercept_t) -> boolean>,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }

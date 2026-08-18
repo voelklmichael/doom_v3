@@ -82,23 +82,23 @@ static mut rcsid: [std::ffi::c_char; 51] = unsafe {
 };
 
 pub unsafe extern "C" fn T_FireFlicker(flick: *mut fireflicker_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnFireFlicker(sector: *mut sector_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn T_LightFlash(flash: *mut lightflash_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnLightFlash(sector: *mut sector_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn T_StrobeFlash(flash: *mut strobe_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnStrobeFlash(
@@ -106,25 +106,25 @@ pub unsafe extern "C" fn P_SpawnStrobeFlash(
     fastOrSlow: std::ffi::c_int,
     inSync: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_StartLightStrobing(line: *mut line_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_TurnTagLightsOff(line: *mut line_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_LightTurnOn(line: *mut line_t, bright: std::ffi::c_int) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn T_Glow(g: *mut glow_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_SpawnGlowingLight(sector: *mut sector_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }

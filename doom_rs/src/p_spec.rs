@@ -1102,7 +1102,7 @@ pub static mut lastanim: *mut anim_t = unsafe { std::mem::zeroed() }; // TODO: i
 pub const MAXLINEANIMS: std::ffi::c_int = 64;
 
 pub unsafe extern "C" fn P_InitPicAnims() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn getSide(
@@ -1110,7 +1110,8 @@ pub unsafe extern "C" fn getSide(
     line: std::ffi::c_int,
     side: std::ffi::c_int,
 ) -> *mut side_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn getSector(
@@ -1118,26 +1119,31 @@ pub unsafe extern "C" fn getSector(
     line: std::ffi::c_int,
     side: std::ffi::c_int,
 ) -> *mut sector_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn twoSided(
     sector: std::ffi::c_int,
     line: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn getNextSector(line: *mut line_t, sec: *mut sector_t) -> *mut sector_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FindLowestFloorSurrounding(sec: *mut sector_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FindHighestFloorSurrounding(sec: *mut sector_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub const MAX_ADJOINING_SECTORS: std::ffi::c_int = 20;
@@ -1146,29 +1152,34 @@ pub unsafe extern "C" fn P_FindNextHighestFloor(
     sec: *mut sector_t,
     currentheight: std::ffi::c_int,
 ) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FindLowestCeilingSurrounding(sec: *mut sector_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FindHighestCeilingSurrounding(sec: *mut sector_t) -> fixed_t {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FindSectorFromLineTag(
     line: *mut line_t,
     start: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_FindMinSurroundingLight(
     sector: *mut sector_t,
     max: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn P_CrossSpecialLine(
@@ -1176,15 +1187,15 @@ pub unsafe extern "C" fn P_CrossSpecialLine(
     side: std::ffi::c_int,
     thing: *mut mobj_t,
 ) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_ShootSpecialLine(thing: *mut mobj_t, line: *mut line_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn P_PlayerInSpecialSector(player: *mut player_t) {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub static mut levelTimer: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -1192,11 +1203,12 @@ pub static mut levelTimer: boolean = unsafe { std::mem::zeroed() }; // TODO: ini
 pub static mut levelTimeCount: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_UpdateSpecials() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 pub unsafe extern "C" fn EV_DoDonut(line: *mut line_t) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut numlinespecials: std::ffi::c_short = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
@@ -1205,7 +1217,7 @@ pub static mut linespeciallist: [*mut line_t; (MAXLINEANIMS) as usize] =
     unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_SpawnSpecials() {
-    todo!("body not yet translated")
+    unsafe { todo!("body not yet translated") }
 }
 
 const ZEROED_animdef_t: animdef_t = unsafe { std::mem::zeroed() };
