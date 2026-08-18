@@ -93,6 +93,22 @@ fn tag_based_type_reference_with_keyword_colliding_tag_gets_escaped() {
 }
 
 #[test]
+fn system_header_type_resolves_to_its_crate_path() {
+    // i_video.c's real X11 usage - none of these are declared anywhere in
+    // linuxdoom-1.10's own headers.
+    assert_eq!(map_type(&named("Display")), "x11::xlib::Display");
+    assert_eq!(map_type(&named("FILE")), "libc::FILE");
+}
+
+#[test]
+fn tag_prefixed_system_header_type_also_resolves() {
+    // i_net.c's real `struct sockaddr_in sendaddress[MAXNETNODES];` - the
+    // tag-keyword-stripping path (`strip_tag_keyword`) runs before the
+    // bare-name fallback, so it needs its own system-type check too.
+    assert_eq!(map_type(&named("struct sockaddr_in")), "libc::sockaddr_in");
+}
+
+#[test]
 fn bare_struct_or_union_with_no_tag_is_not_treated_as_tag_reference() {
     // Only reached in practice via record.rs's synthesized nested-field
     // placeholder, which codegen's item-emission substitutes before calling

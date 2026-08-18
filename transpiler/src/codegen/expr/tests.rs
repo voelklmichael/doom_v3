@@ -237,6 +237,16 @@ fn file_and_line_builtins() {
 }
 
 #[test]
+fn system_value_ident_resolves_to_its_crate_path() {
+    // i_sound.c's real `sig = SIGALRM` - never defined anywhere in
+    // linuxdoom-1.10's own headers.
+    assert_eq!(
+        render_expr(&Expr::Ident("SIGALRM".into()), &no_globals()).unwrap(),
+        "libc::SIGALRM"
+    );
+}
+
+#[test]
 fn plain_ident_escapes_keywords() {
     assert_eq!(
         render_expr(&Expr::Ident("type".into()), &no_globals()).unwrap(),

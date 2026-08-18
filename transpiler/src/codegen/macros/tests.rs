@@ -240,6 +240,24 @@ fn macro_referencing_a_known_global_still_emits() {
 }
 
 #[test]
+fn macro_aliasing_a_function_degrades_rather_than_mistype() {
+    // w_wad.c's real `#define strcmpi strcasecmp` - `strcasecmp` resolves
+    // (via `system_names::system_function`), but assigning a bare function
+    // reference to a scalar-typed `const` is a genuine type mismatch, not a
+    // missing-identifier problem - must degrade instead of emitting it.
+    let out = emit_define_object(
+        "strcmpi",
+        "strcasecmp",
+        &known(),
+        &no_globals(),
+        &no_functions(),
+        &no_defines(),
+    );
+    assert!(!out.contains("pub const"), "got: {out}");
+    assert!(out.contains("strcasecmp"), "got: {out}");
+}
+
+#[test]
 fn keyword_colliding_name_gets_escaped() {
     assert_eq!(
         emit_define_object(

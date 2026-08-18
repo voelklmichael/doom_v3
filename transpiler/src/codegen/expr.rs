@@ -294,7 +294,10 @@ fn render_ident(name: &str) -> String {
     match name {
         "__FILE__" => "file!()".to_string(),
         "__LINE__" => "line!()".to_string(),
-        _ => ident(name),
+        _ => super::system_names::system_value(name)
+            .or_else(|| super::system_names::system_function(name))
+            .map(str::to_string)
+            .unwrap_or_else(|| ident(name)),
     }
 }
 

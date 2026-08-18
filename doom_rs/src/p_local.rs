@@ -86,9 +86,9 @@ unsafe extern "C" {
     pub fn P_PlayerThink(player: *mut player_t);
 }
 
-pub const ONFLOORZ: std::ffi::c_int = MININT;
+pub const ONFLOORZ: std::ffi::c_int = std::ffi::c_int::MIN;
 
-pub const ONCEILINGZ: std::ffi::c_int = MAXINT;
+pub const ONCEILINGZ: std::ffi::c_int = std::ffi::c_int::MAX;
 
 pub const ITEMQUESIZE: std::ffi::c_int = 128;
 

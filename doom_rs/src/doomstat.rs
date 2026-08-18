@@ -231,7 +231,7 @@ unsafe extern "C" {
 }
 
 unsafe extern "C" {
-    pub static mut debugfile: *mut FILE;
+    pub static mut debugfile: *mut libc::FILE;
 }
 
 unsafe extern "C" {
