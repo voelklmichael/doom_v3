@@ -344,8 +344,8 @@ pub static mut MainMenu: [menuitem_t; 6] = unsafe {
 pub static mut MainDef: menu_t = unsafe {
     menu_t {
         numitems: main_end,
-        prevMenu: NULL,
-        menuitems: MainMenu,
+        prevMenu: std::ptr::null_mut(),
+        menuitems: MainMenu.as_mut_ptr(),
         routine: Some(M_DrawMainMenu),
         x: 97,
         y: 64,
@@ -438,7 +438,7 @@ pub static mut EpiDef: menu_t = unsafe {
     menu_t {
         numitems: ep_end,
         prevMenu: (&(MainDef) as *const _ as *mut _),
-        menuitems: EpisodeMenu,
+        menuitems: EpisodeMenu.as_mut_ptr(),
         routine: Some(M_DrawEpisode),
         x: 48,
         y: 63,
@@ -549,7 +549,7 @@ pub static mut NewDef: menu_t = unsafe {
     menu_t {
         numitems: newg_end,
         prevMenu: (&(EpiDef) as *const _ as *mut _),
-        menuitems: NewGameMenu,
+        menuitems: NewGameMenu.as_mut_ptr(),
         routine: Some(M_DrawNewGame),
         x: 48,
         y: 63,
@@ -692,7 +692,7 @@ pub static mut OptionsDef: menu_t = unsafe {
     menu_t {
         numitems: opt_end,
         prevMenu: (&(MainDef) as *const _ as *mut _),
-        menuitems: OptionsMenu,
+        menuitems: OptionsMenu.as_mut_ptr(),
         routine: Some(M_DrawOptions),
         x: 60,
         y: 37,
@@ -718,7 +718,7 @@ pub static mut ReadDef1: menu_t = unsafe {
     menu_t {
         numitems: read1_end,
         prevMenu: (&(MainDef) as *const _ as *mut _),
-        menuitems: ReadMenu1,
+        menuitems: ReadMenu1.as_mut_ptr(),
         routine: Some(M_DrawReadThis1),
         x: 280,
         y: 185,
@@ -744,7 +744,7 @@ pub static mut ReadDef2: menu_t = unsafe {
     menu_t {
         numitems: read2_end,
         prevMenu: (&(ReadDef1) as *const _ as *mut _),
-        menuitems: ReadMenu2,
+        menuitems: ReadMenu2.as_mut_ptr(),
         routine: Some(M_DrawReadThis2),
         x: 330,
         y: 175,
@@ -815,7 +815,7 @@ pub static mut SoundDef: menu_t = unsafe {
     menu_t {
         numitems: sound_end,
         prevMenu: (&(OptionsDef) as *const _ as *mut _),
-        menuitems: SoundMenu,
+        menuitems: SoundMenu.as_mut_ptr(),
         routine: Some(M_DrawSound),
         x: 80,
         y: 64,
@@ -878,7 +878,7 @@ pub static mut LoadDef: menu_t = unsafe {
     menu_t {
         numitems: load_end,
         prevMenu: (&(MainDef) as *const _ as *mut _),
-        menuitems: LoadMenu,
+        menuitems: LoadMenu.as_mut_ptr(),
         routine: Some(M_DrawLoad),
         x: 80,
         y: 54,
@@ -931,7 +931,7 @@ pub static mut SaveDef: menu_t = unsafe {
     menu_t {
         numitems: load_end,
         prevMenu: (&(MainDef) as *const _ as *mut _),
-        menuitems: SaveMenu,
+        menuitems: SaveMenu.as_mut_ptr(),
         routine: Some(M_DrawSave),
         x: 80,
         y: 54,

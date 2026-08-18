@@ -19,6 +19,10 @@ fn no_functions() -> HashMap<String, FnSig> {
     HashMap::new()
 }
 
+fn no_globals() -> HashMap<String, Type> {
+    HashMap::new()
+}
+
 fn named(s: &str) -> Type {
     Type::Named(s.to_string())
 }
@@ -31,7 +35,8 @@ fn simple_int_literal() {
             &named("int"),
             &known(),
             &no_typedefs(),
-            &no_functions()
+            &no_functions(),
+            &no_globals()
         )
         .unwrap(),
         "0"
@@ -46,7 +51,8 @@ fn hex_literal_with_suffix() {
             &named("int"),
             &known(),
             &no_typedefs(),
-            &no_functions()
+            &no_functions(),
+            &no_globals()
         )
         .unwrap(),
         "0xc000000"
@@ -66,7 +72,8 @@ fn bool_literal_ident() {
             &named("boolean"),
             &known(),
             &no_typedefs(),
-            &no_functions()
+            &no_functions(),
+            &no_globals()
         )
         .unwrap(),
         "true_"
@@ -75,17 +82,68 @@ fn bool_literal_ident() {
 
 #[test]
 fn references_another_already_emitted_const() {
-    // d_englsh.h's real e1text = E1TEXT (a string macro const).
+    // d_englsh.h's real e1text = E1TEXT (a string macro const) - E1TEXT
+    // itself always renders as `*const c_char` (see `codegen::macros`), but
+    // `map_type` always emits `*mut` for a pointer field/var, so an explicit
+    // cast is needed to typecheck.
     assert_eq!(
         render_scalar_init(
             "E1TEXT",
             &Type::Pointer(Box::new(named("char"))),
             &known(),
             &no_typedefs(),
-            &no_functions()
+            &no_functions(),
+            &no_globals()
         )
         .unwrap(),
-        "E1TEXT"
+        "E1TEXT as *mut std::ffi::c_char"
+    );
+}
+
+#[test]
+fn array_typed_reference_decays_via_as_mut_ptr() {
+    // m_menu.c's real `menuitems: MainMenu` - MainMenu is itself a
+    // `[menuitem_t; 6]` array, and C's implicit array-to-pointer decay has
+    // no Rust equivalent via a bare `as` cast (arrays and pointers aren't
+    // cast-compatible types at all) - `.as_mut_ptr()` is the real
+    // equivalent, and `known_globals` is what tells this case apart from
+    // the ordinary macro-const-reference case above.
+    let mut globals = HashMap::new();
+    globals.insert(
+        "MainMenu".to_string(),
+        Type::Array(Box::new(named("menuitem_t")), Some("6".to_string())),
+    );
+    assert_eq!(
+        render_scalar_init(
+            "MainMenu",
+            &Type::Pointer(Box::new(named("menuitem_t"))),
+            &known(),
+            &no_typedefs(),
+            &no_functions(),
+            &globals,
+        )
+        .unwrap(),
+        "MainMenu.as_mut_ptr()"
+    );
+}
+
+#[test]
+fn direct_string_literal_against_pointer_target_gets_cast() {
+    // m_misc.c's real `default_t.name` field (`{"mouse_sensitivity", ...}`)
+    // and sprnames[]-style scalar table elements: a bare string literal
+    // renders as `*const c_char` (`render_expr`'s own `StrLit` case), same
+    // mismatch as the identifier-reference case, always needing the cast.
+    assert_eq!(
+        render_scalar_init(
+            "\"mouse_sensitivity\"",
+            &Type::Pointer(Box::new(named("char"))),
+            &known(),
+            &no_typedefs(),
+            &no_functions(),
+            &no_globals(),
+        )
+        .unwrap(),
+        "(c\"mouse_sensitivity\").as_ptr() as *mut std::ffi::c_char"
     );
 }
 
@@ -93,7 +151,34 @@ fn references_another_already_emitted_const() {
 fn null_pointer_literal_becomes_null_mut() {
     let ty = Type::Pointer(Box::new(named("Display")));
     assert_eq!(
-        render_scalar_init("0", &ty, &known(), &no_typedefs(), &no_functions()).unwrap(),
+        render_scalar_init(
+            "0",
+            &ty,
+            &known(),
+            &no_typedefs(),
+            &no_functions(),
+            &no_globals()
+        )
+        .unwrap(),
+        "std::ptr::null_mut()"
+    );
+}
+
+#[test]
+fn null_ident_against_plain_pointer_becomes_null_mut() {
+    // A bare `NULL` reference against an ordinary (non-function-pointer)
+    // pointer target - mirrors the existing FunctionPointer/NULL handling.
+    let ty = Type::Pointer(Box::new(named("Display")));
+    assert_eq!(
+        render_scalar_init(
+            "NULL",
+            &ty,
+            &known(),
+            &no_typedefs(),
+            &no_functions(),
+            &no_globals()
+        )
+        .unwrap(),
         "std::ptr::null_mut()"
     );
 }
@@ -106,7 +191,8 @@ fn non_pointer_zero_is_not_touched() {
             &named("int"),
             &known(),
             &no_typedefs(),
-            &no_functions()
+            &no_functions(),
+            &no_globals()
         )
         .unwrap(),
         "0"
@@ -123,6 +209,7 @@ fn address_of_expression() {
         &known(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
     )
     .unwrap();
     assert!(out.contains("mousearray"), "got: {out}");
@@ -145,6 +232,7 @@ fn char_array_from_unsized_string_literal_infers_length() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -165,6 +253,7 @@ fn char_array_from_string_literal_with_explicit_dim_keeps_dim() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -188,6 +277,7 @@ fn explicit_dim_longer_than_the_string_pads_with_zeros() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -208,6 +298,7 @@ fn non_literal_dim_falls_back_to_verbatim_cast() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -224,6 +315,7 @@ fn char_array_from_string_literal_unescapes_common_escapes() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -246,6 +338,7 @@ fn non_char_array_rejects_string_literal_init() {
             &no_records(),
             &no_typedefs(),
             &no_functions(),
+            &no_globals(),
             &mut BTreeSet::new()
         )
         .is_none()
@@ -267,6 +360,7 @@ fn flat_scalar_array_infers_length_from_element_count() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -285,6 +379,7 @@ fn flat_scalar_array_with_explicit_dim_keeps_dim() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -304,6 +399,7 @@ fn flat_scalar_array_with_literal_dim_pads_missing_elements_with_zeroed() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -335,6 +431,7 @@ fn nested_2d_scalar_array_recurses_one_level() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -353,6 +450,7 @@ fn single_element_brace_around_scalar_is_unwrapped() {
         &no_records(),
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -378,6 +476,7 @@ fn struct_typed_array_row_with_unknown_record_bails_out() {
             &no_records(),
             &no_typedefs(),
             &no_functions(),
+            &no_globals(),
             &mut BTreeSet::new()
         )
         .is_none()
@@ -394,6 +493,7 @@ fn scalar_target_type_is_rejected() {
             &no_records(),
             &no_typedefs(),
             &no_functions(),
+            &no_globals(),
             &mut BTreeSet::new()
         )
         .is_none()
@@ -468,6 +568,7 @@ fn bare_struct_var_zips_fields_positionally() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -492,6 +593,7 @@ fn partial_row_gets_zeroed_update_syntax_and_records_the_type() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -516,6 +618,7 @@ fn too_many_values_bails_out() {
             &records,
             &no_typedefs(),
             &no_functions(),
+            &no_globals(),
             &mut needed
         )
         .is_none()
@@ -555,6 +658,7 @@ fn nested_struct_typed_field_recurses() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -586,6 +690,7 @@ fn function_pointer_field_wraps_bare_ident_in_some_and_null_in_none() {
         &records,
         &no_typedefs(),
         &functions,
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -597,6 +702,7 @@ fn function_pointer_field_wraps_bare_ident_in_some_and_null_in_none() {
         &records,
         &no_typedefs(),
         &functions,
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -626,6 +732,7 @@ fn arity_mismatch_goes_through_a_transmute() {
         &records,
         &no_typedefs(),
         &functions,
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -657,6 +764,7 @@ fn unknown_callee_defaults_to_a_transmute() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -705,6 +813,7 @@ fn union_of_typedefd_function_pointers_zips_only_the_first_field() {
         &records,
         &typedefs,
         &functions,
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -717,6 +826,7 @@ fn union_of_typedefd_function_pointers_zips_only_the_first_field() {
         &records,
         &typedefs,
         &functions,
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -748,6 +858,7 @@ fn union_with_more_than_one_value_bails_out() {
             &records,
             &no_typedefs(),
             &no_functions(),
+            &no_globals(),
             &mut needed
         )
         .is_none()
@@ -773,6 +884,7 @@ fn char_array_field_from_bare_string_literal_without_extra_braces() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -812,6 +924,7 @@ fn array_of_struct_rows_uses_the_record_type_as_element_type() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -854,6 +967,7 @@ fn mid_list_ifdef_splices_the_active_branch_rows() {
         &records,
         &no_typedefs(),
         &no_functions(),
+        &no_globals(),
         &mut needed,
     )
     .unwrap();
@@ -890,6 +1004,7 @@ fn unresolved_mid_list_ifdef_bails_the_whole_array() {
             &records,
             &no_typedefs(),
             &no_functions(),
+            &no_globals(),
             &mut needed
         )
         .is_none()

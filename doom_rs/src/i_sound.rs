@@ -76,7 +76,8 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
 
 pub static mut sndserver: *mut FILE = unsafe { std::ptr::null_mut() };
 
-pub static mut sndserver_filename: *mut std::ffi::c_char = unsafe { (c"./sndserver ").as_ptr() };
+pub static mut sndserver_filename: *mut std::ffi::c_char =
+    unsafe { (c"./sndserver ").as_ptr() as *mut std::ffi::c_char };
 
 static mut flag: std::ffi::c_int = unsafe { 0 };
 

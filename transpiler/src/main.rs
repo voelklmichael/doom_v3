@@ -5,7 +5,7 @@ use transpiler::codegen::{
 };
 use transpiler::parse_file_with_types;
 use transpiler::parser::corpus::{
-    compute_known_defines, compute_known_functions, compute_known_records,
+    compute_known_defines, compute_known_functions, compute_known_globals, compute_known_records,
     compute_known_type_names, compute_known_typedefs,
 };
 use transpiler::parser::evidence::{collect_evidence, summarize};
@@ -153,6 +153,7 @@ fn run_codegen() {
     let known_records = compute_known_records(&all);
     let known_typedefs = compute_known_typedefs(&all);
     let known_functions = compute_known_functions(&all);
+    let known_globals = compute_known_globals(&all);
     let predefined: HashMap<String, String> = PREDEFINED_MACROS
         .iter()
         .map(|m| (m.to_string(), String::new()))
@@ -233,6 +234,12 @@ fn run_codegen() {
         // union-function-pointer fixup) needs to see functions declared in
         // either half of the merged pair too.
         let mut module_functions: HashMap<String, transpiler::parser::ast::FnSig> = HashMap::new();
+        // Same reasoning again for global-variable types: telling apart the
+        // array-decay case from the ordinary macro-const-reference case (see
+        // `codegen::init::render_scalar_init`'s pointer-mutability fixup)
+        // needs to see globals declared in either half of the merged pair
+        // too.
+        let mut module_globals: HashMap<String, transpiler::parser::ast::Type> = HashMap::new();
         for name in &constituent_files {
             if let Some(k) = known_types.get(name) {
                 module_known.extend(k);
@@ -246,6 +253,9 @@ fn run_codegen() {
             if let Some(f) = known_functions.get(name) {
                 module_functions.extend(f.iter().map(|(k, v)| (k.clone(), v.clone())));
             }
+            if let Some(g) = known_globals.get(name) {
+                module_globals.extend(g.iter().map(|(k, v)| (k.clone(), v.clone())));
+            }
         }
         let body = codegen_items::emit_items(
             &merged,
@@ -253,6 +263,7 @@ fn run_codegen() {
             &module_records,
             &module_typedefs,
             &module_functions,
+            &module_globals,
         );
 
         let mut text = uses.concat();

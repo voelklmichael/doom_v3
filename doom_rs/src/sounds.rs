@@ -271,337 +271,337 @@ pub static mut S_music: [musicinfo_t; 68] = unsafe {
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m1").as_ptr(),
+            name: (c"e1m1").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m2").as_ptr(),
+            name: (c"e1m2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m3").as_ptr(),
+            name: (c"e1m3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m4").as_ptr(),
+            name: (c"e1m4").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m5").as_ptr(),
+            name: (c"e1m5").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m6").as_ptr(),
+            name: (c"e1m6").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m7").as_ptr(),
+            name: (c"e1m7").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m8").as_ptr(),
+            name: (c"e1m8").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e1m9").as_ptr(),
+            name: (c"e1m9").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m1").as_ptr(),
+            name: (c"e2m1").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m2").as_ptr(),
+            name: (c"e2m2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m3").as_ptr(),
+            name: (c"e2m3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m4").as_ptr(),
+            name: (c"e2m4").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m5").as_ptr(),
+            name: (c"e2m5").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m6").as_ptr(),
+            name: (c"e2m6").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m7").as_ptr(),
+            name: (c"e2m7").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m8").as_ptr(),
+            name: (c"e2m8").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e2m9").as_ptr(),
+            name: (c"e2m9").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m1").as_ptr(),
+            name: (c"e3m1").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m2").as_ptr(),
+            name: (c"e3m2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m3").as_ptr(),
+            name: (c"e3m3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m4").as_ptr(),
+            name: (c"e3m4").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m5").as_ptr(),
+            name: (c"e3m5").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m6").as_ptr(),
+            name: (c"e3m6").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m7").as_ptr(),
+            name: (c"e3m7").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m8").as_ptr(),
+            name: (c"e3m8").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"e3m9").as_ptr(),
+            name: (c"e3m9").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"inter").as_ptr(),
+            name: (c"inter").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"intro").as_ptr(),
+            name: (c"intro").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"bunny").as_ptr(),
+            name: (c"bunny").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"victor").as_ptr(),
+            name: (c"victor").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"introa").as_ptr(),
+            name: (c"introa").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"runnin").as_ptr(),
+            name: (c"runnin").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"stalks").as_ptr(),
+            name: (c"stalks").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"countd").as_ptr(),
+            name: (c"countd").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"betwee").as_ptr(),
+            name: (c"betwee").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"doom").as_ptr(),
+            name: (c"doom").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"the_da").as_ptr(),
+            name: (c"the_da").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"shawn").as_ptr(),
+            name: (c"shawn").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"ddtblu").as_ptr(),
+            name: (c"ddtblu").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"in_cit").as_ptr(),
+            name: (c"in_cit").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"dead").as_ptr(),
+            name: (c"dead").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"stlks2").as_ptr(),
+            name: (c"stlks2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"theda2").as_ptr(),
+            name: (c"theda2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"doom2").as_ptr(),
+            name: (c"doom2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"ddtbl2").as_ptr(),
+            name: (c"ddtbl2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"runni2").as_ptr(),
+            name: (c"runni2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"dead2").as_ptr(),
+            name: (c"dead2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"stlks3").as_ptr(),
+            name: (c"stlks3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"romero").as_ptr(),
+            name: (c"romero").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"shawn2").as_ptr(),
+            name: (c"shawn2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"messag").as_ptr(),
+            name: (c"messag").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"count2").as_ptr(),
+            name: (c"count2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"ddtbl3").as_ptr(),
+            name: (c"ddtbl3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"ampie").as_ptr(),
+            name: (c"ampie").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"theda3").as_ptr(),
+            name: (c"theda3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"adrian").as_ptr(),
+            name: (c"adrian").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"messg2").as_ptr(),
+            name: (c"messg2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"romer2").as_ptr(),
+            name: (c"romer2").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"tense").as_ptr(),
+            name: (c"tense").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"shawn3").as_ptr(),
+            name: (c"shawn3").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"openin").as_ptr(),
+            name: (c"openin").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"evil").as_ptr(),
+            name: (c"evil").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"ultima").as_ptr(),
+            name: (c"ultima").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"read_m").as_ptr(),
+            name: (c"read_m").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"dm2ttl").as_ptr(),
+            name: (c"dm2ttl").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
         musicinfo_t {
-            name: (c"dm2int").as_ptr(),
+            name: (c"dm2int").as_ptr() as *mut std::ffi::c_char,
             lumpnum: 0,
             ..ZEROED_musicinfo_t
         },
