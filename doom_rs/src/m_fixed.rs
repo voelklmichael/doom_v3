@@ -63,17 +63,47 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
     ]
 };
 
-pub unsafe extern "C" fn FixedMul(a: fixed_t, b: fixed_t) -> fixed_t {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn FixedMul(mut a: fixed_t, mut b: fixed_t) -> fixed_t {
+    unsafe {
+        return ((((a) as std::ffi::c_longlong) * ((b) as std::ffi::c_longlong)) >> FRACBITS);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn FixedDiv(a: fixed_t, b: fixed_t) -> fixed_t {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn FixedDiv(mut a: fixed_t, mut b: fixed_t) -> fixed_t {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if ( (abs(a)>>14) >= abs(b))
+        // 	return (a^b)<0 ? MININT : MAXINT;
+        todo!("if statement not yet translated");
+        return FixedDiv2(a, b);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn FixedDiv2(a: fixed_t, b: fixed_t) -> fixed_t {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn FixedDiv2(mut a: fixed_t, mut b: fixed_t) -> fixed_t {
+    unsafe {
+        let mut c: std::ffi::c_double = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        c = ((((a) as std::ffi::c_double) / ((b) as std::ffi::c_double)) * ((FRACUNIT) as f64));
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (c >= 2147483648.0 || c < -2147483648.0)
+        // 	I_Error("FixedDiv: divide by zero");
+        todo!("if statement not yet translated");
+        return ((c) as fixed_t);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }

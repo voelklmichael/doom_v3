@@ -82,10 +82,119 @@ static mut rcsid: [std::ffi::c_char; 51] = unsafe {
 };
 
 pub unsafe extern "C" fn EV_Teleport(
-    line: *mut line_t,
-    side: std::ffi::c_int,
-    thing: *mut mobj_t,
+    mut line: *mut line_t,
+    mut side: std::ffi::c_int,
+    mut thing: *mut mobj_t,
 ) -> std::ffi::c_int {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut tag: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut m: *mut mobj_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut fog: *mut mobj_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut an: std::ffi::c_uint = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut thinker: *mut thinker_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut sector: *mut sector_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut oldx: fixed_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut oldy: fixed_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut oldz: fixed_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // don't teleport missiles
+        //     if (thing->flags & MF_MISSILE)
+        // 	return 0;
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // Don't teleport if hit back of line,
+        //     //  so you can get out of teleporter.
+        //     if (side == 1)
+        // 	return 0;
+        todo!("if statement not yet translated");
+        tag = (*line).tag;
+        // TODO: for statement not yet translated:
+        //
+        //     for (i = 0; i < numsectors; i++)
+        //     {
+        // 	if (sectors[ i ].tag == tag )
+        // 	{
+        // 	    thinker = thinkercap.next;
+        // 	    for (thinker = thinkercap.next;
+        // 		 thinker != &thinkercap;
+        // 		 thinker = thinker->next)
+        // 	    {
+        // 		// not a mobj
+        // 		if (thinker->function.acp1 != (actionf_p1)P_MobjThinker)
+        // 		    continue;
+        //
+        // 		m = (mobj_t *)thinker;
+        //
+        // 		// not a teleportman
+        // 		if (m->type != MT_TELEPORTMAN )
+        // 		    continue;
+        //
+        // 		sector = m->subsector->sector;
+        // 		// wrong sector
+        // 		if (sector-sectors != i )
+        // 		    continue;
+        //
+        // 		oldx = thing->x;
+        // 		oldy = thing->y;
+        // 		oldz = thing->z;
+        //
+        // 		if (!P_TeleportMove (thing, m->x, m->y))
+        // 		    return 0;
+        //
+        // 		thing->z = thing->floorz;  //fixme: not needed?
+        // 		if (thing->player)
+        // 		    thing->player->viewz = thing->z+thing->player->viewheight;
+        //
+        // 		// spawn teleport fog at source and destination
+        // 		fog = P_SpawnMobj (oldx, oldy, oldz, MT_TFOG);
+        // 		S_StartSound (fog, sfx_telept);
+        // 		an = m->angle >> ANGLETOFINESHIFT;
+        // 		fog = P_SpawnMobj (m->x+20*finecosine[an], m->y+20*finesine[an]
+        // 				   , thing->z, MT_TFOG);
+        //
+        // 		// emit sound, where?
+        // 		S_StartSound (fog, sfx_telept);
+        //
+        // 		// don't move for a bit
+        // 		if (thing->player)
+        // 		    thing->reactiontime = 18;
+        //
+        // 		thing->angle = m->angle;
+        // 		thing->momx = thing->momy = thing->momz = 0;
+        // 		return 1;
+        // 	    }
+        // 	}
+        //     }
+        todo!("for statement not yet translated");
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }

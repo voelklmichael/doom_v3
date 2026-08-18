@@ -108,50 +108,431 @@ pub struct memzone_t {
 
 pub static mut mainzone: *mut memzone_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub unsafe extern "C" fn Z_ClearZone(zone: *mut memzone_t) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn Z_ClearZone(mut zone: *mut memzone_t) {
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        (*zone).blocklist.next = (*zone).blocklist.prev =
+            block = ((((zone) as *mut byte) + std::mem::size_of::<memzone_t>()) as *mut memblock_t);
+        (*zone).blocklist.user = ((zone) as *mut std::ffi::c_void);
+        (*zone).blocklist.tag = PU_STATIC;
+        (*zone).rover = block;
+        (*block).prev = (*block).next = (&((*zone).blocklist) as *const _ as *mut _);
+        (*block).user = NULL;
+        (*block).size = ((*zone).size - std::mem::size_of::<memzone_t>());
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn Z_Init() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut size: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        mainzone = ((I_ZoneBase((&(size) as *const _ as *mut _))) as *mut memzone_t);
+        (*mainzone).size = size;
+        (*mainzone).blocklist.next = (*mainzone).blocklist.prev = block =
+            ((((mainzone) as *mut byte) + std::mem::size_of::<memzone_t>()) as *mut memblock_t);
+        (*mainzone).blocklist.user = ((mainzone) as *mut std::ffi::c_void);
+        (*mainzone).blocklist.tag = PU_STATIC;
+        (*mainzone).rover = block;
+        (*block).prev = (*block).next = (&((*mainzone).blocklist) as *const _ as *mut _);
+        (*block).user = NULL;
+        (*block).size = ((*mainzone).size - std::mem::size_of::<memzone_t>());
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn Z_Free(ptr: *mut std::ffi::c_void) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn Z_Free(mut ptr: *mut std::ffi::c_void) {
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut other: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        block = ((((ptr) as *mut byte) - std::mem::size_of::<memblock_t>()) as *mut memblock_t);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (block->id != ZONEID)
+        // 	I_Error ("Z_Free: freed a pointer without ZONEID");
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (block->user > (void **)0x100)
+        //     {
+        // 	// smaller values are not pointers
+        // 	// Note: OS-dependend?
+        //
+        // 	// clear the user's mark
+        // 	*block->user = 0;
+        //     }
+        todo!("if statement not yet translated");
+        (*block).user = NULL;
+        (*block).tag = 0;
+        (*block).id = 0;
+        other = (*block).prev;
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (!other->user)
+        //     {
+        // 	// merge with previous free block
+        // 	other->size += block->size;
+        // 	other->next = block->next;
+        // 	other->next->prev = other;
+        //
+        // 	if (block == mainzone->rover)
+        // 	    mainzone->rover = other;
+        //
+        // 	block = other;
+        //     }
+        todo!("if statement not yet translated");
+        other = (*block).next;
+        // TODO: if statement not yet translated:
+        //
+        //     if (!other->user)
+        //     {
+        // 	// merge the next free block onto the end
+        // 	block->size += other->size;
+        // 	block->next = other->next;
+        // 	block->next->prev = block;
+        //
+        // 	if (other == mainzone->rover)
+        // 	    mainzone->rover = block;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub const MINFRAGMENT: std::ffi::c_int = 64;
 
 pub unsafe extern "C" fn Z_Malloc(
-    size: std::ffi::c_int,
-    tag: std::ffi::c_int,
-    user: *mut std::ffi::c_void,
+    mut size: std::ffi::c_int,
+    mut tag: std::ffi::c_int,
+    mut user: *mut std::ffi::c_void,
 ) -> *mut std::ffi::c_void {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut extra: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut start: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut rover: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut newblock: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut base: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        size = ((size + 3) & (!(3)));
+        size += std::mem::size_of::<memblock_t>();
+        base = (*mainzone).rover;
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (!base->prev->user)
+        // 	base = base->prev;
+        todo!("if statement not yet translated");
+        rover = base;
+        start = (*base).prev;
+        // TODO: do-while statement not yet translated:
+        //
+        //
+        //     do
+        //     {
+        // 	if (rover == start)
+        // 	{
+        // 	    // scanned all the way around the list
+        // 	    I_Error ("Z_Malloc: failed on allocation of %i bytes", size);
+        // 	}
+        //
+        // 	if (rover->user)
+        // 	{
+        // 	    if (rover->tag < PU_PURGELEVEL)
+        // 	    {
+        // 		// hit a block that can't be purged,
+        // 		//  so move base past it
+        // 		base = rover = rover->next;
+        // 	    }
+        // 	    else
+        // 	    {
+        // 		// free the rover block (adding the size to base)
+        //
+        // 		// the rover can be the base block
+        // 		base = base->prev;
+        // 		Z_Free ((byte *)rover+sizeof(memblock_t));
+        // 		base = base->next;
+        // 		rover = base->next;
+        // 	    }
+        // 	}
+        // 	else
+        // 	    rover = rover->next;
+        //     } while (base->user || base->size < size);
+        todo!("do-while statement not yet translated");
+        extra = ((*base).size - size);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (extra >  MINFRAGMENT)
+        //     {
+        // 	// there will be a free fragment after the allocated block
+        // 	newblock = (memblock_t *) ((byte *)base + size );
+        // 	newblock->size = extra;
+        //
+        // 	// NULL indicates free block.
+        // 	newblock->user = NULL;
+        // 	newblock->tag = 0;
+        // 	newblock->prev = base;
+        // 	newblock->next = base->next;
+        // 	newblock->next->prev = newblock;
+        //
+        // 	base->next = newblock;
+        // 	base->size = size;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (user)
+        //     {
+        // 	// mark as an in use block
+        // 	base->user = user;
+        // 	*(void **)user = (void *) ((byte *)base + sizeof(memblock_t));
+        //     }
+        //     else
+        //     {
+        // 	if (tag >= PU_PURGELEVEL)
+        // 	    I_Error ("Z_Malloc: an owner is required for purgable blocks");
+        //
+        // 	// mark as in use, but unowned
+        // 	base->user = (void *)2;
+        //     }
+        todo!("if statement not yet translated");
+        (*base).tag = tag;
+        (*mainzone).rover = (*base).next;
+        (*base).id = ZONEID;
+        return ((((base) as *mut byte) + std::mem::size_of::<memblock_t>())
+            as *mut std::ffi::c_void);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn Z_FreeTags(lowtag: std::ffi::c_int, hightag: std::ffi::c_int) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn Z_FreeTags(mut lowtag: std::ffi::c_int, mut hightag: std::ffi::c_int) {
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut next: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (block = mainzone->blocklist.next ;
+        // 	 block != &mainzone->blocklist ;
+        // 	 block = next)
+        //     {
+        // 	// get link before freeing
+        // 	next = block->next;
+        //
+        // 	// free block?
+        // 	if (!block->user)
+        // 	    continue;
+        //
+        // 	if (block->tag >= lowtag && block->tag <= hightag)
+        // 	    Z_Free ( (byte *)block+sizeof(memblock_t));
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn Z_DumpHeap(lowtag: std::ffi::c_int, hightag: std::ffi::c_int) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn Z_DumpHeap(mut lowtag: std::ffi::c_int, mut hightag: std::ffi::c_int) {
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        printf(
+            (c"zone size: %i  location: %p\n").as_ptr(),
+            (*mainzone).size,
+            mainzone,
+        );
+        printf((c"tag range: %i to %i\n").as_ptr(), lowtag, hightag);
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (block = mainzone->blocklist.next ; ; block = block->next)
+        //     {
+        // 	if (block->tag >= lowtag && block->tag <= hightag)
+        // 	    printf ("block:%p    size:%7i    user:%p    tag:%3i\n",
+        // 		    block, block->size, block->user, block->tag);
+        //
+        // 	if (block->next == &mainzone->blocklist)
+        // 	{
+        // 	    // all blocks have been hit
+        // 	    break;
+        // 	}
+        //
+        // 	if ( (byte *)block + block->size != (byte *)block->next)
+        // 	    printf ("ERROR: block size does not touch the next block\n");
+        //
+        // 	if ( block->next->prev != block)
+        // 	    printf ("ERROR: next block doesn't have proper back link\n");
+        //
+        // 	if (!block->user && !block->next->user)
+        // 	    printf ("ERROR: two consecutive free blocks\n");
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn Z_FileDumpHeap(f: *mut libc::FILE) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn Z_FileDumpHeap(mut f: *mut libc::FILE) {
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        fprintf(
+            f,
+            (c"zone size: %i  location: %p\n").as_ptr(),
+            (*mainzone).size,
+            mainzone,
+        );
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (block = mainzone->blocklist.next ; ; block = block->next)
+        //     {
+        // 	fprintf (f,"block:%p    size:%7i    user:%p    tag:%3i\n",
+        // 		 block, block->size, block->user, block->tag);
+        //
+        // 	if (block->next == &mainzone->blocklist)
+        // 	{
+        // 	    // all blocks have been hit
+        // 	    break;
+        // 	}
+        //
+        // 	if ( (byte *)block + block->size != (byte *)block->next)
+        // 	    fprintf (f,"ERROR: block size does not touch the next block\n");
+        //
+        // 	if ( block->next->prev != block)
+        // 	    fprintf (f,"ERROR: next block doesn't have proper back link\n");
+        //
+        // 	if (!block->user && !block->next->user)
+        // 	    fprintf (f,"ERROR: two consecutive free blocks\n");
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn Z_CheckHeap() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (block = mainzone->blocklist.next ; ; block = block->next)
+        //     {
+        // 	if (block->next == &mainzone->blocklist)
+        // 	{
+        // 	    // all blocks have been hit
+        // 	    break;
+        // 	}
+        //
+        // 	if ( (byte *)block + block->size != (byte *)block->next)
+        // 	    I_Error ("Z_CheckHeap: block size does not touch the next block\n");
+        //
+        // 	if ( block->next->prev != block)
+        // 	    I_Error ("Z_CheckHeap: next block doesn't have proper back link\n");
+        //
+        // 	if (!block->user && !block->next->user)
+        // 	    I_Error ("Z_CheckHeap: two consecutive free blocks\n");
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn Z_ChangeTag2(ptr: *mut std::ffi::c_void, tag: std::ffi::c_int) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn Z_ChangeTag2(mut ptr: *mut std::ffi::c_void, mut tag: std::ffi::c_int) {
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        block = ((((ptr) as *mut byte) - std::mem::size_of::<memblock_t>()) as *mut memblock_t);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (block->id != ZONEID)
+        // 	I_Error ("Z_ChangeTag: freed a pointer without ZONEID");
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (tag >= PU_PURGELEVEL && (unsigned)block->user < 0x100)
+        // 	I_Error ("Z_ChangeTag: an owner is required for purgable blocks");
+        todo!("if statement not yet translated");
+        (*block).tag = tag;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn Z_FreeMemory() -> std::ffi::c_int {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut block: *mut memblock_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut free: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        free = 0;
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (block = mainzone->blocklist.next ;
+        // 	 block != &mainzone->blocklist;
+        // 	 block = block->next)
+        //     {
+        // 	if (!block->user || block->tag >= PU_PURGELEVEL)
+        // 	    free += block->size;
+        //     }
+        todo!("for statement not yet translated");
+        return free;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }

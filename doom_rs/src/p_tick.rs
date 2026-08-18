@@ -85,25 +85,116 @@ pub static mut leveltime: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TO
 pub static mut thinkercap: thinker_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn P_InitThinkers() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        thinkercap.prev = thinkercap.next = (&(thinkercap) as *const thinker_t as *mut thinker_t);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn P_AddThinker(thinker: *mut thinker_t) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn P_AddThinker(mut thinker: *mut thinker_t) {
+    unsafe {
+        (*thinkercap.prev).next = thinker;
+        (*thinker).next = (&(thinkercap) as *const thinker_t as *mut thinker_t);
+        (*thinker).prev = thinkercap.prev;
+        thinkercap.prev = thinker;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn P_RemoveThinker(thinker: *mut thinker_t) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn P_RemoveThinker(mut thinker: *mut thinker_t) {
+    unsafe {
+        (*thinker).function.acv = ((-(1)) as actionf_v);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn P_AllocateThinker(thinker: *mut thinker_t) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn P_AllocateThinker(mut thinker: *mut thinker_t) {
+    unsafe {
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn P_RunThinkers() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut currentthinker: *mut thinker_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        currentthinker = thinkercap.next;
+        // TODO: while statement not yet translated:
+        //
+        //     while (currentthinker != &thinkercap)
+        //     {
+        // 	if ( currentthinker->function.acv == (actionf_v)(-1) )
+        // 	{
+        // 	    // time to remove it
+        // 	    currentthinker->next->prev = currentthinker->prev;
+        // 	    currentthinker->prev->next = currentthinker->next;
+        // 	    Z_Free (currentthinker);
+        // 	}
+        // 	else
+        // 	{
+        // 	    if (currentthinker->function.acp1)
+        // 		currentthinker->function.acp1 (currentthinker);
+        // 	}
+        // 	currentthinker = currentthinker->next;
+        //     }
+        todo!("while statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn P_Ticker() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // run the tic
+        //     if (paused)
+        // 	return;
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // pause if in menu and at least one tic has been run
+        //     if ( !netgame
+        // 	 && menuactive
+        // 	 && !demoplayback
+        // 	 && players[consoleplayer].viewz != 1)
+        //     {
+        // 	return;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: for statement not yet translated:
+        //
+        //
+        //
+        //     for (i=0 ; i<MAXPLAYERS ; i++)
+        // 	if (playeringame[i])
+        // 	    P_PlayerThink (&players[i]);
+        todo!("for statement not yet translated");
+        P_RunThinkers();
+        P_UpdateSpecials();
+        P_RespawnSpecials();
+        {
+            let __macro_tmp = leveltime;
+            leveltime += 1;
+            __macro_tmp
+        };
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }

@@ -137,71 +137,280 @@ unsafe extern "C" {
 pub static mut sttminus: *mut patch_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn STlib_init() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        sttminus = ((W_CacheLumpName((c"STTMINUS").as_ptr(), PU_STATIC)) as *mut patch_t);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn STlib_initNum(
-    n: *mut st_number_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    pl: *mut *mut patch_t,
-    num: *mut std::ffi::c_int,
-    on: *mut boolean,
-    width: std::ffi::c_int,
+    mut n: *mut st_number_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut pl: *mut *mut patch_t,
+    mut num: *mut std::ffi::c_int,
+    mut on: *mut boolean,
+    mut width: std::ffi::c_int,
 ) {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        (*n).x = x;
+        (*n).y = y;
+        (*n).oldnum = 0;
+        (*n).width = width;
+        (*n).num = num;
+        (*n).on = on;
+        (*n).p = pl;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn STlib_drawNum(n: *mut st_number_t, refresh: boolean) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn STlib_drawNum(mut n: *mut st_number_t, mut refresh: boolean) {
+    unsafe {
+        let mut numdigits: std::ffi::c_int = unsafe { (*n).width };
+        let mut num: std::ffi::c_int = unsafe { (*((*n).num)) };
+        let mut w: std::ffi::c_int = unsafe { SHORT((*(*n).p[(0) as usize]).width) };
+        let mut h: std::ffi::c_int = unsafe { SHORT((*(*n).p[(0) as usize]).height) };
+        let mut x: std::ffi::c_int = unsafe { (*n).x };
+        let mut neg: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        (*n).oldnum = (*((*n).num));
+        neg = (num < 0);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (neg)
+        //     {
+        // 	if (numdigits == 2 && num < -9)
+        // 	    num = -9;
+        // 	else if (numdigits == 3 && num < -99)
+        // 	    num = -99;
+        //
+        // 	num = -num;
+        //     }
+        todo!("if statement not yet translated");
+        x = ((*n).x - (numdigits * w));
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (n->y - ST_Y < 0)
+        // 	I_Error("drawNum: n->y - ST_Y < 0");
+        todo!("if statement not yet translated");
+        V_CopyRect(x, ((*n).y - ST_Y), BG, (w * numdigits), h, x, (*n).y, FG);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // if non-number, do not draw it
+        //     if (num == 1994)
+        // 	return;
+        todo!("if statement not yet translated");
+        x = (*n).x;
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // in the special case of 0, you draw 0
+        //     if (!num)
+        // 	V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
+        todo!("if statement not yet translated");
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     // draw the new number
+        //     while (num && numdigits--)
+        //     {
+        // 	x -= w;
+        // 	V_DrawPatch(x, n->y, FG, n->p[ num % 10 ]);
+        // 	num /= 10;
+        //     }
+        todo!("while statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // draw a minus sign if necessary
+        //     if (neg)
+        // 	V_DrawPatch(x - 8, n->y, FG, sttminus);
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn STlib_updateNum(n: *mut st_number_t, refresh: boolean) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn STlib_updateNum(mut n: *mut st_number_t, mut refresh: boolean) {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if (*n->on) STlib_drawNum(n, refresh);
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn STlib_initPercent(
-    p: *mut st_percent_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    pl: *mut *mut patch_t,
-    num: *mut std::ffi::c_int,
-    on: *mut boolean,
-    percent: *mut patch_t,
+    mut p: *mut st_percent_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut pl: *mut *mut patch_t,
+    mut num: *mut std::ffi::c_int,
+    mut on: *mut boolean,
+    mut percent: *mut patch_t,
 ) {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        STlib_initNum((&((*p).n) as *const _ as *mut _), x, y, pl, num, on, 3);
+        (*p).p = percent;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn STlib_updatePercent(per: *mut st_percent_t, refresh: std::ffi::c_int) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn STlib_updatePercent(
+    mut per: *mut st_percent_t,
+    mut refresh: std::ffi::c_int,
+) {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if (refresh && *per->n.on)
+        // 	V_DrawPatch(per->n.x, per->n.y, FG, per->p);
+        todo!("if statement not yet translated");
+        STlib_updateNum((&((*per).n) as *const _ as *mut _), refresh);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn STlib_initMultIcon(
-    i: *mut st_multicon_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    il: *mut *mut patch_t,
-    inum: *mut std::ffi::c_int,
-    on: *mut boolean,
+    mut i: *mut st_multicon_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut il: *mut *mut patch_t,
+    mut inum: *mut std::ffi::c_int,
+    mut on: *mut boolean,
 ) {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        (*i).x = x;
+        (*i).y = y;
+        (*i).oldinum = (-(1));
+        (*i).inum = inum;
+        (*i).on = on;
+        (*i).p = il;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn STlib_updateMultIcon(mi: *mut st_multicon_t, refresh: boolean) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn STlib_updateMultIcon(mut mi: *mut st_multicon_t, mut refresh: boolean) {
+    unsafe {
+        let mut w: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut h: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut x: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut y: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (*mi->on
+        // 	&& (mi->oldinum != *mi->inum || refresh)
+        // 	&& (*mi->inum!=-1))
+        //     {
+        // 	if (mi->oldinum != -1)
+        // 	{
+        // 	    x = mi->x - SHORT(mi->p[mi->oldinum]->leftoffset);
+        // 	    y = mi->y - SHORT(mi->p[mi->oldinum]->topoffset);
+        // 	    w = SHORT(mi->p[mi->oldinum]->width);
+        // 	    h = SHORT(mi->p[mi->oldinum]->height);
+        //
+        // 	    if (y - ST_Y < 0)
+        // 		I_Error("updateMultIcon: y - ST_Y < 0");
+        //
+        // 	    V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
+        // 	}
+        // 	V_DrawPatch(mi->x, mi->y, FG, mi->p[*mi->inum]);
+        // 	mi->oldinum = *mi->inum;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn STlib_initBinIcon(
-    b: *mut st_binicon_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    i: *mut patch_t,
-    val: *mut boolean,
-    on: *mut boolean,
+    mut b: *mut st_binicon_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut i: *mut patch_t,
+    mut val: *mut boolean,
+    mut on: *mut boolean,
 ) {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        (*b).x = x;
+        (*b).y = y;
+        (*b).oldval = 0;
+        (*b).val = val;
+        (*b).on = on;
+        (*b).p = i;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn STlib_updateBinIcon(bi: *mut st_binicon_t, refresh: boolean) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn STlib_updateBinIcon(mut bi: *mut st_binicon_t, mut refresh: boolean) {
+    unsafe {
+        let mut x: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut y: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut w: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut h: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (*bi->on
+        // 	&& (bi->oldval != *bi->val || refresh))
+        //     {
+        // 	x = bi->x - SHORT(bi->p->leftoffset);
+        // 	y = bi->y - SHORT(bi->p->topoffset);
+        // 	w = SHORT(bi->p->width);
+        // 	h = SHORT(bi->p->height);
+        //
+        // 	if (y - ST_Y < 0)
+        // 	    I_Error("updateBinIcon: y - ST_Y < 0");
+        //
+        // 	if (*bi->val)
+        // 	    V_DrawPatch(bi->x, bi->y, FG, bi->p);
+        // 	else
+        // 	    V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
+        //
+        // 	bi->oldval = *bi->val;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }

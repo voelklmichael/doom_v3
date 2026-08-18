@@ -59,10 +59,34 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
     ]
 };
 
-pub unsafe extern "C" fn M_ClearBox(box_: *mut fixed_t) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn M_ClearBox(mut box_: *mut fixed_t) {
+    unsafe {
+        box_[(BOXTOP) as usize] = box_[(BOXRIGHT) as usize] = std::ffi::c_int::MIN;
+        box_[(BOXBOTTOM) as usize] = box_[(BOXLEFT) as usize] = std::ffi::c_int::MAX;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn M_AddToBox(box_: *mut fixed_t, x: fixed_t, y: fixed_t) {
-    unsafe { todo!("body not yet translated") }
+pub unsafe extern "C" fn M_AddToBox(mut box_: *mut fixed_t, mut x: fixed_t, mut y: fixed_t) {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if (x<box[BOXLEFT])
+        // 	box[BOXLEFT] = x;
+        //     else if (x>box[BOXRIGHT])
+        // 	box[BOXRIGHT] = x;
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //     if (y<box[BOXBOTTOM])
+        // 	box[BOXBOTTOM] = y;
+        //     else if (y>box[BOXTOP])
+        // 	box[BOXTOP] = y;
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }

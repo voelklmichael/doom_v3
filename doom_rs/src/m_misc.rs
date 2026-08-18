@@ -86,31 +86,133 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn M_DrawText(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    direct: boolean,
-    string: *mut std::ffi::c_char,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut direct: boolean,
+    mut string: *mut std::ffi::c_char,
 ) -> std::ffi::c_int {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut c: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut w: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (*string)
+        //     {
+        // 	c = toupper(*string) - HU_FONTSTART;
+        // 	string++;
+        // 	if (c < 0 || c> HU_FONTSIZE)
+        // 	{
+        // 	    x += 4;
+        // 	    continue;
+        // 	}
+        //
+        // 	w = SHORT (hu_font[c]->width);
+        // 	if (x+w > SCREENWIDTH)
+        // 	    break;
+        // 	if (direct)
+        // 	    V_DrawPatchDirect(x, y, 0, hu_font[c]);
+        // 	else
+        // 	    V_DrawPatch(x, y, 0, hu_font[c]);
+        // 	x+=w;
+        //     }
+        todo!("while statement not yet translated");
+        return x;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }
 
 pub const O_BINARY: std::ffi::c_int = 0;
 
 pub unsafe extern "C" fn M_WriteFile(
-    name: (), /* TODO: unparsed param type, needs manual translation */
-    source: *mut std::ffi::c_void,
-    length: std::ffi::c_int,
+    mut name: (), /* TODO: unparsed param type, needs manual translation */
+    mut source: *mut std::ffi::c_void,
+    mut length: std::ffi::c_int,
 ) -> boolean {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut handle: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut count: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        handle = open(name, (((O_WRONLY | O_CREAT) | O_TRUNC) | O_BINARY), 0666);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (handle == -1)
+        // 	return false;
+        todo!("if statement not yet translated");
+        count = write(handle, source, length);
+        close(handle);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (count < length)
+        // 	return false;
+        todo!("if statement not yet translated");
+        return true_;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn M_ReadFile(
-    name: (), /* TODO: unparsed param type, needs manual translation */
-    buffer: *mut *mut byte,
+    mut name: (), /* TODO: unparsed param type, needs manual translation */
+    mut buffer: *mut *mut byte,
 ) -> std::ffi::c_int {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut handle: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut count: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut length: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut fileinfo: stat = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut buf: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        handle = open(name, (O_RDONLY | O_BINARY), 0666);
+        // TODO: if statement not yet translated:
+        //
+        //     if (handle == -1)
+        // 	I_Error ("Couldn't read file %s", name);
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //     if (fstat (handle,&fileinfo) == -1)
+        // 	I_Error ("Couldn't read file %s", name);
+        todo!("if statement not yet translated");
+        length = fileinfo.st_size;
+        buf = Z_Malloc(length, PU_STATIC, NULL);
+        count = read(handle, buf, length);
+        close(handle);
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (count < length)
+        // 	I_Error ("Couldn't read file %s", name);
+        todo!("if statement not yet translated");
+        (*(buffer)) = buf;
+        return length;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
     todo!("fell off the end of a non-void C function")
 }
 
@@ -499,7 +601,40 @@ pub static mut numdefaults: std::ffi::c_int = unsafe { std::mem::zeroed() }; // 
 pub static mut defaultfile: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn M_SaveDefaults() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut v: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        (FILE * f);
+        f = fopen(defaultfile, (c"w").as_ptr());
+        // TODO: if statement not yet translated:
+        //
+        //     if (!f)
+        // 	return; // can't write the file, but don't complain
+        todo!("if statement not yet translated");
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=0 ; i<numdefaults ; i++)
+        //     {
+        // 	if (defaults[i].defaultvalue > -0xfff
+        // 	    && defaults[i].defaultvalue < 0xfff)
+        // 	{
+        // 	    v = *defaults[i].location;
+        // 	    fprintf (f,"%s\t\t%i\n",defaults[i].name,v);
+        // 	} else {
+        // 	    fprintf (f,"%s\t\t\"%s\"\n",defaults[i].name,
+        // 		     * (char **) (defaults[i].location));
+        // 	}
+        //     }
+        todo!("for statement not yet translated");
+        fclose(f);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 unsafe extern "C" {
@@ -507,7 +642,90 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn M_LoadDefaults() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut len: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        (FILE * f);
+        let mut def: [std::ffi::c_char; (80) as usize] = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut strparm: [std::ffi::c_char; (100) as usize] = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut newstring: *mut std::ffi::c_char = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut parm: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut isstring: boolean = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        numdefaults =
+            (std::mem::size_of_val(&(defaults)) / std::mem::size_of_val(&(defaults[(0) as usize])));
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=0 ; i<numdefaults ; i++)
+        // 	*defaults[i].location = defaults[i].defaultvalue;
+        todo!("for statement not yet translated");
+        i = M_CheckParm((c"-config").as_ptr());
+        // TODO: if statement not yet translated:
+        //
+        //     if (i && i<myargc-1)
+        //     {
+        // 	defaultfile = myargv[i+1];
+        // 	printf ("	default file: %s\n",defaultfile);
+        //     }
+        //     else
+        // 	defaultfile = basedefault;
+        todo!("if statement not yet translated");
+        f = fopen(defaultfile, (c"r").as_ptr());
+        // TODO: if statement not yet translated:
+        //
+        //     if (f)
+        //     {
+        // 	while (!feof(f))
+        // 	{
+        // 	    isstring = false;
+        // 	    if (fscanf (f, "%79s %[^\n]\n", def, strparm) == 2)
+        // 	    {
+        // 		if (strparm[0] == '"')
+        // 		{
+        // 		    // get a string default
+        // 		    isstring = true;
+        // 		    len = strlen(strparm);
+        // 		    newstring = (char *) malloc(len);
+        // 		    strparm[len-1] = 0;
+        // 		    strcpy(newstring, strparm+1);
+        // 		}
+        // 		else if (strparm[0] == '0' && strparm[1] == 'x')
+        // 		    sscanf(strparm+2, "%x", &parm);
+        // 		else
+        // 		    sscanf(strparm, "%i", &parm);
+        // 		for (i=0 ; i<numdefaults ; i++)
+        // 		    if (!strcmp(def, defaults[i].name))
+        // 		    {
+        // 			if (!isstring)
+        // 			    *defaults[i].location = parm;
+        // 			else
+        // 			    *defaults[i].location =
+        // 				(int) newstring;
+        // 			break;
+        // 		    }
+        // 	    }
+        // 	}
+        //
+        // 	fclose (f);
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 #[repr(C)]
@@ -533,17 +751,116 @@ pub struct pcx_t {
 }
 
 pub unsafe extern "C" fn WritePCXfile(
-    filename: *mut std::ffi::c_char,
-    data: *mut byte,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    palette: *mut byte,
+    mut filename: *mut std::ffi::c_char,
+    mut data: *mut byte,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut palette: *mut byte,
 ) {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut length: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut pcx: *mut pcx_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut pack: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        pcx = Z_Malloc((((width * height) * 2) + 1000), PU_STATIC, NULL);
+        (*pcx).manufacturer = 0x0a;
+        (*pcx).version = 5;
+        (*pcx).encoding = 1;
+        (*pcx).bits_per_pixel = 8;
+        (*pcx).xmin = 0;
+        (*pcx).ymin = 0;
+        (*pcx).xmax = SHORT((width - 1));
+        (*pcx).ymax = SHORT((height - 1));
+        (*pcx).hres = SHORT(width);
+        (*pcx).vres = SHORT(height);
+        memset((*pcx).palette, 0, std::mem::size_of_val(&((*pcx).palette)));
+        (*pcx).color_planes = 1;
+        (*pcx).bytes_per_line = SHORT(width);
+        (*pcx).palette_type = SHORT(2);
+        memset((*pcx).filler, 0, std::mem::size_of_val(&((*pcx).filler)));
+        pack = (&((*pcx).data) as *const _ as *mut _);
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (i=0 ; i<width*height ; i++)
+        //     {
+        // 	if ( (*data & 0xc0) != 0xc0)
+        // 	    *pack++ = *data++;
+        // 	else
+        // 	{
+        // 	    *pack++ = 0xc1;
+        // 	    *pack++ = *data++;
+        // 	}
+        //     }
+        todo!("for statement not yet translated");
+        (*({
+            let __macro_tmp = pack;
+            pack += 1;
+            __macro_tmp
+        })) = 0x0c;
+        // TODO: for statement not yet translated:
+        //     for (i=0 ; i<768 ; i++)
+        // 	*pack++ = *palette++;
+        todo!("for statement not yet translated");
+        length = (pack - ((pcx) as *mut byte));
+        M_WriteFile(filename, pcx, length);
+        Z_Free(pcx);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn M_ScreenShot() {
-    unsafe { todo!("body not yet translated") }
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut linear: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut lbmname: [std::ffi::c_char; (12) as usize] = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        linear = screens[(2) as usize];
+        I_ReadScreen(linear);
+        strcpy(lbmname, (c"DOOM00.pcx").as_ptr());
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (i=0 ; i<=99 ; i++)
+        //     {
+        // 	lbmname[4] = i/10 + '0';
+        // 	lbmname[5] = i%10 + '0';
+        // 	if (access(lbmname,0) == -1)
+        // 	    break;	// file doesn't exist
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //     if (i==100)
+        // 	I_Error ("M_ScreenShot: Couldn't create a PCX");
+        todo!("if statement not yet translated");
+        WritePCXfile(
+            lbmname,
+            linear,
+            SCREENWIDTH,
+            SCREENHEIGHT,
+            W_CacheLumpName((c"PLAYPAL").as_ptr(), PU_CACHE),
+        );
+        players[(consoleplayer) as usize].message = (c"screen shot").as_ptr();
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 const ZEROED_default_t: default_t = unsafe { std::mem::zeroed() };
