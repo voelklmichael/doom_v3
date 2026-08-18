@@ -85,28 +85,28 @@ static mut rcsid: [std::ffi::c_char; 46] = unsafe {
 };
 
 unsafe extern "C" {
-    pub fn XShmGetEventBase(dpy: *mut Display) -> std::ffi::c_int;
+    pub fn XShmGetEventBase(dpy: *mut x11::xlib::Display) -> std::ffi::c_int;
 }
 
 pub const POINTER_WARP_COUNTDOWN: std::ffi::c_int = 1;
 
-pub static mut X_display: *mut Display = unsafe { std::ptr::null_mut() };
+pub static mut X_display: *mut x11::xlib::Display = unsafe { std::ptr::null_mut() };
 
-pub static mut X_mainWindow: Window = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_mainWindow: x11::xlib::Window = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut X_cmap: Colormap = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_cmap: x11::xlib::Colormap = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut X_visual: *mut Visual = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_visual: *mut x11::xlib::Visual = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut X_gc: GC = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_gc: x11::xlib::GC = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut X_event: XEvent = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_event: x11::xlib::XEvent = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut X_screen: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut X_visualinfo: XVisualInfo = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_visualinfo: x11::xlib::XVisualInfo = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut image: *mut XImage = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut image: *mut x11::xlib::XImage = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut X_width: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -114,7 +114,7 @@ pub static mut X_height: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TOD
 
 pub static mut doShm: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut X_shminfo: XShmSegmentInfo = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut X_shminfo: x11::xshm::XShmSegmentInfo = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut X_shmeventtype: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -148,7 +148,10 @@ pub unsafe extern "C" fn I_GetEvent() {
     todo!("body not yet translated")
 }
 
-pub unsafe extern "C" fn createnullcursor(display: *mut Display, root: Window) -> Cursor {
+pub unsafe extern "C" fn createnullcursor(
+    display: *mut x11::xlib::Display,
+    root: x11::xlib::Window,
+) -> x11::xlib::Cursor {
     todo!("body not yet translated")
 }
 
@@ -168,9 +171,9 @@ pub unsafe extern "C" fn I_ReadScreen(scr: *mut byte) {
     todo!("body not yet translated")
 }
 
-static mut colors: [XColor; (256) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut colors: [x11::xlib::XColor; (256) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub unsafe extern "C" fn UploadNewPalette(cmap: Colormap, palette: *mut byte) {
+pub unsafe extern "C" fn UploadNewPalette(cmap: x11::xlib::Colormap, palette: *mut byte) {
     todo!("body not yet translated")
 }
 

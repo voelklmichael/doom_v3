@@ -9,3 +9,5 @@ edition = "2024"
 # eager-marinating-axolotl.md for the generation pipeline and design.
 
 [dependencies]
+libc = "0.2"
+x11 = { version = "2", features = ["xlib"] }

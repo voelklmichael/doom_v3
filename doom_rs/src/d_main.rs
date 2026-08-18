@@ -132,7 +132,7 @@ pub static mut startmap: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TOD
 
 pub static mut autostart: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut debugfile: *mut FILE = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut debugfile: *mut libc::FILE = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut advancedemo: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

@@ -74,7 +74,7 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
     ]
 };
 
-pub static mut sndserver: *mut FILE = unsafe { std::ptr::null_mut() };
+pub static mut sndserver: *mut libc::FILE = unsafe { std::ptr::null_mut() };
 
 pub static mut sndserver_filename: *mut std::ffi::c_char =
     unsafe { (c"./sndserver ").as_ptr() as *mut std::ffi::c_char };
@@ -256,9 +256,9 @@ pub unsafe extern "C" fn I_QrySongPlaying(handle: std::ffi::c_int) -> std::ffi::
 
 pub type tSigSet = std::ffi::c_int;
 
-static mut itimer: std::ffi::c_int = unsafe { ITIMER_REAL };
+static mut itimer: std::ffi::c_int = unsafe { libc::ITIMER_REAL };
 
-static mut sig: std::ffi::c_int = unsafe { SIGALRM };
+static mut sig: std::ffi::c_int = unsafe { libc::SIGALRM };
 
 pub unsafe extern "C" fn I_HandleSoundTimer(ignore: std::ffi::c_int) {
     todo!("body not yet translated")

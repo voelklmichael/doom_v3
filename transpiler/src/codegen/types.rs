@@ -151,6 +151,13 @@ fn classify_named(name: &str) -> Option<String> {
     // so stripping the keyword here and using just the tag identifier
     // resolves correctly.
     if let Some(tag) = strip_tag_keyword(&normalized) {
+        // `struct sockaddr_in` (i_net.c) - a system-header tag this corpus
+        // never defines itself, same as an untagged system name (see
+        // `system_names::system_type`) - checked here too since the tag
+        // keyword is stripped before the untagged fallback below ever runs.
+        if let Some(path) = super::system_names::system_type(tag) {
+            return Some(path.to_string());
+        }
         return Some(ident(tag));
     }
     let builtin = match normalized.as_str() {
@@ -168,10 +175,15 @@ fn classify_named(name: &str) -> Option<String> {
         "unsigned long long" | "unsigned long long int" => "std::ffi::c_ulonglong",
         "float" => "std::ffi::c_float",
         "double" => "std::ffi::c_double",
-        // Not a builtin - one of this corpus's own typedefs/tags (or a raw
-        // unparsed-text fallback blob) - pass straight through verbatim,
-        // *if* it actually looks like a single clean identifier.
+        // Not a builtin - either a system-header type this corpus never
+        // declares itself (see `system_names::system_type`), or one of this
+        // corpus's own typedefs/tags (or a raw unparsed-text fallback blob)
+        // - pass the latter straight through verbatim, *if* it actually
+        // looks like a single clean identifier.
         other => {
+            if let Some(path) = super::system_names::system_type(other) {
+                return Some(path.to_string());
+            }
             return if looks_like_identifier(other) {
                 Some(ident(other))
             } else {

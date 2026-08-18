@@ -138,7 +138,7 @@ pub unsafe extern "C" fn Z_DumpHeap(lowtag: std::ffi::c_int, hightag: std::ffi::
     todo!("body not yet translated")
 }
 
-pub unsafe extern "C" fn Z_FileDumpHeap(f: *mut FILE) {
+pub unsafe extern "C" fn Z_FileDumpHeap(f: *mut libc::FILE) {
     todo!("body not yet translated")
 }
 

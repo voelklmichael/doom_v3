@@ -112,6 +112,20 @@ pub fn emit_define_object(
             "/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):\n#define {name} {value}\n*/\n\n"
         );
     }
+    if is_bare_function_reference(&expr, known_functions) {
+        // Real corpus case: `w_wad.c`'s `#define strcmpi strcasecmp` - a
+        // function-*alias* macro, not a scalar constant. It resolves fine
+        // (both the corpus's own functions and `system_names::
+        // system_function` names are checked), but a bare, uncalled
+        // reference to a function is a Rust `fn` item, not a scalar value -
+        // assigning it to `infer_scalar_type`'s always-scalar inferred type
+        // is a genuine type mismatch, not a missing-identifier problem.
+        // Properly translating a function-alias macro (e.g. as a `pub use`
+        // re-export) is out of scope here - degrade instead of guessing.
+        return format!(
+            "/* TODO: unparsed macro value, aliases a function rather than a scalar value (needs a real alias/re-export, not a const):\n#define {name} {value}\n*/\n\n"
+        );
+    }
     match render_expr(&expr, known_globals) {
         Some(rendered) => {
             let ty = infer_scalar_type(&expr);
@@ -211,14 +225,16 @@ fn any_subexpr(expr: &Expr, pred: &dyn Fn(&Expr) -> bool) -> bool {
 
 /// True if `expr` (a parsed, successfully-*rendered* object-macro body)
 /// references any bare identifier not resolvable via the emitting module's
-/// own visible environment - a real global variable, a real function, or
-/// another `#define`d macro (the three ways an object macro's `render_expr`
-/// output can actually name-resolve once Rust's own glob imports run at the
-/// real `cargo build`). Deliberately does *not* attempt to also recognize
-/// enum-variant names (no corpus-wide harvester for those exists) - if that
-/// ever produces a false positive, the real `--emit-rust` + `cargo build
-/// -p doom_rs` run is what would surface it (same discipline as everywhere
-/// else in this codegen backend), not a theoretical soundness argument.
+/// own visible environment - a real global variable, a real function,
+/// another `#define`d macro, or a system-header name (see
+/// `system_names::system_value`) - the four ways an object macro's
+/// `render_expr` output can actually name-resolve once Rust's own glob
+/// imports run at the real `cargo build`. Deliberately does *not* attempt
+/// to also recognize enum-variant names (no corpus-wide harvester for those
+/// exists) - if that ever produces a false positive, the real
+/// `--emit-rust` + `cargo build -p doom_rs` run is what would surface it
+/// (same discipline as everywhere else in this codegen backend), not a
+/// theoretical soundness argument.
 fn has_unresolved_ident(
     expr: &Expr,
     known_globals: &HashMap<String, Type>,
@@ -230,9 +246,27 @@ fn has_unresolved_ident(
             !known_globals.contains_key(name)
                 && !known_functions.contains_key(name)
                 && !known_defines.contains_key(name)
+                && super::system_names::system_value(name).is_none()
         }
         _ => false,
     })
+}
+
+/// True if `expr`, after unwrapping any surrounding parens, is a bare
+/// `Expr::Ident` naming a known function (a real corpus function or a
+/// `system_names::system_function` name) - the one shape
+/// `has_unresolved_ident` alone can't catch, since the name genuinely does
+/// resolve, just not to a scalar value. See `emit_define_object`'s own
+/// caller-side comment for why this must degrade rather than emit a
+/// scalar-typed `const` referencing a function item.
+fn is_bare_function_reference(expr: &Expr, known_functions: &HashMap<String, FnSig>) -> bool {
+    match unwrap_paren(expr) {
+        Expr::Ident(name) => {
+            known_functions.contains_key(name)
+                || super::system_names::system_function(name).is_some()
+        }
+        _ => false,
+    }
 }
 
 fn expr_is_param(expr: &Expr, param: &str) -> bool {
