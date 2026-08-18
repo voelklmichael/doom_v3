@@ -189,13 +189,13 @@ pub const AM_CLEARMARKKEY: std::ffi::c_int = (b'c' as std::ffi::c_int);
 
 pub const AM_NUMMARKPOINTS: std::ffi::c_int = 10;
 
-pub const INITSCALEMTOF: std::ffi::c_int = (0.2 * FRACUNIT);
+pub const INITSCALEMTOF: std::ffi::c_double = (0.2 * ((FRACUNIT) as f64));
 
 pub const F_PANINC: std::ffi::c_int = 4;
 
-pub const M_ZOOMIN: std::ffi::c_int = ((1.02 * FRACUNIT) as std::ffi::c_int);
+pub const M_ZOOMIN: std::ffi::c_int = ((1.02 * ((FRACUNIT) as f64)) as std::ffi::c_int);
 
-pub const M_ZOOMOUT: std::ffi::c_int = ((FRACUNIT / 1.02) as std::ffi::c_int);
+pub const M_ZOOMOUT: std::ffi::c_int = ((((FRACUNIT) as f64) / 1.02) as std::ffi::c_int);
 
 pub unsafe extern "C" fn FTOM(x: std::ffi::c_int) -> std::ffi::c_int {
     FixedMul(((x) << 16), scale_ftom)
@@ -479,26 +479,26 @@ pub static mut triangle_guy: [mline_t; 3] = unsafe {
     [
         mline_t {
             a: mpoint_t {
-                x: ((-(0.867)) * R),
-                y: ((-(0.5)) * R),
+                x: ((-(0.867)) * ((R) as f64)) as std::ffi::c_int,
+                y: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
             },
             b: mpoint_t {
-                x: (0.867 * R),
-                y: ((-(0.5)) * R),
+                x: (0.867 * ((R) as f64)) as std::ffi::c_int,
+                y: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
             },
         },
         mline_t {
             a: mpoint_t {
-                x: (0.867 * R),
-                y: ((-(0.5)) * R),
+                x: (0.867 * ((R) as f64)) as std::ffi::c_int,
+                y: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
             },
             b: mpoint_t { x: 0, y: R },
         },
         mline_t {
             a: mpoint_t { x: 0, y: R },
             b: mpoint_t {
-                x: ((-(0.867)) * R),
-                y: ((-(0.5)) * R),
+                x: ((-(0.867)) * ((R) as f64)) as std::ffi::c_int,
+                y: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
             },
         },
     ]
@@ -513,26 +513,26 @@ pub static mut thintriangle_guy: [mline_t; 3] = unsafe {
     [
         mline_t {
             a: mpoint_t {
-                x: ((-(0.5)) * R),
-                y: ((-(0.7)) * R),
+                x: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
+                y: ((-(0.7)) * ((R) as f64)) as std::ffi::c_int,
             },
             b: mpoint_t { x: R, y: 0 },
         },
         mline_t {
             a: mpoint_t { x: R, y: 0 },
             b: mpoint_t {
-                x: ((-(0.5)) * R),
-                y: (0.7 * R),
+                x: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
+                y: (0.7 * ((R) as f64)) as std::ffi::c_int,
             },
         },
         mline_t {
             a: mpoint_t {
-                x: ((-(0.5)) * R),
-                y: (0.7 * R),
+                x: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
+                y: (0.7 * ((R) as f64)) as std::ffi::c_int,
             },
             b: mpoint_t {
-                x: ((-(0.5)) * R),
-                y: ((-(0.7)) * R),
+                x: ((-(0.5)) * ((R) as f64)) as std::ffi::c_int,
+                y: ((-(0.7)) * ((R) as f64)) as std::ffi::c_int,
             },
         },
     ]

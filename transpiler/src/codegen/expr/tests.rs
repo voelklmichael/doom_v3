@@ -70,6 +70,51 @@ fn binary_add() {
 }
 
 #[test]
+fn binary_mixing_float_and_int_casts_the_int_side() {
+    // am_map.c's real `.2*FRACUNIT` idiom: C's usual arithmetic conversions
+    // implicitly promote FRACUNIT to double before multiplying, but Rust has
+    // no implicit numeric coercion at all (`{float} * i32` doesn't compile).
+    let e = Expr::Binary {
+        op: BinaryOp::Mul,
+        lhs: Box::new(Expr::FloatLit(".2".into())),
+        rhs: Box::new(Expr::Ident("FRACUNIT".into())),
+    };
+    assert_eq!(render_expr(&e).unwrap(), "(0.2 * ((FRACUNIT) as f64))");
+}
+
+#[test]
+fn binary_mixing_int_and_float_casts_the_int_side_regardless_of_order() {
+    // am_map.c's real `FRACUNIT/1.02` idiom (M_ZOOMOUT) - the float operand
+    // can be on either side.
+    let e = Expr::Binary {
+        op: BinaryOp::Div,
+        lhs: Box::new(Expr::Ident("FRACUNIT".into())),
+        rhs: Box::new(Expr::FloatLit("1.02".into())),
+    };
+    assert_eq!(render_expr(&e).unwrap(), "(((FRACUNIT) as f64) / 1.02)");
+}
+
+#[test]
+fn binary_both_float_needs_no_cast() {
+    let e = Expr::Binary {
+        op: BinaryOp::Add,
+        lhs: Box::new(Expr::FloatLit("1.0".into())),
+        rhs: Box::new(Expr::FloatLit("2.0".into())),
+    };
+    assert_eq!(render_expr(&e).unwrap(), "(1.0 + 2.0)");
+}
+
+#[test]
+fn binary_both_int_needs_no_cast() {
+    let e = Expr::Binary {
+        op: BinaryOp::Add,
+        lhs: Box::new(Expr::Ident("A".into())),
+        rhs: Box::new(Expr::Ident("B".into())),
+    };
+    assert_eq!(render_expr(&e).unwrap(), "(A + B)");
+}
+
+#[test]
 fn logical_not_uses_c_semantics_not_bitwise() {
     // `!dofrags` (wi_stuff.c's NG_STATSX) must become "== 0", not Rust's
     // bitwise-not look-alike, which would silently compile to a different
