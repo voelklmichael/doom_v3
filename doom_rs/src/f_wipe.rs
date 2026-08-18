@@ -85,88 +85,345 @@ static mut wipe_scr_end: *mut byte = unsafe { std::mem::zeroed() }; // TODO: ini
 static mut wipe_scr: *mut byte = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn wipe_shittyColMajorXform(
-    array: *mut std::ffi::c_short,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
+    mut array: *mut std::ffi::c_short,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut x: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut y: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut dest: *mut std::ffi::c_short = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        dest = ((Z_Malloc(((width * height) * 2), PU_STATIC, 0)) as *mut std::ffi::c_short);
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for(y=0;y<height;y++)
+        // 	for(x=0;x<width;x++)
+        // 	    dest[x*height+y] = array[y*width+x];
+        todo!("for statement not yet translated");
+        memcpy(array, dest, ((width * height) * 2));
+        Z_Free(dest);
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn wipe_initColorXForm(
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        memcpy(wipe_scr, wipe_scr_start, (width * height));
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_doColorXForm(
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        let mut changed: boolean = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut w: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut e: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut newval: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        changed = false_;
+        w = wipe_scr;
+        e = wipe_scr_end;
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (w!=wipe_scr+width*height)
+        //     {
+        // 	if (*w != *e)
+        // 	{
+        // 	    if (*w > *e)
+        // 	    {
+        // 		newval = *w - ticks;
+        // 		if (newval < *e)
+        // 		    *w = *e;
+        // 		else
+        // 		    *w = newval;
+        // 		changed = true;
+        // 	    }
+        // 	    else if (*w < *e)
+        // 	    {
+        // 		newval = *w + ticks;
+        // 		if (newval > *e)
+        // 		    *w = *e;
+        // 		else
+        // 		    *w = newval;
+        // 		changed = true;
+        // 	    }
+        // 	}
+        // 	w++;
+        // 	e++;
+        //     }
+        todo!("while statement not yet translated");
+        return (((changed) == 0) as std::ffi::c_int);
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_exitColorXForm(
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 static mut y: *mut std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn wipe_initMelt(
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut r: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        memcpy(wipe_scr, wipe_scr_start, (width * height));
+        wipe_shittyColMajorXform(
+            ((wipe_scr_start) as *mut std::ffi::c_short),
+            (width / 2),
+            height,
+        );
+        wipe_shittyColMajorXform(
+            ((wipe_scr_end) as *mut std::ffi::c_short),
+            (width / 2),
+            height,
+        );
+        y = ((Z_Malloc(
+            (width * std::mem::size_of::<std::ffi::c_int>()),
+            PU_STATIC,
+            0,
+        )) as *mut std::ffi::c_int);
+        y[(0) as usize] = (-(M_Random() % 16));
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=1;i<width;i++)
+        //     {
+        // 	r = (M_Random()%3) - 1;
+        // 	y[i] = y[i-1] + r;
+        // 	if (y[i] > 0) y[i] = 0;
+        // 	else if (y[i] == -16) y[i] = -15;
+        //     }
+        todo!("for statement not yet translated");
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_doMelt(
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut j: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut dy: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut idx: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut s: *mut std::ffi::c_short = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut d: *mut std::ffi::c_short = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut done: boolean = unsafe { true_ };
+        width /= 2;
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (ticks--)
+        //     {
+        // 	for (i=0;i<width;i++)
+        // 	{
+        // 	    if (y[i]<0)
+        // 	    {
+        // 		y[i]++; done = false;
+        // 	    }
+        // 	    else if (y[i] < height)
+        // 	    {
+        // 		dy = (y[i] < 16) ? y[i]+1 : 8;
+        // 		if (y[i]+dy >= height) dy = height - y[i];
+        // 		s = &((short *)wipe_scr_end)[i*height+y[i]];
+        // 		d = &((short *)wipe_scr)[y[i]*width+i];
+        // 		idx = 0;
+        // 		for (j=dy;j;j--)
+        // 		{
+        // 		    d[idx] = *(s++);
+        // 		    idx += width;
+        // 		}
+        // 		y[i] += dy;
+        // 		s = &((short *)wipe_scr_start)[i*height];
+        // 		d = &((short *)wipe_scr)[y[i]*width+i];
+        // 		idx = 0;
+        // 		for (j=height-y[i];j;j--)
+        // 		{
+        // 		    d[idx] = *(s++);
+        // 		    idx += width;
+        // 		}
+        // 		done = false;
+        // 	    }
+        // 	}
+        //     }
+        todo!("while statement not yet translated");
+        return done;
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_exitMelt(
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        Z_Free(y);
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_StartScreen(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        wipe_scr_start = screens[(2) as usize];
+        I_ReadScreen(wipe_scr_start);
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_EndScreen(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        wipe_scr_end = screens[(3) as usize];
+        I_ReadScreen(wipe_scr_end);
+        V_DrawBlock(x, y, 0, width, height, wipe_scr_start);
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn wipe_ScreenWipe(
-    wipeno: std::ffi::c_int,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    ticks: std::ffi::c_int,
+    mut wipeno: std::ffi::c_int,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut ticks: std::ffi::c_int,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        let mut rc: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        static mut wipes: *mut Option<unsafe extern "C" fn(std::ffi::c_int, std::ffi::c_int, std::ffi::c_int) -> std::ffi::c_int> /* TODO: was unsized array */ = unsafe { std::mem::zeroed() /* TODO: initializer not yet translated */ };
+        // TODO: statement not yet translated:
+        //
+        //
+        //     void V_MarkRect(int, int, int, int);
+        todo!("statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // initial stuff
+        //     if (!go)
+        //     {
+        // 	go = 1;
+        // 	// wipe_scr = (byte *) Z_Malloc(width*height, PU_STATIC, 0); // DEBUG
+        // 	wipe_scr = screens[0];
+        // 	(*wipes[wipeno*3])(width, height, ticks);
+        //     }
+        todo!("if statement not yet translated");
+        V_MarkRect(0, 0, width, height);
+        rc = (*(wipes[((wipeno * 3) + 1) as usize]))(width, height, ticks);
+        // TODO: if statement not yet translated:
+        //
+        //     //  V_DrawBlock(x, y, 0, width, height, wipe_scr); // DEBUG
+        //
+        //     // final stuff
+        //     if (rc)
+        //     {
+        // 	go = 0;
+        // 	(*wipes[wipeno*3+2])(width, height, ticks);
+        //     }
+        todo!("if statement not yet translated");
+        return (((go) == 0) as std::ffi::c_int);
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }

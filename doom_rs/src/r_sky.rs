@@ -79,5 +79,10 @@ pub static mut skytexture: std::ffi::c_int = unsafe { std::mem::zeroed() }; // T
 pub static mut skytexturemid: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn R_InitSkyMap() {
-    todo!("body not yet translated")
+    unsafe {
+        skytexturemid = (100 * FRACUNIT);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }

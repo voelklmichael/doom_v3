@@ -59,8 +59,17 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
 };
 
 pub unsafe extern "C" fn main(
-    argc: std::ffi::c_int,
-    argv: *mut *mut std::ffi::c_char,
+    mut argc: std::ffi::c_int,
+    mut argv: *mut *mut std::ffi::c_char,
 ) -> std::ffi::c_int {
-    todo!("body not yet translated")
+    unsafe {
+        myargc = argc;
+        myargv = argv;
+        D_DoomMain();
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }

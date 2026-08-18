@@ -96,7 +96,28 @@ pub(crate) fn strip_tag_keyword(normalized: &str) -> Option<&str> {
     for kw in ["struct ", "union ", "enum "] {
         if let Some(rest) = normalized.strip_prefix(kw) {
             let rest = rest.trim();
-            if !rest.is_empty() {
+            // Real corpus case found via the actual `--emit-rust` +
+            // `cargo build -p doom_rs` run: `i_video.c`'s
+            // `union { double d; unsigned u[2]; } pixel;` - a local
+            // anonymous-union declaration. The local-declaration parser
+            // (`stmt::decl`, unlike `record.rs`'s field parser) has no
+            // nested-anonymous-record handling, so its flat
+            // last-token-is-the-name heuristic captures the *entire* `{
+            // ... }` body as this declarator's type text - `strip_prefix`
+            // above then strips just the leading `union `, leaving
+            // `{ double d; unsigned u[2]; }` as `rest`, which used to be
+            // accepted here as if it were an ordinary tag name like
+            // `mobj_s` (`struct mobj_s`'s real, common shape) and passed
+            // straight through `ident()` into the generated Rust - a
+            // syntax error, not just a type mismatch, since it isn't a
+            // clean identifier at all. Requiring `rest` to actually look
+            // like one before accepting it makes this (and any other
+            // non-identifier tag shape) correctly fall through to
+            // `classify_named`'s own `looks_like_identifier` check on the
+            // *whole* text instead, which already returns `None` for it -
+            // degrading to a flagged comment/placeholder, never emitting
+            // broken syntax.
+            if !rest.is_empty() && looks_like_identifier(rest) {
                 return Some(rest);
             }
         }

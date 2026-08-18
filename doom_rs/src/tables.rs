@@ -80,8 +80,27 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
     ]
 };
 
-pub unsafe extern "C" fn SlopeDiv(num: std::ffi::c_uint, den: std::ffi::c_uint) -> std::ffi::c_int {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn SlopeDiv(
+    mut num: std::ffi::c_uint,
+    mut den: std::ffi::c_uint,
+) -> std::ffi::c_int {
+    unsafe {
+        let mut ans: std::ffi::c_uint = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (den < 512)
+        // 	return SLOPERANGE;
+        todo!("if statement not yet translated");
+        ans = ((num << 3) / (den >> 8));
+        return (if (ans <= SLOPERANGE) { ans } else { SLOPERANGE });
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub static mut finetangent: [std::ffi::c_int; 4096] = unsafe {

@@ -56,6 +56,24 @@ pub static mut myargc: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO:
 
 pub static mut myargv: *mut *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub unsafe extern "C" fn M_CheckParm(check: *mut std::ffi::c_char) -> std::ffi::c_int {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn M_CheckParm(mut check: *mut std::ffi::c_char) -> std::ffi::c_int {
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (i = 1;i<myargc;i++)
+        //     {
+        // 	if ( !strcasecmp(check, myargv[i]) )
+        // 	    return i;
+        //     }
+        todo!("for statement not yet translated");
+        return 0;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }

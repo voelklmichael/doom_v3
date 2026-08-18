@@ -125,109 +125,461 @@ unsafe extern "C" {
 }
 
 pub unsafe extern "C" fn HUlib_init() {
-    todo!("body not yet translated")
+    unsafe {
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_clearTextLine(t: *mut hu_textline_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_clearTextLine(mut t: *mut hu_textline_t) {
+    unsafe {
+        (*t).len = 0;
+        (*t).l[(0) as usize] = 0;
+        (*t).needsupdate = true_;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HUlib_initTextLine(
-    t: *mut hu_textline_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    f: *mut *mut patch_t,
-    sc: std::ffi::c_int,
+    mut t: *mut hu_textline_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut f: *mut *mut patch_t,
+    mut sc: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        (*t).x = x;
+        (*t).y = y;
+        (*t).f = f;
+        (*t).sc = sc;
+        HUlib_clearTextLine(t);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HUlib_addCharToTextLine(
-    t: *mut hu_textline_t,
-    ch: std::ffi::c_char,
+    mut t: *mut hu_textline_t,
+    mut ch: std::ffi::c_char,
 ) -> boolean {
-    todo!("body not yet translated")
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (t->len == HU_MAXLINELENGTH)
+        // 	return false;
+        //     else
+        //     {
+        // 	t->l[t->len++] = ch;
+        // 	t->l[t->len] = 0;
+        // 	t->needsupdate = 4;
+        // 	return true;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn HUlib_delCharFromTextLine(t: *mut hu_textline_t) -> boolean {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_delCharFromTextLine(mut t: *mut hu_textline_t) -> boolean {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (!t->len) return false;
+        //     else
+        //     {
+        // 	t->l[--t->len] = 0;
+        // 	t->needsupdate = 4;
+        // 	return true;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn HUlib_drawTextLine(l: *mut hu_textline_t, drawcursor: boolean) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_drawTextLine(mut l: *mut hu_textline_t, mut drawcursor: boolean) {
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut w: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut x: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut c: std::ffi::c_uchar = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        x = (*l).x;
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=0;i<l->len;i++)
+        //     {
+        // 	c = toupper(l->l[i]);
+        // 	if (c != ' '
+        // 	    && c >= l->sc
+        // 	    && c <= '_')
+        // 	{
+        // 	    w = SHORT(l->f[c - l->sc]->width);
+        // 	    if (x+w > SCREENWIDTH)
+        // 		break;
+        // 	    V_DrawPatchDirect(x, l->y, FG, l->f[c - l->sc]);
+        // 	    x += w;
+        // 	}
+        // 	else
+        // 	{
+        // 	    x += 4;
+        // 	    if (x >= SCREENWIDTH)
+        // 		break;
+        // 	}
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // draw the cursor if requested
+        //     if (drawcursor
+        // 	&& x + SHORT(l->f['_' - l->sc]->width) <= SCREENWIDTH)
+        //     {
+        // 	V_DrawPatchDirect(x, l->y, FG, l->f['_' - l->sc]);
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_eraseTextLine(l: *mut hu_textline_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_eraseTextLine(mut l: *mut hu_textline_t) {
+    unsafe {
+        let mut lh: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut y: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut yoffset: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        static mut lastautomapactive: boolean = unsafe { true_ };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // Only erases when NOT in automap and the screen is reduced,
+        //     // and the text must either need updating or refreshing
+        //     // (because of a recent change back from the automap)
+        //
+        //     if (!automapactive &&
+        // 	viewwindowx && l->needsupdate)
+        //     {
+        // 	lh = SHORT(l->f[0]->height) + 1;
+        // 	for (y=l->y,yoffset=y*SCREENWIDTH ; y<l->y+lh ; y++,yoffset+=SCREENWIDTH)
+        // 	{
+        // 	    if (y < viewwindowy || y >= viewwindowy + viewheight)
+        // 		R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
+        // 	    else
+        // 	    {
+        // 		R_VideoErase(yoffset, viewwindowx); // erase left border
+        // 		R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
+        // 		// erase right border
+        // 	    }
+        // 	}
+        //     }
+        todo!("if statement not yet translated");
+        lastautomapactive = automapactive;
+        // TODO: if statement not yet translated:
+        //
+        //     if (l->needsupdate) l->needsupdate--;
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HUlib_initSText(
-    s: *mut hu_stext_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    h: std::ffi::c_int,
-    font: *mut *mut patch_t,
-    startchar: std::ffi::c_int,
-    on: *mut boolean,
+    mut s: *mut hu_stext_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut h: std::ffi::c_int,
+    mut font: *mut *mut patch_t,
+    mut startchar: std::ffi::c_int,
+    mut on: *mut boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        (*s).h = h;
+        (*s).on = on;
+        (*s).laston = true_;
+        (*s).cl = 0;
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=0;i<h;i++)
+        // 	HUlib_initTextLine(&s->l[i],
+        // 			   x, y - i*(SHORT(font[0]->height)+1),
+        // 			   font, startchar);
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_addLineToSText(s: *mut hu_stext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_addLineToSText(mut s: *mut hu_stext_t) {
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // add a clear line
+        //     if (++s->cl == s->h)
+        // 	s->cl = 0;
+        todo!("if statement not yet translated");
+        HUlib_clearTextLine((&((*s).l[((*s).cl) as usize]) as *const _ as *mut _));
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     // everything needs updating
+        //     for (i=0 ; i<s->h ; i++)
+        // 	s->l[i].needsupdate = 4;
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HUlib_addMessageToSText(
-    s: *mut hu_stext_t,
-    prefix: *mut std::ffi::c_char,
-    msg: *mut std::ffi::c_char,
+    mut s: *mut hu_stext_t,
+    mut prefix: *mut std::ffi::c_char,
+    mut msg: *mut std::ffi::c_char,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        HUlib_addLineToSText(s);
+        // TODO: if statement not yet translated:
+        //
+        //     if (prefix)
+        // 	while (*prefix)
+        // 	    HUlib_addCharToTextLine(&s->l[s->cl], *(prefix++));
+        todo!("if statement not yet translated");
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (*msg)
+        // 	HUlib_addCharToTextLine(&s->l[s->cl], *(msg++));
+        todo!("while statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_drawSText(s: *mut hu_stext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_drawSText(mut s: *mut hu_stext_t) {
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut idx: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut l: *mut hu_textline_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (!*s->on)
+        // 	return; // if not on, don't draw
+        todo!("if statement not yet translated");
+        // TODO: for statement not yet translated:
+        //
+        //     // draw everything
+        //     for (i=0 ; i<s->h ; i++)
+        //     {
+        // 	idx = s->cl - i;
+        // 	if (idx < 0)
+        // 	    idx += s->h; // handle queue of lines
+        //
+        // 	l = &s->l[idx];
+        //
+        // 	// need a decision made here on whether to skip the draw
+        // 	HUlib_drawTextLine(l, false); // no cursor, please
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_eraseSText(s: *mut hu_stext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_eraseSText(mut s: *mut hu_stext_t) {
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (i=0 ; i<s->h ; i++)
+        //     {
+        // 	if (s->laston && !*s->on)
+        // 	    s->l[i].needsupdate = 4;
+        // 	HUlib_eraseTextLine(&s->l[i]);
+        //     }
+        todo!("for statement not yet translated");
+        (*s).laston = (*((*s).on));
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HUlib_initIText(
-    it: *mut hu_itext_t,
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    font: *mut *mut patch_t,
-    startchar: std::ffi::c_int,
-    on: *mut boolean,
+    mut it: *mut hu_itext_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut font: *mut *mut patch_t,
+    mut startchar: std::ffi::c_int,
+    mut on: *mut boolean,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        (*it).lm = 0;
+        (*it).on = on;
+        (*it).laston = true_;
+        HUlib_initTextLine((&((*it).l) as *const _ as *mut _), x, y, font, startchar);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_delCharFromIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_delCharFromIText(mut it: *mut hu_itext_t) {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if (it->l.len != it->lm)
+        // 	HUlib_delCharFromTextLine(&it->l);
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_eraseLineFromIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_eraseLineFromIText(mut it: *mut hu_itext_t) {
+    unsafe {
+        // TODO: while statement not yet translated:
+        //
+        //     while (it->lm != it->l.len)
+        // 	HUlib_delCharFromTextLine(&it->l);
+        todo!("while statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_resetIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_resetIText(mut it: *mut hu_itext_t) {
+    unsafe {
+        (*it).lm = 0;
+        HUlib_clearTextLine((&((*it).l) as *const _ as *mut _));
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_addPrefixToIText(it: *mut hu_itext_t, str: *mut std::ffi::c_char) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_addPrefixToIText(
+    mut it: *mut hu_itext_t,
+    mut str: *mut std::ffi::c_char,
+) {
+    unsafe {
+        // TODO: while statement not yet translated:
+        //
+        //     while (*str)
+        // 	HUlib_addCharToTextLine(&it->l, *(str++));
+        todo!("while statement not yet translated");
+        (*it).lm = (*it).l.len;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_keyInIText(it: *mut hu_itext_t, ch: std::ffi::c_uchar) -> boolean {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_keyInIText(
+    mut it: *mut hu_itext_t,
+    mut ch: std::ffi::c_uchar,
+) -> boolean {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (ch >= ' ' && ch <= '_')
+        //   	HUlib_addCharToTextLine(&it->l, (char) ch);
+        //     else
+        // 	if (ch == KEY_BACKSPACE)
+        // 	    HUlib_delCharFromIText(it);
+        // 	else
+        // 	    if (ch != KEY_ENTER)
+        // 		return false; // did not eat key
+        todo!("if statement not yet translated");
+        return true_;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn HUlib_drawIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_drawIText(mut it: *mut hu_itext_t) {
+    unsafe {
+        let mut l: *mut hu_textline_t = unsafe { (&((*it).l) as *const _ as *mut _) };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (!*it->on)
+        // 	return;
+        todo!("if statement not yet translated");
+        HUlib_drawTextLine(l, true_);
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
-pub unsafe extern "C" fn HUlib_eraseIText(it: *mut hu_itext_t) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HUlib_eraseIText(mut it: *mut hu_itext_t) {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if (it->laston && !*it->on)
+        // 	it->l.needsupdate = 4;
+        todo!("if statement not yet translated");
+        HUlib_eraseTextLine((&((*it).l) as *const _ as *mut _));
+        (*it).laston = (*((*it).on));
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }

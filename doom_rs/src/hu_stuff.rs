@@ -749,32 +749,273 @@ pub static mut frenchKeyMap: [std::ffi::c_char; 128] = unsafe {
     ]
 };
 
-pub unsafe extern "C" fn ForeignTranslation(ch: std::ffi::c_uchar) -> std::ffi::c_char {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn ForeignTranslation(mut ch: std::ffi::c_uchar) -> std::ffi::c_char {
+    unsafe {
+        return (if (ch < 128) {
+            frenchKeyMap[(ch) as usize]
+        } else {
+            ch
+        });
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
 pub unsafe extern "C" fn HU_Init() {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut j: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut buffer: [std::ffi::c_char; (9) as usize] = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (french)
+        // 	shiftxform = french_shiftxform;
+        //     else
+        // 	shiftxform = english_shiftxform;
+        todo!("if statement not yet translated");
+        j = HU_FONTSTART;
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=0;i<HU_FONTSIZE;i++)
+        //     {
+        // 	sprintf(buffer, "STCFN%.3d", j++);
+        // 	hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HU_Stop() {
-    todo!("body not yet translated")
+    unsafe {
+        headsupactive = false_;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HU_Start() {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut s: *mut std::ffi::c_char = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (headsupactive)
+        // 	HU_Stop();
+        todo!("if statement not yet translated");
+        plr = (&(players[(consoleplayer) as usize]) as *const _ as *mut _);
+        message_on = false_;
+        message_dontfuckwithme = false_;
+        message_nottobefuckedwith = false_;
+        chat_on = false_;
+        HUlib_initSText(
+            (&(w_message) as *const hu_stext_t as *mut hu_stext_t),
+            HU_MSGX,
+            HU_MSGY,
+            HU_MSGHEIGHT,
+            hu_font,
+            HU_FONTSTART,
+            (&(message_on) as *const boolean as *mut boolean),
+        );
+        HUlib_initTextLine(
+            (&(w_title) as *const hu_textline_t as *mut hu_textline_t),
+            HU_TITLEX,
+            HU_TITLEY,
+            hu_font,
+            HU_FONTSTART,
+        );
+        // TODO: switch statement not yet translated:
+        //
+        //
+        //     switch ( gamemode )
+        //     {
+        //       case shareware:
+        //       case registered:
+        //       case retail:
+        // 	s = HU_TITLE;
+        // 	break;
+        //
+        // /* FIXME
+        //       case pack_plut:
+        // 	s = HU_TITLEP;
+        // 	break;
+        //       case pack_tnt:
+        // 	s = HU_TITLET;
+        // 	break;
+        // */
+        //
+        //       case commercial:
+        //       default:
+        // 	 s = HU_TITLE2;
+        // 	 break;
+        //     }
+        todo!("switch statement not yet translated");
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (*s)
+        // 	HUlib_addCharToTextLine(&w_title, *(s++));
+        todo!("while statement not yet translated");
+        HUlib_initIText(
+            (&(w_chat) as *const hu_itext_t as *mut hu_itext_t),
+            HU_INPUTX,
+            HU_INPUTY,
+            hu_font,
+            HU_FONTSTART,
+            (&(chat_on) as *const boolean as *mut boolean),
+        );
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     // create the inputbuffer widgets
+        //     for (i=0 ; i<MAXPLAYERS ; i++)
+        // 	HUlib_initIText(&w_inputbuffer[i], 0, 0, 0, 0, &always_off);
+        todo!("for statement not yet translated");
+        headsupactive = true_;
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HU_Drawer() {
-    todo!("body not yet translated")
+    unsafe {
+        HUlib_drawSText((&(w_message) as *const hu_stext_t as *mut hu_stext_t));
+        HUlib_drawIText((&(w_chat) as *const hu_itext_t as *mut hu_itext_t));
+        // TODO: if statement not yet translated:
+        //
+        //     if (automapactive)
+        // 	HUlib_drawTextLine(&w_title, false);
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HU_Erase() {
-    todo!("body not yet translated")
+    unsafe {
+        HUlib_eraseSText((&(w_message) as *const hu_stext_t as *mut hu_stext_t));
+        HUlib_eraseIText((&(w_chat) as *const hu_itext_t as *mut hu_itext_t));
+        HUlib_eraseTextLine((&(w_title) as *const hu_textline_t as *mut hu_textline_t));
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HU_Ticker() {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut rc: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut c: std::ffi::c_char = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     // tick down message counter if message is up
+        //     if (message_counter && !--message_counter)
+        //     {
+        // 	message_on = false;
+        // 	message_nottobefuckedwith = false;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (showMessages || message_dontfuckwithme)
+        //     {
+        //
+        // 	// display message if necessary
+        // 	if ((plr->message && !message_nottobefuckedwith)
+        // 	    || (plr->message && message_dontfuckwithme))
+        // 	{
+        // 	    HUlib_addMessageToSText(&w_message, 0, plr->message);
+        // 	    plr->message = 0;
+        // 	    message_on = true;
+        // 	    message_counter = HU_MSGTIMEOUT;
+        // 	    message_nottobefuckedwith = message_dontfuckwithme;
+        // 	    message_dontfuckwithme = 0;
+        // 	}
+        //
+        //     } // else message_on = false;
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //     // check for incoming chat characters
+        //     if (netgame)
+        //     {
+        // 	for (i=0 ; i<MAXPLAYERS; i++)
+        // 	{
+        // 	    if (!playeringame[i])
+        // 		continue;
+        // 	    if (i != consoleplayer
+        // 		&& (c = players[i].cmd.chatchar))
+        // 	    {
+        // 		if (c <= HU_BROADCAST)
+        // 		    chat_dest[i] = c;
+        // 		else
+        // 		{
+        // 		    if (c >= 'a' && c <= 'z')
+        // 			c = (char) shiftxform[(unsigned char) c];
+        // 		    rc = HUlib_keyInIText(&w_inputbuffer[i], c);
+        // 		    if (rc && c == KEY_ENTER)
+        // 		    {
+        // 			if (w_inputbuffer[i].l.len
+        // 			    && (chat_dest[i] == consoleplayer+1
+        // 				|| chat_dest[i] == HU_BROADCAST))
+        // 			{
+        // 			    HUlib_addMessageToSText(&w_message,
+        // 						    player_names[i],
+        // 						    w_inputbuffer[i].l.l);
+        //
+        // 			    message_nottobefuckedwith = true;
+        // 			    message_on = true;
+        // 			    message_counter = HU_MSGTIMEOUT;
+        // 			    if ( gamemode == commercial )
+        // 			      S_StartSound(0, sfx_radio);
+        // 			    else
+        // 			      S_StartSound(0, sfx_tink);
+        // 			}
+        // 			HUlib_resetIText(&w_inputbuffer[i]);
+        // 		    }
+        // 		}
+        // 		players[i].cmd.chatchar = 0;
+        // 	    }
+        // 	}
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub const QUEUESIZE: std::ffi::c_int = 128;
@@ -785,14 +1026,210 @@ static mut head: std::ffi::c_int = unsafe { 0 };
 
 static mut tail: std::ffi::c_int = unsafe { 0 };
 
-pub unsafe extern "C" fn HU_queueChatChar(c: std::ffi::c_char) {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HU_queueChatChar(mut c: std::ffi::c_char) {
+    unsafe {
+        // TODO: if statement not yet translated:
+        //
+        //     if (((head + 1) & (QUEUESIZE-1)) == tail)
+        //     {
+        // 	plr->message = HUSTR_MSGU;
+        //     }
+        //     else
+        //     {
+        // 	chatchars[head] = c;
+        // 	head = (head + 1) & (QUEUESIZE-1);
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn HU_dequeueChatChar() -> std::ffi::c_char {
-    todo!("body not yet translated")
+    unsafe {
+        let mut c: std::ffi::c_char = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (head != tail)
+        //     {
+        // 	c = chatchars[tail];
+        // 	tail = (tail + 1) & (QUEUESIZE-1);
+        //     }
+        //     else
+        //     {
+        // 	c = 0;
+        //     }
+        todo!("if statement not yet translated");
+        return c;
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn HU_Responder(ev: *mut event_t) -> boolean {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn HU_Responder(mut ev: *mut event_t) -> boolean {
+    unsafe {
+        static mut lastmessage: [std::ffi::c_char; (HU_MAXLINELENGTH + 1) as usize] = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut macromessage: *mut std::ffi::c_char = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut eatkey: boolean = unsafe { false_ };
+        static mut shiftdown: boolean = unsafe { false_ };
+        static mut altdown: boolean = unsafe { false_ };
+        let mut c: std::ffi::c_uchar = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut numplayers: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        static mut destination_keys: [std::ffi::c_char; (MAXPLAYERS) as usize] = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        static mut num_nobrainers: std::ffi::c_int = unsafe { 0 };
+        numplayers = 0;
+        // TODO: for statement not yet translated:
+        //
+        //     for (i=0 ; i<MAXPLAYERS ; i++)
+        // 	numplayers += playeringame[i];
+        todo!("for statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (ev->data1 == KEY_RSHIFT)
+        //     {
+        // 	shiftdown = ev->type == ev_keydown;
+        // 	return false;
+        //     }
+        //     else if (ev->data1 == KEY_RALT || ev->data1 == KEY_LALT)
+        //     {
+        // 	altdown = ev->type == ev_keydown;
+        // 	return false;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (ev->type != ev_keydown)
+        // 	return false;
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //
+        //     if (!chat_on)
+        //     {
+        // 	if (ev->data1 == HU_MSGREFRESH)
+        // 	{
+        // 	    message_on = true;
+        // 	    message_counter = HU_MSGTIMEOUT;
+        // 	    eatkey = true;
+        // 	}
+        // 	else if (netgame && ev->data1 == HU_INPUTTOGGLE)
+        // 	{
+        // 	    eatkey = chat_on = true;
+        // 	    HUlib_resetIText(&w_chat);
+        // 	    HU_queueChatChar(HU_BROADCAST);
+        // 	}
+        // 	else if (netgame && numplayers > 2)
+        // 	{
+        // 	    for (i=0; i<MAXPLAYERS ; i++)
+        // 	    {
+        // 		if (ev->data1 == destination_keys[i])
+        // 		{
+        // 		    if (playeringame[i] && i!=consoleplayer)
+        // 		    {
+        // 			eatkey = chat_on = true;
+        // 			HUlib_resetIText(&w_chat);
+        // 			HU_queueChatChar(i+1);
+        // 			break;
+        // 		    }
+        // 		    else if (i == consoleplayer)
+        // 		    {
+        // 			num_nobrainers++;
+        // 			if (num_nobrainers < 3)
+        // 			    plr->message = HUSTR_TALKTOSELF1;
+        // 			else if (num_nobrainers < 6)
+        // 			    plr->message = HUSTR_TALKTOSELF2;
+        // 			else if (num_nobrainers < 9)
+        // 			    plr->message = HUSTR_TALKTOSELF3;
+        // 			else if (num_nobrainers < 32)
+        // 			    plr->message = HUSTR_TALKTOSELF4;
+        // 			else
+        // 			    plr->message = HUSTR_TALKTOSELF5;
+        // 		    }
+        // 		}
+        // 	    }
+        // 	}
+        //     }
+        //     else
+        //     {
+        // 	c = ev->data1;
+        // 	// send a macro
+        // 	if (altdown)
+        // 	{
+        // 	    c = c - '0';
+        // 	    if (c > 9)
+        // 		return false;
+        // 	    // fprintf(stderr, "got here\n");
+        // 	    macromessage = chat_macros[c];
+        //
+        // 	    // kill last message with a '\n'
+        // 	    HU_queueChatChar(KEY_ENTER); // DEBUG!!!
+        //
+        // 	    // send the macro message
+        // 	    while (*macromessage)
+        // 		HU_queueChatChar(*macromessage++);
+        // 	    HU_queueChatChar(KEY_ENTER);
+        //
+        // 	    // leave chat mode and notify that it was sent
+        // 	    chat_on = false;
+        // 	    strcpy(lastmessage, chat_macros[c]);
+        // 	    plr->message = lastmessage;
+        // 	    eatkey = true;
+        // 	}
+        // 	else
+        // 	{
+        // 	    if (french)
+        // 		c = ForeignTranslation(c);
+        // 	    if (shiftdown || (c >= 'a' && c <= 'z'))
+        // 		c = shiftxform[c];
+        // 	    eatkey = HUlib_keyInIText(&w_chat, c);
+        // 	    if (eatkey)
+        // 	    {
+        // 		// static unsigned char buf[20]; // DEBUG
+        // 		HU_queueChatChar(c);
+        //
+        // 		// sprintf(buf, "KEY: %d => %d", ev->data1, c);
+        // 		//      plr->message = buf;
+        // 	    }
+        // 	    if (c == KEY_ENTER)
+        // 	    {
+        // 		chat_on = false;
+        // 		if (w_chat.l.len)
+        // 		{
+        // 		    strcpy(lastmessage, w_chat.l.l);
+        // 		    plr->message = lastmessage;
+        // 		}
+        // 	    }
+        // 	    else if (c == KEY_ESCAPE)
+        // 		chat_on = false;
+        // 	}
+        //     }
+        todo!("if statement not yet translated");
+        return eatkey;
+        // TODO: statement not yet translated:
+        //
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }

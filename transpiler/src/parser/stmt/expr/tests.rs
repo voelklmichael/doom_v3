@@ -11,6 +11,11 @@ fn parse_with(src: &str, known: &KnownTypeNames) -> Expr {
     parse_expr(&toks, known)
 }
 
+fn parse_checked(src: &str) -> Option<Expr> {
+    let toks = lex_ctoks(&scan(src));
+    parse_expr_checked(&toks, &KnownTypeNames::new())
+}
+
 fn ident(s: &str) -> Expr {
     Expr::Ident(s.to_string())
 }
@@ -342,4 +347,25 @@ fn ternary_from_real_corpus_shape() {
             else_expr: Box::new(ident("dy")),
         }
     );
+}
+
+#[test]
+fn checked_parse_accepts_a_complete_expression() {
+    assert_eq!(
+        parse_checked("dx>dy ? dx : dy"),
+        Some(parse("dx>dy ? dx : dy"))
+    );
+}
+
+#[test]
+fn checked_parse_rejects_a_partial_match() {
+    // am_map.c's real local `enum { LEFT=1, RIGHT=2, ... };` - not a valid
+    // expression at all, but `parse_expr` alone happily matches just the
+    // leading `enum` as `Expr::Ident("enum")` and silently stops there,
+    // leaving the brace-group tokens after it unconsumed. `parse_expr`
+    // itself must still return that partial match unchanged (every other
+    // call site feeds it a token range already known to be exactly one
+    // expression) - only the checked variant must reject it.
+    assert_eq!(parse("enum { LEFT = 1 }"), ident("enum"));
+    assert_eq!(parse_checked("enum { LEFT = 1 }"), None);
 }

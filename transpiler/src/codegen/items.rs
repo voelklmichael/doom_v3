@@ -8,6 +8,7 @@
 use super::ident::{ident, synthesize_nested_name};
 use super::init::{render_array_init, render_scalar_init, render_struct_init};
 use super::macros::{emit_define_function, emit_define_object};
+use super::stmt;
 use super::types::{
     format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
 };
@@ -16,6 +17,7 @@ use crate::parser::ast::{
     Storage, Type, TypedefDecl, VarDecl,
 };
 use crate::parser::preproc::Directive;
+use crate::parser::stmt::ast::FnBody;
 use crate::parser::stmt::expr::KnownTypeNames;
 use std::collections::{BTreeSet, HashMap};
 
@@ -131,7 +133,17 @@ fn emit_item(
             })
             .collect(),
         ItemKind::FunctionDecl(sig) => emit_function_decl(sig),
-        ItemKind::FunctionDef(sig, _body) => emit_function_def(sig),
+        ItemKind::FunctionDef(sig, body) => {
+            let ctx = stmt::BodyCtx {
+                known,
+                known_records,
+                known_typedefs,
+                known_functions,
+                known_globals,
+                known_defines,
+            };
+            emit_function_def(sig, body, &ctx)
+        }
         ItemKind::Conditional(group) => emit_conditional(
             group,
             known,
@@ -521,17 +533,28 @@ fn emit_var(
     )
 }
 
-fn format_params(sig: &FnSig) -> String {
+/// `mutable`: `true` for a real definition (a C parameter is an ordinary
+/// local the body can freely reassign - real function bodies do this
+/// constantly), `false` for an `unsafe extern "C" { fn ... }` declaration
+/// (`mut` on a param there is a hard parse error - extern-block params
+/// aren't bindings at all).
+fn format_params(sig: &FnSig, mutable: bool) -> String {
     sig.params
         .iter()
         .map(|p| {
             // Anonymous K&R-style params (Param.name == "") just become `_`
-            // - nothing references them since the body is a stub anyway.
-            let name = if p.name.is_empty() {
-                "_".to_string()
-            } else {
-                ident(&p.name)
-            };
+            // regardless of `mutable` - there's no name to reassign through
+            // either way.
+            if p.name.is_empty() {
+                let ty = if type_is_malformed(&p.ty) {
+                    "() /* TODO: unparsed param type, needs manual translation */".to_string()
+                } else {
+                    map_type(&p.ty)
+                };
+                return format!("_: {ty}");
+            }
+            let name = ident(&p.name);
+            let mut_kw = if mutable { "mut " } else { "" };
             if type_is_malformed(&p.ty) {
                 // See `type_is_malformed` - real corpus example: m_misc.c's
                 // M_ReadFile/M_WriteFile take a `char const *` param (a
@@ -540,10 +563,12 @@ fn format_params(sig: &FnSig) -> String {
                 // breaking the enclosing parenthesized list's syntax -
                 // substitute a placeholder type instead, keeping the
                 // signature's arity and overall syntax valid.
-                format!("{name}: () /* TODO: unparsed param type, needs manual translation */")
+                format!(
+                    "{mut_kw}{name}: () /* TODO: unparsed param type, needs manual translation */"
+                )
             } else {
                 let ty = map_type(&p.ty);
-                format!("{name}: {ty}")
+                format!("{mut_kw}{name}: {ty}")
             }
         })
         .collect::<Vec<_>>()
@@ -553,16 +578,16 @@ fn format_params(sig: &FnSig) -> String {
 fn emit_function_decl(sig: &FnSig) -> String {
     let name = ident(&sig.name);
     let vis = if is_static(&sig.storage) { "" } else { "pub " };
-    let params = format_params(sig);
+    let params = format_params(sig, false);
     let variadic = if sig.variadic { ", ..." } else { "" };
     let ret = format_return_suffix(&sig.ret_ty);
     format!("unsafe extern \"C\" {{\n    {vis}fn {name}({params}{variadic}){ret};\n}}\n\n")
 }
 
-fn emit_function_def(sig: &FnSig) -> String {
+fn emit_function_def(sig: &FnSig, body: &FnBody, ctx: &stmt::BodyCtx<'_>) -> String {
     let name = ident(&sig.name);
     let vis = if is_static(&sig.storage) { "" } else { "pub " };
-    let params = format_params(sig);
+    let params = format_params(sig, true);
     let ret = format_return_suffix(&sig.ret_ty);
     // Rust doesn't support C-variadic function *definitions* (only extern
     // declarations) - the corpus's one real case (I_Error) drops `...`
@@ -572,8 +597,18 @@ fn emit_function_def(sig: &FnSig) -> String {
     } else {
         ""
     };
+    // A non-void C function can fall off its own end without an explicit
+    // `return` (undefined behavior in C, but real source) - this trailing
+    // todo!() stands in for that path without needing rustc's own
+    // divergence analysis to line up with the translated body.
+    let tail = if ret.is_empty() {
+        String::new()
+    } else {
+        "todo!(\"fell off the end of a non-void C function\")\n".to_string()
+    };
+    let rendered_body = stmt::render_function_body(body, ctx);
     format!(
-        "{vis}unsafe extern \"C\" fn {name}({params}){ret} {{ todo!(\"body not yet translated\") }}{variadic_comment}\n\n"
+        "{vis}unsafe extern \"C\" fn {name}({params}){ret} {{\nunsafe {{\n{rendered_body}}}\n{tail}}}{variadic_comment}\n\n"
     )
 }
 

@@ -60,10 +60,22 @@ static mut rcsid: [std::ffi::c_char; 49] = unsafe {
     ]
 };
 
-pub unsafe extern "C" fn SwapSHORT(x: std::ffi::c_ushort) -> std::ffi::c_ushort {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn SwapSHORT(mut x: std::ffi::c_ushort) -> std::ffi::c_ushort {
+    unsafe {
+        return ((x >> 8) | (x << 8));
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }
 
-pub unsafe extern "C" fn SwapLONG(x: std::ffi::c_ulong) -> std::ffi::c_ulong {
-    todo!("body not yet translated")
+pub unsafe extern "C" fn SwapLONG(mut x: std::ffi::c_ulong) -> std::ffi::c_ulong {
+    unsafe {
+        return ((((x >> 24) | ((x >> 8) & 0xff00)) | ((x << 8) & 0xff0000)) | (x << 24));
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
+    todo!("fell off the end of a non-void C function")
 }

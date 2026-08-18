@@ -177,76 +177,392 @@ pub static mut gammatable: [[byte; 256]; 5] = unsafe {
 pub static mut usegamma: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub unsafe extern "C" fn V_MarkRect(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        M_AddToBox(dirtybox, x, y);
+        M_AddToBox(dirtybox, ((x + width) - 1), ((y + height) - 1));
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_CopyRect(
-    srcx: std::ffi::c_int,
-    srcy: std::ffi::c_int,
-    srcscrn: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    destx: std::ffi::c_int,
-    desty: std::ffi::c_int,
-    destscrn: std::ffi::c_int,
+    mut srcx: std::ffi::c_int,
+    mut srcy: std::ffi::c_int,
+    mut srcscrn: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut destx: std::ffi::c_int,
+    mut desty: std::ffi::c_int,
+    mut destscrn: std::ffi::c_int,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut src: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut dest: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //     if (srcx<0
+        // 	||srcx+width >SCREENWIDTH
+        // 	|| srcy<0
+        // 	|| srcy+height>SCREENHEIGHT
+        // 	||destx<0||destx+width >SCREENWIDTH
+        // 	|| desty<0
+        // 	|| desty+height>SCREENHEIGHT
+        // 	|| (unsigned)srcscrn>4
+        // 	|| (unsigned)destscrn>4)
+        //     {
+        // 	I_Error ("Bad V_CopyRect");
+        //     }
+        todo!("if statement not yet translated");
+        V_MarkRect(destx, desty, width, height);
+        src = ((screens[(srcscrn) as usize] + (SCREENWIDTH * srcy)) + srcx);
+        dest = ((screens[(destscrn) as usize] + (SCREENWIDTH * desty)) + destx);
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for ( ; height>0 ; height--)
+        //     {
+        // 	memcpy (dest, src, width);
+        // 	src += SCREENWIDTH;
+        // 	dest += SCREENWIDTH;
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_DrawPatch(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    scrn: std::ffi::c_int,
-    patch: *mut patch_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut scrn: std::ffi::c_int,
+    mut patch: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut count: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut col: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut column: *mut column_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut desttop: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut dest: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut source: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut w: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        y -= SHORT((*patch).topoffset);
+        x -= SHORT((*patch).leftoffset);
+        // TODO: if statement not yet translated:
+        //     if (x<0
+        // 	||x+SHORT(patch->width) >SCREENWIDTH
+        // 	|| y<0
+        // 	|| y+SHORT(patch->height)>SCREENHEIGHT
+        // 	|| (unsigned)scrn>4)
+        //     {
+        //       fprintf( stderr, "Patch at %d,%d exceeds LFB\n", x,y );
+        //       // No I_Error abort - what is up with TNT.WAD?
+        //       fprintf( stderr, "V_DrawPatch: bad patch (ignored)\n");
+        //       return;
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //     if (!scrn)
+        // 	V_MarkRect (x, y, SHORT(patch->width), SHORT(patch->height));
+        todo!("if statement not yet translated");
+        col = 0;
+        desttop = ((screens[(scrn) as usize] + (y * SCREENWIDTH)) + x);
+        w = SHORT((*patch).width);
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for ( ; col<w ; x++, col++, desttop++)
+        //     {
+        // 	column = (column_t *)((byte *)patch + LONG(patch->columnofs[col]));
+        //
+        // 	// step through the posts in a column
+        // 	while (column->topdelta != 0xff )
+        // 	{
+        // 	    source = (byte *)column + 3;
+        // 	    dest = desttop + column->topdelta*SCREENWIDTH;
+        // 	    count = column->length;
+        //
+        // 	    while (count--)
+        // 	    {
+        // 		*dest = *source++;
+        // 		dest += SCREENWIDTH;
+        // 	    }
+        // 	    column = (column_t *)(  (byte *)column + column->length
+        // 				    + 4 );
+        // 	}
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_DrawPatchFlipped(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    scrn: std::ffi::c_int,
-    patch: *mut patch_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut scrn: std::ffi::c_int,
+    mut patch: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut count: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut col: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut column: *mut column_t = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut desttop: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut dest: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut source: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut w: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        y -= SHORT((*patch).topoffset);
+        x -= SHORT((*patch).leftoffset);
+        // TODO: if statement not yet translated:
+        //     if (x<0
+        // 	||x+SHORT(patch->width) >SCREENWIDTH
+        // 	|| y<0
+        // 	|| y+SHORT(patch->height)>SCREENHEIGHT
+        // 	|| (unsigned)scrn>4)
+        //     {
+        //       fprintf( stderr, "Patch origin %d,%d exceeds LFB\n", x,y );
+        //       I_Error ("Bad V_DrawPatch in V_DrawPatchFlipped");
+        //     }
+        todo!("if statement not yet translated");
+        // TODO: if statement not yet translated:
+        //
+        //     if (!scrn)
+        // 	V_MarkRect (x, y, SHORT(patch->width), SHORT(patch->height));
+        todo!("if statement not yet translated");
+        col = 0;
+        desttop = ((screens[(scrn) as usize] + (y * SCREENWIDTH)) + x);
+        w = SHORT((*patch).width);
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for ( ; col<w ; x++, col++, desttop++)
+        //     {
+        // 	column = (column_t *)((byte *)patch + LONG(patch->columnofs[w-1-col]));
+        //
+        // 	// step through the posts in a column
+        // 	while (column->topdelta != 0xff )
+        // 	{
+        // 	    source = (byte *)column + 3;
+        // 	    dest = desttop + column->topdelta*SCREENWIDTH;
+        // 	    count = column->length;
+        //
+        // 	    while (count--)
+        // 	    {
+        // 		*dest = *source++;
+        // 		dest += SCREENWIDTH;
+        // 	    }
+        // 	    column = (column_t *)(  (byte *)column + column->length
+        // 				    + 4 );
+        // 	}
+        //     }
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_DrawPatchDirect(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    scrn: std::ffi::c_int,
-    patch: *mut patch_t,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut scrn: std::ffi::c_int,
+    mut patch: *mut patch_t,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        V_DrawPatch(x, y, scrn, patch);
+        // TODO: statement not yet translated:
+        //
+        //
+        //     /*
+        //     int		count;
+        //     int		col;
+        //     column_t*	column;
+        //     byte*	desttop;
+        //     byte*	dest;
+        //     byte*	source;
+        //     int		w;
+        //
+        //     y -= SHORT(patch->topoffset);
+        //     x -= SHORT(patch->leftoffset);
+        //
+        // #ifdef RANGECHECK
+        //     if (x<0
+        // 	||x+SHORT(patch->width) >SCREENWIDTH
+        // 	|| y<0
+        // 	|| y+SHORT(patch->height)>SCREENHEIGHT
+        // 	|| (unsigned)scrn>4)
+        //     {
+        // 	I_Error ("Bad V_DrawPatchDirect");
+        //     }
+        // #endif
+        //
+        //     //	V_MarkRect (x, y, SHORT(patch->width), SHORT(patch->height));
+        //     desttop = destscreen + y*SCREENWIDTH/4 + (x>>2);
+        //
+        //     w = SHORT(patch->width);
+        //     for ( col = 0 ; col<w ; col++)
+        //     {
+        // 	outp (SC_INDEX+1,1<<(x&3));
+        // 	column = (column_t *)((byte *)patch + LONG(patch->columnofs[col]));
+        //
+        // 	// step through the posts in a column
+        //
+        // 	while (column->topdelta != 0xff )
+        // 	{
+        // 	    source = (byte *)column + 3;
+        // 	    dest = desttop + column->topdelta*SCREENWIDTH/4;
+        // 	    count = column->length;
+        //
+        // 	    while (count--)
+        // 	    {
+        // 		*dest = *source++;
+        // 		dest += SCREENWIDTH/4;
+        // 	    }
+        // 	    column = (column_t *)(  (byte *)column + column->length
+        // 				    + 4 );
+        // 	}
+        // 	if ( ((++x)&3) == 0 )
+        // 	    desttop++;	// go to next byte, not next plane
+        //     }*/
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_DrawBlock(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    scrn: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    src: *mut byte,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut scrn: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut src: *mut byte,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut dest: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //     if (x<0
+        // 	||x+width >SCREENWIDTH
+        // 	|| y<0
+        // 	|| y+height>SCREENHEIGHT
+        // 	|| (unsigned)scrn>4 )
+        //     {
+        // 	I_Error ("Bad V_DrawBlock");
+        //     }
+        todo!("if statement not yet translated");
+        V_MarkRect(x, y, width, height);
+        dest = ((screens[(scrn) as usize] + (y * SCREENWIDTH)) + x);
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (height--)
+        //     {
+        // 	memcpy (dest, src, width);
+        // 	src += width;
+        // 	dest += SCREENWIDTH;
+        //     }
+        todo!("while statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_GetBlock(
-    x: std::ffi::c_int,
-    y: std::ffi::c_int,
-    scrn: std::ffi::c_int,
-    width: std::ffi::c_int,
-    height: std::ffi::c_int,
-    dest: *mut byte,
+    mut x: std::ffi::c_int,
+    mut y: std::ffi::c_int,
+    mut scrn: std::ffi::c_int,
+    mut width: std::ffi::c_int,
+    mut height: std::ffi::c_int,
+    mut dest: *mut byte,
 ) {
-    todo!("body not yet translated")
+    unsafe {
+        let mut src: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        // TODO: if statement not yet translated:
+        //     if (x<0
+        // 	||x+width >SCREENWIDTH
+        // 	|| y<0
+        // 	|| y+height>SCREENHEIGHT
+        // 	|| (unsigned)scrn>4 )
+        //     {
+        // 	I_Error ("Bad V_DrawBlock");
+        //     }
+        todo!("if statement not yet translated");
+        src = ((screens[(scrn) as usize] + (y * SCREENWIDTH)) + x);
+        // TODO: while statement not yet translated:
+        //
+        //
+        //     while (height--)
+        //     {
+        // 	memcpy (dest, src, width);
+        // 	src += SCREENWIDTH;
+        // 	dest += width;
+        //     }
+        todo!("while statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }
 
 pub unsafe extern "C" fn V_Init() {
-    todo!("body not yet translated")
+    unsafe {
+        let mut i: std::ffi::c_int = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        let mut base: *mut byte = unsafe {
+            std::mem::zeroed() /* TODO: initializer not yet translated */
+        };
+        base = I_AllocLow(((SCREENWIDTH * SCREENHEIGHT) * 4));
+        // TODO: for statement not yet translated:
+        //
+        //
+        //     for (i=0 ; i<4 ; i++)
+        // 	screens[i] = base + i*SCREENWIDTH*SCREENHEIGHT;
+        todo!("for statement not yet translated");
+        // TODO: statement not yet translated:
+        //
+        todo!("statement not yet translated");
+    }
 }

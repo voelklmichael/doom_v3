@@ -1,4 +1,4 @@
-use super::render_expr;
+use super::{render_condition, render_expr, unescape_c_string};
 use crate::parser::ast::Type;
 use crate::parser::stmt::expr::{AssignOp, BinaryOp, Expr, SizeofArg, UnaryOp};
 use std::collections::HashMap;
@@ -57,6 +57,33 @@ fn nul_elsewhere_in_str_lit_bails_rather_than_guess() {
     // so this must degrade the containing declaration rather than emit
     // invalid Rust syntax.
     assert!(render_expr(&Expr::StrLit("\"foo\\0bar\"".into()), &no_globals()).is_none());
+}
+
+#[test]
+fn short_hex_escape_gets_padded_to_rust_width() {
+    // r_data.c's real `printf("\x8...")` (a backspace-erase idiom, 11
+    // sites) - C's `\x` escape consumes as many hex digits as follow (no
+    // fixed width), but Rust's requires exactly two; reusing the original
+    // C text verbatim is a hard parse error here, not just a possible
+    // value mismatch.
+    assert_eq!(
+        render_expr(&Expr::StrLit("\"\\x8\"".into()), &no_globals()).unwrap(),
+        "(c\"\\x08\").as_ptr()"
+    );
+}
+
+#[test]
+fn already_two_digit_hex_escape_is_unchanged() {
+    assert_eq!(
+        render_expr(&Expr::StrLit("\"\\x1b\"".into()), &no_globals()).unwrap(),
+        "(c\"\\x1b\").as_ptr()"
+    );
+}
+
+#[test]
+fn unescape_decodes_hex_escapes_to_their_real_byte() {
+    assert_eq!(unescape_c_string("\\x8"), vec![0x08]);
+    assert_eq!(unescape_c_string("\\x1b"), vec![0x1b]);
 }
 
 #[test]
@@ -384,4 +411,74 @@ fn ternary_coerces_condition_to_bool_check() {
         render_expr(&e, &no_globals()).unwrap(),
         "(if (dofrags) != 0 { 1 } else { 0 })"
     );
+}
+
+#[test]
+fn ternary_with_comparison_condition_does_not_double_compare() {
+    // A comparison-shaped condition already renders as a real Rust `bool`
+    // (see `render_condition`) - appending a bare `!= 0` unconditionally
+    // (the pre-fix behavior) compared a `bool` against an integer, a type
+    // error. `dofrags < 5` is a real corpus-adjacent shape.
+    let e = Expr::Ternary {
+        cond: Box::new(Expr::Binary {
+            op: BinaryOp::Lt,
+            lhs: ident("dofrags"),
+            rhs: Box::new(Expr::IntLit("5".into())),
+        }),
+        then_expr: Box::new(Expr::IntLit("1".into())),
+        else_expr: Box::new(Expr::IntLit("0".into())),
+    };
+    assert_eq!(
+        render_expr(&e, &no_globals()).unwrap(),
+        "(if (dofrags < 5) { 1 } else { 0 })"
+    );
+}
+
+// ---- render_condition ----
+
+#[test]
+fn condition_comparison_passes_through_unchanged() {
+    let e = Expr::Binary {
+        op: BinaryOp::Lt,
+        lhs: ident("a"),
+        rhs: ident("b"),
+    };
+    assert_eq!(render_condition(&e, &no_globals()).unwrap(), "(a < b)");
+}
+
+#[test]
+fn condition_bare_value_gets_not_equal_zero() {
+    assert_eq!(
+        render_condition(&Expr::Ident("dofrags".into()), &no_globals()).unwrap(),
+        "(dofrags) != 0"
+    );
+}
+
+#[test]
+fn condition_logical_and_recurses_both_sides() {
+    // `if (a < b && c)` - `c` alone is std::ffi::c_int-typed, not bool;
+    // without recursing, `&&`'s right operand would fail to typecheck.
+    let e = Expr::Binary {
+        op: BinaryOp::LogAnd,
+        lhs: Box::new(Expr::Binary {
+            op: BinaryOp::Lt,
+            lhs: ident("a"),
+            rhs: ident("b"),
+        }),
+        rhs: ident("c"),
+    };
+    assert_eq!(
+        render_condition(&e, &no_globals()).unwrap(),
+        "((a < b) && (c) != 0)"
+    );
+}
+
+#[test]
+fn condition_paren_recurses() {
+    let e = Expr::Paren(Box::new(Expr::Binary {
+        op: BinaryOp::EqEq,
+        lhs: ident("a"),
+        rhs: ident("b"),
+    }));
+    assert_eq!(render_condition(&e, &no_globals()).unwrap(), "((a == b))");
 }

@@ -4,6 +4,8 @@
 #![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 #![allow(dead_code, unused_variables, unused_imports)]
 #![allow(improper_ctypes)]
+#![allow(unreachable_code, unused_mut, unused_unsafe, unused_labels)]
+#![allow(unused_parens, unused_braces, unused_assignments, static_mut_refs)]
 #![recursion_limit = "8192"]
 
 pub mod am_map;
