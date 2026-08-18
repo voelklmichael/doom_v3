@@ -25,6 +25,36 @@ fn field(name: &str, ty: Type) -> Field {
     }
 }
 
+fn empty_fn_body() -> crate::parser::stmt::ast::FnBody {
+    crate::parser::stmt::ast::FnBody {
+        block: crate::parser::stmt::ast::Block { stmts: vec![] },
+        raw: "{}".to_string(),
+    }
+}
+
+/// Test-only wrapper: `emit_function_def` now needs a real `FnBody` and a
+/// `BodyCtx` alongside `sig` - most of these tests only care about the
+/// signature shape (visibility/params/return type/variadic), so an empty
+/// body and empty `known_*` maps are enough.
+fn call_emit_function_def(sig: &FnSig) -> String {
+    call_emit_function_def_with_body(sig, &empty_fn_body())
+}
+
+fn call_emit_function_def_with_body(
+    sig: &FnSig,
+    body: &crate::parser::stmt::ast::FnBody,
+) -> String {
+    let ctx = stmt::BodyCtx {
+        known: &KnownTypeNames::new(),
+        known_records: &HashMap::new(),
+        known_typedefs: &HashMap::new(),
+        known_functions: &HashMap::new(),
+        known_globals: &HashMap::new(),
+        known_defines: &HashMap::new(),
+    };
+    emit_function_def(sig, body, &ctx)
+}
+
 // ---- Typedef ----
 
 #[test]
@@ -748,7 +778,7 @@ fn function_decl_basic() {
 }
 
 #[test]
-fn function_def_stub_body() {
+fn function_def_wires_the_real_body_renderer() {
     let sig = FnSig {
         storage: vec![],
         ret_ty: named("int"),
@@ -756,9 +786,37 @@ fn function_def_stub_body() {
         params: vec![],
         variadic: false,
     };
-    let out = emit_function_def(&sig);
+    let body = crate::parser::stmt::ast::FnBody {
+        block: crate::parser::stmt::ast::Block {
+            stmts: vec![(
+                crate::parser::stmt::ast::Stmt {
+                    kind: crate::parser::stmt::ast::StmtKind::Return(Some(
+                        crate::parser::stmt::expr::Expr::IntLit("1".to_string()),
+                    )),
+                    labels: vec![],
+                    raw: "return 1;".to_string(),
+                },
+                Trivia::default(),
+            )],
+        },
+        raw: "{ return 1; }".to_string(),
+    };
+    let out = call_emit_function_def_with_body(&sig, &body);
     assert!(out.contains("pub unsafe extern \"C\" fn P_Random() -> std::ffi::c_int"));
-    assert!(out.contains("unsafe { todo!(\"body not yet translated\") }"));
+    assert!(out.contains("unsafe {\nreturn 1;\n}"));
+}
+
+#[test]
+fn function_def_with_empty_body_has_no_stub_left() {
+    let sig = FnSig {
+        storage: vec![],
+        ret_ty: named("void"),
+        name: "P_Init".to_string(),
+        params: vec![],
+        variadic: false,
+    };
+    let out = call_emit_function_def(&sig);
+    assert!(!out.contains("body not yet translated"));
 }
 
 #[test]
@@ -774,7 +832,7 @@ fn function_def_non_void_gets_a_fell_off_the_end_todo() {
         params: vec![],
         variadic: false,
     };
-    let out = emit_function_def(&sig);
+    let out = call_emit_function_def(&sig);
     assert!(out.contains("fell off the end of a non-void C function"));
 }
 
@@ -787,7 +845,7 @@ fn function_def_void_gets_no_fell_off_the_end_todo() {
         params: vec![],
         variadic: false,
     };
-    let out = emit_function_def(&sig);
+    let out = call_emit_function_def(&sig);
     assert!(!out.contains("fell off the end"));
 }
 
@@ -804,7 +862,7 @@ fn function_def_anonymous_param_becomes_underscore() {
         }],
         variadic: false,
     };
-    let out = emit_function_def(&sig);
+    let out = call_emit_function_def(&sig);
     assert!(out.contains("_: std::ffi::c_short"));
 }
 
@@ -826,7 +884,7 @@ fn function_def_malformed_param_type_gets_a_placeholder_not_broken_syntax() {
         }],
         variadic: false,
     };
-    let out = emit_function_def(&sig);
+    let out = call_emit_function_def(&sig);
     assert!(!out.contains("char const"));
     assert!(out.contains("name: ()"));
     assert!(out.contains("TODO"));
@@ -846,7 +904,7 @@ fn function_def_variadic_drops_ellipsis_with_comment() {
         }],
         variadic: true,
     };
-    let out = emit_function_def(&sig);
+    let out = call_emit_function_def(&sig);
     assert!(!out.contains("..."));
     assert!(out.contains("TODO: variadic definition not supported"));
 }
@@ -878,7 +936,7 @@ fn static_function_drops_pub() {
         params: vec![],
         variadic: false,
     };
-    let out = emit_function_def(&sig);
+    let out = call_emit_function_def(&sig);
     assert!(!out.contains("pub unsafe extern"));
     assert!(out.contains("unsafe extern \"C\" fn helper"));
 }
