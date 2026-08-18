@@ -16,6 +16,17 @@ fn rcsid_style() {
 }
 
 #[test]
+fn bare_forward_declaration_is_not_a_variable() {
+    // r_defs.h's real `struct line_s;` - a bodyless forward declaration,
+    // not a variable named after its own tag. Must fail to parse here so
+    // classification falls through to `ItemKind::Raw` instead of producing
+    // a bogus `Var` with type `Named("struct")` (renders as `struct_`).
+    assert!(try_parse_var_flat("struct line_s;").is_none());
+    assert!(try_parse_var_flat("union foo;").is_none());
+    assert!(try_parse_var_flat("enum bar;").is_none());
+}
+
+#[test]
 fn braced_array_style() {
     let cd =
         try_parse_var_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", &scan(" /* ... */ ")).unwrap();
