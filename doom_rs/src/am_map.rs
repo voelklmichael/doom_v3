@@ -317,7 +317,7 @@ pub static mut player_arrow: [mline_t; 7] = unsafe {
 };
 
 pub const NUMPLYRLINES: std::ffi::c_int =
-    (std::mem::size_of_val(&(player_arrow)) / std::mem::size_of::<mline_t>());
+    (std::mem::size_of_val(&(player_arrow)) / std::mem::size_of::<mline_t>()) as std::ffi::c_int;
 
 pub static mut cheat_player_arrow: [mline_t; 16] = unsafe {
     [
@@ -472,8 +472,9 @@ pub static mut cheat_player_arrow: [mline_t; 16] = unsafe {
     ]
 };
 
-pub const NUMCHEATPLYRLINES: std::ffi::c_int =
-    (std::mem::size_of_val(&(cheat_player_arrow)) / std::mem::size_of::<mline_t>());
+pub const NUMCHEATPLYRLINES: std::ffi::c_int = (std::mem::size_of_val(&(cheat_player_arrow))
+    / std::mem::size_of::<mline_t>())
+    as std::ffi::c_int;
 
 pub static mut triangle_guy: [mline_t; 3] = unsafe {
     [
@@ -505,7 +506,7 @@ pub static mut triangle_guy: [mline_t; 3] = unsafe {
 };
 
 pub const NUMTRIANGLEGUYLINES: std::ffi::c_int =
-    (std::mem::size_of_val(&(triangle_guy)) / std::mem::size_of::<mline_t>());
+    (std::mem::size_of_val(&(triangle_guy)) / std::mem::size_of::<mline_t>()) as std::ffi::c_int;
 
 pub const R: std::ffi::c_int = (FRACUNIT);
 
@@ -538,8 +539,9 @@ pub static mut thintriangle_guy: [mline_t; 3] = unsafe {
     ]
 };
 
-pub const NUMTHINTRIANGLEGUYLINES: std::ffi::c_int =
-    (std::mem::size_of_val(&(thintriangle_guy)) / std::mem::size_of::<mline_t>());
+pub const NUMTHINTRIANGLEGUYLINES: std::ffi::c_int = (std::mem::size_of_val(&(thintriangle_guy))
+    / std::mem::size_of::<mline_t>())
+    as std::ffi::c_int;
 
 static mut cheating: std::ffi::c_int = unsafe { 0 };
 

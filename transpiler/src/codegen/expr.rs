@@ -162,6 +162,25 @@ pub(crate) fn is_float_expr(expr: &Expr) -> bool {
     }
 }
 
+/// Whether `expr` involves a C `sizeof` anywhere reachable through `Paren`/
+/// `Unary`/`Binary` wrapping - not a real type-checker, just enough to
+/// recognize the real corpus shape (`am_map.c`'s `NUMPLYRLINES`-style
+/// macros: `sizeof(player_arrow)/sizeof(mline_t)`, no explicit cast) so
+/// `codegen::macros::emit_define_object` can add the truncating cast a
+/// `usize`-producing `std::mem::size_of[_val]` call needs when the macro's
+/// own inferred type defaults to `std::ffi::c_int` (real C consumes these
+/// purely as plain int counts - `Expr::Sizeof` itself has no Rust-side
+/// `Cast` to signal that, unlike the `is_float_expr` case above).
+pub(crate) fn is_sizeof_shaped(expr: &Expr) -> bool {
+    match expr {
+        Expr::Sizeof(_) => true,
+        Expr::Paren(inner) => is_sizeof_shaped(inner),
+        Expr::Unary { expr, .. } => is_sizeof_shaped(expr),
+        Expr::Binary { lhs, rhs, .. } => is_sizeof_shaped(lhs) || is_sizeof_shaped(rhs),
+        _ => false,
+    }
+}
+
 /// Renders a C string literal (`text` includes its surrounding quotes) as
 /// `(c"...").as_ptr()`, with one target-*content*-aware fixup: a literal
 /// whose unescaped bytes are *entirely* NUL (C's own explicit "empty string"

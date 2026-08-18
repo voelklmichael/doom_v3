@@ -250,6 +250,28 @@ fn float_expr_against_float_target_needs_no_extra_cast() {
     assert_eq!(out, "(0.867 * ((R) as f64))");
 }
 
+#[test]
+fn sizeof_expr_against_int_target_gets_truncating_cast() {
+    // wi_stuff.c's real NUMANIMS-style table rows:
+    // `sizeof(epsd0animinfo)/sizeof(anim_t)` against an int-typed field -
+    // `std::mem::size_of[_val]` always produces `usize`.
+    let mut known_ty = KnownTypeNames::new();
+    known_ty.insert("anim_t");
+    let out = render_scalar_init(
+        "sizeof(epsd0animinfo)/sizeof(anim_t)",
+        &named("int"),
+        &known_ty,
+        &no_typedefs(),
+        &no_functions(),
+        &no_globals(),
+    )
+    .unwrap();
+    assert_eq!(
+        out,
+        "((std::mem::size_of_val(&((epsd0animinfo))) / std::mem::size_of::<anim_t>())) as std::ffi::c_int"
+    );
+}
+
 // ---- render_array_init ----
 
 fn arr(elem: Type, dim: Option<&str>) -> Type {

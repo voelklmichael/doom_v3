@@ -48,6 +48,24 @@ fn bare_float_arithmetic_infers_double_not_int() {
 }
 
 #[test]
+fn bare_sizeof_division_gets_a_truncating_cast() {
+    // am_map.c's real NUMPLYRLINES: `(sizeof(player_arrow)/sizeof(mline_t))`
+    // - no explicit cast, so it infers (correctly) as std::ffi::c_int, but
+    // `std::mem::size_of[_val]` always produces a `usize`, which doesn't
+    // typecheck against that const's own declared `c_int` type without an
+    // explicit cast. `mline_t` must be a known type name for `sizeof` to
+    // parse it as `SizeofArg::Type` rather than a plain identifier
+    // expression - mirrors how the real corpus's own `KnownTypeNames`
+    // environment (via `am_map.c`'s own typedef) would resolve it.
+    let mut k = known();
+    k.insert("mline_t");
+    assert_eq!(
+        emit_define_object("NUMPLYRLINES", "(sizeof(player_arrow)/sizeof(mline_t))", &k),
+        "pub const NUMPLYRLINES: std::ffi::c_int = (((std::mem::size_of_val(&((player_arrow))) / std::mem::size_of::<mline_t>()))) as std::ffi::c_int;\n\n"
+    );
+}
+
+#[test]
 fn char_const_gets_c_int_type() {
     // A C char literal is int-typed, not char-typed (integer promotion
     // applies to the literal itself) - see `render_expr`'s `CharLit` case.

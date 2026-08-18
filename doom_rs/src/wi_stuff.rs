@@ -402,9 +402,12 @@ static mut epsd2animinfo: [anim_t; 6] = unsafe {
 
 static mut NUMANIMS: [std::ffi::c_int; (NUMEPISODES) as usize] = unsafe {
     [
-        (std::mem::size_of_val(&(epsd0animinfo)) / std::mem::size_of::<anim_t>()),
-        (std::mem::size_of_val(&(epsd1animinfo)) / std::mem::size_of::<anim_t>()),
-        (std::mem::size_of_val(&(epsd2animinfo)) / std::mem::size_of::<anim_t>()),
+        (std::mem::size_of_val(&(epsd0animinfo)) / std::mem::size_of::<anim_t>())
+            as std::ffi::c_int,
+        (std::mem::size_of_val(&(epsd1animinfo)) / std::mem::size_of::<anim_t>())
+            as std::ffi::c_int,
+        (std::mem::size_of_val(&(epsd2animinfo)) / std::mem::size_of::<anim_t>())
+            as std::ffi::c_int,
     ]
 };
 
