@@ -1808,7 +1808,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_Light0),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light0 as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -1819,7 +1823,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_PUNCH,
             misc1: 0,
@@ -1830,7 +1838,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_PUNCHDOWN,
             misc1: 0,
@@ -1841,7 +1853,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_PUNCHUP,
             misc1: 0,
@@ -1861,7 +1877,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Punch),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Punch as *const (),
+                    )
+                }),
             },
             nextstate: S_PUNCH3,
             misc1: 0,
@@ -1890,7 +1910,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_PUNCH,
             misc1: 0,
@@ -1901,7 +1925,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_PISTOL,
             misc1: 0,
@@ -1912,7 +1940,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_PISTOLDOWN,
             misc1: 0,
@@ -1923,7 +1955,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_PISTOLUP,
             misc1: 0,
@@ -1943,7 +1979,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_FirePistol),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FirePistol as *const (),
+                    )
+                }),
             },
             nextstate: S_PISTOL3,
             misc1: 0,
@@ -1963,7 +2003,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_PISTOL,
             misc1: 0,
@@ -1974,7 +2018,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -1985,7 +2033,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_SGUN,
             misc1: 0,
@@ -1996,7 +2048,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_SGUNDOWN,
             misc1: 0,
@@ -2007,7 +2063,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_SGUNUP,
             misc1: 0,
@@ -2027,7 +2087,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_FireShotgun),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireShotgun as *const (),
+                    )
+                }),
             },
             nextstate: S_SGUN3,
             misc1: 0,
@@ -2092,7 +2156,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_SGUN,
             misc1: 0,
@@ -2103,7 +2171,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_SGUNFLASH2,
             misc1: 0,
@@ -2114,7 +2186,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Light2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light2 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2125,7 +2201,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN,
             misc1: 0,
@@ -2136,7 +2216,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUNDOWN,
             misc1: 0,
@@ -2147,7 +2231,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUNUP,
             misc1: 0,
@@ -2167,7 +2255,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_FireShotgun2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireShotgun2 as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN3,
             misc1: 0,
@@ -2187,7 +2279,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_CheckReload),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CheckReload as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN5,
             misc1: 0,
@@ -2198,7 +2294,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_OpenShotgun2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_OpenShotgun2 as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN6,
             misc1: 0,
@@ -2218,7 +2318,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_LoadShotgun2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_LoadShotgun2 as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN8,
             misc1: 0,
@@ -2238,7 +2342,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 7,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_CloseShotgun2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CloseShotgun2 as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN10,
             misc1: 0,
@@ -2249,7 +2357,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUN,
             misc1: 0,
@@ -2278,7 +2390,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32776,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_DSGUNFLASH2,
             misc1: 0,
@@ -2289,7 +2405,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32777,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Light2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light2 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2300,7 +2420,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_CHAIN,
             misc1: 0,
@@ -2311,7 +2435,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_CHAINDOWN,
             misc1: 0,
@@ -2322,7 +2450,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_CHAINUP,
             misc1: 0,
@@ -2333,7 +2465,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_FireCGun),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireCGun as *const (),
+                    )
+                }),
             },
             nextstate: S_CHAIN2,
             misc1: 0,
@@ -2344,7 +2480,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_FireCGun),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireCGun as *const (),
+                    )
+                }),
             },
             nextstate: S_CHAIN3,
             misc1: 0,
@@ -2355,7 +2495,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_CHAIN,
             misc1: 0,
@@ -2366,7 +2510,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2377,7 +2525,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Light2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light2 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2388,7 +2540,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILE,
             misc1: 0,
@@ -2399,7 +2555,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILEDOWN,
             misc1: 0,
@@ -2410,7 +2570,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILEUP,
             misc1: 0,
@@ -2421,7 +2585,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_GunFlash),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_GunFlash as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILE2,
             misc1: 0,
@@ -2432,7 +2600,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 12,
             action: actionf_t {
-                acp1: Some(A_FireMissile),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireMissile as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILE3,
             misc1: 0,
@@ -2443,7 +2615,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILE,
             misc1: 0,
@@ -2454,7 +2630,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILEFLASH2,
             misc1: 0,
@@ -2474,7 +2654,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32770,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Light2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light2 as *const (),
+                    )
+                }),
             },
             nextstate: S_MISSILEFLASH4,
             misc1: 0,
@@ -2485,7 +2669,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32771,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Light2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light2 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2496,7 +2684,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_SAWB,
             misc1: 0,
@@ -2507,7 +2699,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_SAW,
             misc1: 0,
@@ -2518,7 +2714,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_SAWDOWN,
             misc1: 0,
@@ -2529,7 +2729,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_SAWUP,
             misc1: 0,
@@ -2539,7 +2743,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SAWG,
             frame: 0,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Saw) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Saw as *const (),
+                    )
+                }),
+            },
             nextstate: S_SAW2,
             misc1: 0,
             misc2: 0,
@@ -2548,7 +2758,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SAWG,
             frame: 1,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Saw) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Saw as *const (),
+                    )
+                }),
+            },
             nextstate: S_SAW3,
             misc1: 0,
             misc2: 0,
@@ -2558,7 +2774,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_SAW,
             misc1: 0,
@@ -2569,7 +2789,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_PLASMA,
             misc1: 0,
@@ -2580,7 +2804,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_PLASMADOWN,
             misc1: 0,
@@ -2591,7 +2819,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_PLASMAUP,
             misc1: 0,
@@ -2602,7 +2834,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_FirePlasma),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FirePlasma as *const (),
+                    )
+                }),
             },
             nextstate: S_PLASMA2,
             misc1: 0,
@@ -2613,7 +2849,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_PLASMA,
             misc1: 0,
@@ -2624,7 +2864,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2635,7 +2879,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -2646,7 +2894,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_WeaponReady),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_WeaponReady as *const (),
+                    )
+                }),
             },
             nextstate: S_BFG,
             misc1: 0,
@@ -2657,7 +2909,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Lower),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Lower as *const (),
+                    )
+                }),
             },
             nextstate: S_BFGDOWN,
             misc1: 0,
@@ -2668,7 +2924,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_Raise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Raise as *const (),
+                    )
+                }),
             },
             nextstate: S_BFGUP,
             misc1: 0,
@@ -2679,7 +2939,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_BFGsound),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BFGsound as *const (),
+                    )
+                }),
             },
             nextstate: S_BFG2,
             misc1: 0,
@@ -2690,7 +2954,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_GunFlash),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_GunFlash as *const (),
+                    )
+                }),
             },
             nextstate: S_BFG3,
             misc1: 0,
@@ -2701,7 +2969,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FireBFG),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireBFG as *const (),
+                    )
+                }),
             },
             nextstate: S_BFG4,
             misc1: 0,
@@ -2712,7 +2984,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_ReFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_ReFire as *const (),
+                    )
+                }),
             },
             nextstate: S_BFG,
             misc1: 0,
@@ -2723,7 +2999,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 11,
             action: actionf_t {
-                acp1: Some(A_Light1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light1 as *const (),
+                    )
+                }),
             },
             nextstate: S_BFGFLASH2,
             misc1: 0,
@@ -2734,7 +3014,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_Light2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Light2 as *const (),
+                    )
+                }),
             },
             nextstate: S_LIGHTDONE,
             misc1: 0,
@@ -3006,7 +3290,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32770,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_BFGSpray),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BFGSpray as *const (),
+                    )
+                }),
             },
             nextstate: S_BFGLAND4,
             misc1: 0,
@@ -3080,7 +3368,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Explode),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Explode as *const (),
+                    )
+                }),
             },
             nextstate: S_EXPLODE2,
             misc1: 0,
@@ -3351,7 +3643,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_PLAY,
             frame: 6,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_PLAY,
             misc1: 0,
             misc2: 0,
@@ -3370,7 +3668,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_PlayerScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_PlayerScream as *const (),
+                    )
+                }),
             },
             nextstate: S_PLAY_DIE3,
             misc1: 0,
@@ -3380,7 +3682,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_PLAY,
             frame: 9,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_PLAY_DIE4,
             misc1: 0,
             misc2: 0,
@@ -3435,7 +3743,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 15,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_XScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_XScream as *const (),
+                    )
+                }),
             },
             nextstate: S_PLAY_XDIE3,
             misc1: 0,
@@ -3445,7 +3757,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_PLAY,
             frame: 16,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_PLAY_XDIE4,
             misc1: 0,
             misc2: 0,
@@ -3508,7 +3826,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_POSS,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_POSS_STND2,
             misc1: 0,
             misc2: 0,
@@ -3517,7 +3841,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_POSS,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_POSS_STND,
             misc1: 0,
             misc2: 0,
@@ -3527,7 +3857,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN2,
             misc1: 0,
@@ -3538,7 +3872,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN3,
             misc1: 0,
@@ -3549,7 +3887,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN4,
             misc1: 0,
@@ -3560,7 +3902,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN5,
             misc1: 0,
@@ -3571,7 +3917,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN6,
             misc1: 0,
@@ -3582,7 +3932,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN7,
             misc1: 0,
@@ -3593,7 +3947,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN8,
             misc1: 0,
@@ -3604,7 +3962,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_RUN1,
             misc1: 0,
@@ -3615,7 +3977,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_ATK2,
             misc1: 0,
@@ -3626,7 +3992,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_PosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_PosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_ATK3,
             misc1: 0,
@@ -3654,7 +4024,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_POSS,
             frame: 6,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_POSS_RUN1,
             misc1: 0,
             misc2: 0,
@@ -3673,7 +4049,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_DIE3,
             misc1: 0,
@@ -3683,7 +4063,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_POSS,
             frame: 9,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_POSS_DIE4,
             misc1: 0,
             misc2: 0,
@@ -3720,7 +4106,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 13,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_XScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_XScream as *const (),
+                    )
+                }),
             },
             nextstate: S_POSS_XDIE3,
             misc1: 0,
@@ -3730,7 +4120,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_POSS,
             frame: 14,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_POSS_XDIE4,
             misc1: 0,
             misc2: 0,
@@ -3829,7 +4225,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPOS,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPOS_STND2,
             misc1: 0,
             misc2: 0,
@@ -3838,7 +4240,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPOS,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPOS_STND,
             misc1: 0,
             misc2: 0,
@@ -3848,7 +4256,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN2,
             misc1: 0,
@@ -3859,7 +4271,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN3,
             misc1: 0,
@@ -3870,7 +4286,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN4,
             misc1: 0,
@@ -3881,7 +4301,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN5,
             misc1: 0,
@@ -3892,7 +4316,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN6,
             misc1: 0,
@@ -3903,7 +4331,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN7,
             misc1: 0,
@@ -3914,7 +4346,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN8,
             misc1: 0,
@@ -3925,7 +4361,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_RUN1,
             misc1: 0,
@@ -3936,7 +4376,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_ATK2,
             misc1: 0,
@@ -3947,7 +4391,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32773,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_SPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_ATK3,
             misc1: 0,
@@ -3975,7 +4423,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPOS,
             frame: 6,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPOS_RUN1,
             misc1: 0,
             misc2: 0,
@@ -3994,7 +4448,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_DIE3,
             misc1: 0,
@@ -4004,7 +4462,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPOS,
             frame: 9,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPOS_DIE4,
             misc1: 0,
             misc2: 0,
@@ -4041,7 +4505,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 13,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_XScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_XScream as *const (),
+                    )
+                }),
             },
             nextstate: S_SPOS_XDIE3,
             misc1: 0,
@@ -4051,7 +4519,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPOS,
             frame: 14,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPOS_XDIE4,
             misc1: 0,
             misc2: 0,
@@ -4159,7 +4633,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_VILE,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_VILE_STND2,
             misc1: 0,
             misc2: 0,
@@ -4168,7 +4648,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_VILE,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_VILE_STND,
             misc1: 0,
             misc2: 0,
@@ -4178,7 +4664,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN2,
             misc1: 0,
@@ -4189,7 +4679,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN3,
             misc1: 0,
@@ -4200,7 +4694,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN4,
             misc1: 0,
@@ -4211,7 +4709,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN5,
             misc1: 0,
@@ -4222,7 +4724,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN6,
             misc1: 0,
@@ -4233,7 +4739,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN7,
             misc1: 0,
@@ -4244,7 +4754,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN8,
             misc1: 0,
@@ -4255,7 +4769,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN9,
             misc1: 0,
@@ -4266,7 +4784,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN10,
             misc1: 0,
@@ -4277,7 +4799,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN11,
             misc1: 0,
@@ -4288,7 +4814,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN12,
             misc1: 0,
@@ -4299,7 +4829,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_VileChase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileChase as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_RUN1,
             misc1: 0,
@@ -4310,7 +4844,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_VileStart),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileStart as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK2,
             misc1: 0,
@@ -4321,7 +4859,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK3,
             misc1: 0,
@@ -4332,7 +4874,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_VileTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK4,
             misc1: 0,
@@ -4343,7 +4889,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32776,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK5,
             misc1: 0,
@@ -4354,7 +4904,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32777,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK6,
             misc1: 0,
@@ -4365,7 +4919,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32778,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK7,
             misc1: 0,
@@ -4376,7 +4934,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32779,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK8,
             misc1: 0,
@@ -4387,7 +4949,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32780,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK9,
             misc1: 0,
@@ -4398,7 +4964,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32781,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK10,
             misc1: 0,
@@ -4409,7 +4979,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32782,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_VileAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_VileAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_ATK11,
             misc1: 0,
@@ -4464,7 +5038,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_VILE,
             frame: 16,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_VILE_RUN1,
             misc1: 0,
             misc2: 0,
@@ -4483,7 +5063,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 17,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_VILE_DIE3,
             misc1: 0,
@@ -4493,7 +5077,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_VILE,
             frame: 18,
             tics: 7,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_VILE_DIE4,
             misc1: 0,
             misc2: 0,
@@ -4566,7 +5156,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_StartFire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_StartFire as *const (),
+                    )
+                }),
             },
             nextstate: S_FIRE2,
             misc1: 0,
@@ -4576,7 +5170,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32769,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE3,
             misc1: 0,
             misc2: 0,
@@ -4585,7 +5185,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32768,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE4,
             misc1: 0,
             misc2: 0,
@@ -4594,7 +5200,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32769,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE5,
             misc1: 0,
             misc2: 0,
@@ -4604,7 +5216,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32770,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_FireCrackle),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireCrackle as *const (),
+                    )
+                }),
             },
             nextstate: S_FIRE6,
             misc1: 0,
@@ -4614,7 +5230,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32769,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE7,
             misc1: 0,
             misc2: 0,
@@ -4623,7 +5245,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32770,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE8,
             misc1: 0,
             misc2: 0,
@@ -4632,7 +5260,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32769,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE9,
             misc1: 0,
             misc2: 0,
@@ -4641,7 +5275,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32770,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE10,
             misc1: 0,
             misc2: 0,
@@ -4650,7 +5290,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32771,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE11,
             misc1: 0,
             misc2: 0,
@@ -4659,7 +5305,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32770,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE12,
             misc1: 0,
             misc2: 0,
@@ -4668,7 +5320,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32771,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE13,
             misc1: 0,
             misc2: 0,
@@ -4677,7 +5335,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32770,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE14,
             misc1: 0,
             misc2: 0,
@@ -4686,7 +5350,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32771,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE15,
             misc1: 0,
             misc2: 0,
@@ -4695,7 +5365,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32772,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE16,
             misc1: 0,
             misc2: 0,
@@ -4704,7 +5380,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32771,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE17,
             misc1: 0,
             misc2: 0,
@@ -4713,7 +5395,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32772,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE18,
             misc1: 0,
             misc2: 0,
@@ -4722,7 +5410,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32771,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE19,
             misc1: 0,
             misc2: 0,
@@ -4732,7 +5426,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32772,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_FireCrackle),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FireCrackle as *const (),
+                    )
+                }),
             },
             nextstate: S_FIRE20,
             misc1: 0,
@@ -4742,7 +5440,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32773,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE21,
             misc1: 0,
             misc2: 0,
@@ -4751,7 +5455,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32772,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE22,
             misc1: 0,
             misc2: 0,
@@ -4760,7 +5470,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32773,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE23,
             misc1: 0,
             misc2: 0,
@@ -4769,7 +5485,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32772,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE24,
             misc1: 0,
             misc2: 0,
@@ -4778,7 +5500,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32773,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE25,
             misc1: 0,
             misc2: 0,
@@ -4787,7 +5515,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32774,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE26,
             misc1: 0,
             misc2: 0,
@@ -4796,7 +5530,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32775,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE27,
             misc1: 0,
             misc2: 0,
@@ -4805,7 +5545,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32774,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE28,
             misc1: 0,
             misc2: 0,
@@ -4814,7 +5560,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32775,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE29,
             misc1: 0,
             misc2: 0,
@@ -4823,7 +5575,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32774,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_FIRE30,
             misc1: 0,
             misc2: 0,
@@ -4832,7 +5590,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32775,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_NULL,
             misc1: 0,
             misc2: 0,
@@ -4887,7 +5651,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Tracer),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Tracer as *const (),
+                    )
+                }),
             },
             nextstate: S_TRACER2,
             misc1: 0,
@@ -4898,7 +5666,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Tracer),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Tracer as *const (),
+                    )
+                }),
             },
             nextstate: S_TRACER,
             misc1: 0,
@@ -4935,7 +5707,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKEL,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKEL_STND2,
             misc1: 0,
             misc2: 0,
@@ -4944,7 +5722,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKEL,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKEL_STND,
             misc1: 0,
             misc2: 0,
@@ -4954,7 +5738,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN2,
             misc1: 0,
@@ -4965,7 +5753,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN3,
             misc1: 0,
@@ -4976,7 +5768,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN4,
             misc1: 0,
@@ -4987,7 +5783,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN5,
             misc1: 0,
@@ -4998,7 +5798,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN6,
             misc1: 0,
@@ -5009,7 +5813,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN7,
             misc1: 0,
@@ -5020,7 +5828,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN8,
             misc1: 0,
@@ -5031,7 +5843,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN9,
             misc1: 0,
@@ -5042,7 +5858,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN10,
             misc1: 0,
@@ -5053,7 +5873,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN11,
             misc1: 0,
@@ -5064,7 +5888,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN12,
             misc1: 0,
@@ -5075,7 +5903,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN1,
             misc1: 0,
@@ -5086,7 +5918,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_FIST2,
             misc1: 0,
@@ -5097,7 +5933,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_SkelWhoosh),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SkelWhoosh as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_FIST3,
             misc1: 0,
@@ -5108,7 +5948,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 7,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_FIST4,
             misc1: 0,
@@ -5119,7 +5963,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_SkelFist),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SkelFist as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN1,
             misc1: 0,
@@ -5130,7 +5978,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32777,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_MISS2,
             misc1: 0,
@@ -5141,7 +5993,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32777,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_MISS3,
             misc1: 0,
@@ -5152,7 +6008,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 10,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_SkelMissile),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SkelMissile as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_MISS4,
             misc1: 0,
@@ -5163,7 +6023,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 10,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_RUN1,
             misc1: 0,
@@ -5182,7 +6046,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKEL,
             frame: 11,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKEL_RUN1,
             misc1: 0,
             misc2: 0,
@@ -5210,7 +6080,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 13,
             tics: 7,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_SKEL_DIE4,
             misc1: 0,
@@ -5220,7 +6094,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKEL,
             frame: 14,
             tics: 7,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKEL_DIE5,
             misc1: 0,
             misc2: 0,
@@ -5346,7 +6226,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FATT,
             frame: 0,
             tics: 15,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_FATT_STND2,
             misc1: 0,
             misc2: 0,
@@ -5355,7 +6241,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FATT,
             frame: 1,
             tics: 15,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_FATT_STND,
             misc1: 0,
             misc2: 0,
@@ -5365,7 +6257,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN2,
             misc1: 0,
@@ -5376,7 +6272,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN3,
             misc1: 0,
@@ -5387,7 +6287,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN4,
             misc1: 0,
@@ -5398,7 +6302,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN5,
             misc1: 0,
@@ -5409,7 +6317,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN6,
             misc1: 0,
@@ -5420,7 +6332,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN7,
             misc1: 0,
@@ -5431,7 +6347,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN8,
             misc1: 0,
@@ -5442,7 +6362,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN9,
             misc1: 0,
@@ -5453,7 +6377,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN10,
             misc1: 0,
@@ -5464,7 +6392,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN11,
             misc1: 0,
@@ -5475,7 +6407,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN12,
             misc1: 0,
@@ -5486,7 +6422,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN1,
             misc1: 0,
@@ -5497,7 +6437,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_FatRaise),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FatRaise as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK2,
             misc1: 0,
@@ -5508,7 +6452,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FatAttack1),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FatAttack1 as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK3,
             misc1: 0,
@@ -5519,7 +6467,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK4,
             misc1: 0,
@@ -5530,7 +6482,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK5,
             misc1: 0,
@@ -5541,7 +6497,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FatAttack2),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FatAttack2 as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK6,
             misc1: 0,
@@ -5552,7 +6512,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK7,
             misc1: 0,
@@ -5563,7 +6527,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK8,
             misc1: 0,
@@ -5574,7 +6542,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FatAttack3),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FatAttack3 as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK9,
             misc1: 0,
@@ -5585,7 +6557,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_ATK10,
             misc1: 0,
@@ -5596,7 +6572,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_RUN1,
             misc1: 0,
@@ -5615,7 +6595,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FATT,
             frame: 9,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_FATT_RUN1,
             misc1: 0,
             misc2: 0,
@@ -5634,7 +6620,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 11,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_FATT_DIE3,
             misc1: 0,
@@ -5644,7 +6634,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FATT,
             frame: 12,
             tics: 6,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_FATT_DIE4,
             misc1: 0,
             misc2: 0,
@@ -5708,7 +6704,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 19,
             tics: (-(1)),
             action: actionf_t {
-                acp1: Some(A_BossDeath),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BossDeath as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -5790,7 +6790,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CPOS,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_CPOS_STND2,
             misc1: 0,
             misc2: 0,
@@ -5799,7 +6805,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CPOS,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_CPOS_STND,
             misc1: 0,
             misc2: 0,
@@ -5809,7 +6821,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN2,
             misc1: 0,
@@ -5820,7 +6836,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN3,
             misc1: 0,
@@ -5831,7 +6851,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN4,
             misc1: 0,
@@ -5842,7 +6866,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN5,
             misc1: 0,
@@ -5853,7 +6881,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN6,
             misc1: 0,
@@ -5864,7 +6896,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN7,
             misc1: 0,
@@ -5875,7 +6911,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN8,
             misc1: 0,
@@ -5886,7 +6926,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_RUN1,
             misc1: 0,
@@ -5897,7 +6941,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_ATK2,
             misc1: 0,
@@ -5908,7 +6956,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32773,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_CPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_ATK3,
             misc1: 0,
@@ -5919,7 +6971,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32772,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_CPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_ATK4,
             misc1: 0,
@@ -5930,7 +6986,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_CPosRefire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CPosRefire as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_ATK2,
             misc1: 0,
@@ -5949,7 +7009,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CPOS,
             frame: 6,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_CPOS_RUN1,
             misc1: 0,
             misc2: 0,
@@ -5968,7 +7034,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_DIE3,
             misc1: 0,
@@ -5978,7 +7048,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CPOS,
             frame: 9,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_CPOS_DIE4,
             misc1: 0,
             misc2: 0,
@@ -6033,7 +7109,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 15,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_XScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_XScream as *const (),
+                    )
+                }),
             },
             nextstate: S_CPOS_XDIE3,
             misc1: 0,
@@ -6043,7 +7123,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CPOS,
             frame: 16,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_CPOS_XDIE4,
             misc1: 0,
             misc2: 0,
@@ -6142,7 +7228,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_TROO,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_TROO_STND2,
             misc1: 0,
             misc2: 0,
@@ -6151,7 +7243,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_TROO,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_TROO_STND,
             misc1: 0,
             misc2: 0,
@@ -6161,7 +7259,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN2,
             misc1: 0,
@@ -6172,7 +7274,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN3,
             misc1: 0,
@@ -6183,7 +7289,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN4,
             misc1: 0,
@@ -6194,7 +7304,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN5,
             misc1: 0,
@@ -6205,7 +7319,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN6,
             misc1: 0,
@@ -6216,7 +7334,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN7,
             misc1: 0,
@@ -6227,7 +7349,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN8,
             misc1: 0,
@@ -6238,7 +7364,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN1,
             misc1: 0,
@@ -6249,7 +7379,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_ATK2,
             misc1: 0,
@@ -6260,7 +7394,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_ATK3,
             misc1: 0,
@@ -6271,7 +7409,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_TroopAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_TroopAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_RUN1,
             misc1: 0,
@@ -6290,7 +7432,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_TROO,
             frame: 7,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_TROO_RUN1,
             misc1: 0,
             misc2: 0,
@@ -6309,7 +7457,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_DIE3,
             misc1: 0,
@@ -6328,7 +7480,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_TROO,
             frame: 11,
             tics: 6,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_TROO_DIE5,
             misc1: 0,
             misc2: 0,
@@ -6356,7 +7514,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 14,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_XScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_XScream as *const (),
+                    )
+                }),
             },
             nextstate: S_TROO_XDIE3,
             misc1: 0,
@@ -6375,7 +7537,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_TROO,
             frame: 16,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_TROO_XDIE5,
             misc1: 0,
             misc2: 0,
@@ -6465,7 +7633,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SARG,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SARG_STND2,
             misc1: 0,
             misc2: 0,
@@ -6474,7 +7648,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SARG,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SARG_STND,
             misc1: 0,
             misc2: 0,
@@ -6484,7 +7664,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN2,
             misc1: 0,
@@ -6495,7 +7679,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN3,
             misc1: 0,
@@ -6506,7 +7694,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN4,
             misc1: 0,
@@ -6517,7 +7709,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN5,
             misc1: 0,
@@ -6528,7 +7724,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN6,
             misc1: 0,
@@ -6539,7 +7739,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN7,
             misc1: 0,
@@ -6550,7 +7754,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN8,
             misc1: 0,
@@ -6561,7 +7769,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 2,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN1,
             misc1: 0,
@@ -6572,7 +7784,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_ATK2,
             misc1: 0,
@@ -6583,7 +7799,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_ATK3,
             misc1: 0,
@@ -6594,7 +7814,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_SargAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SargAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_RUN1,
             misc1: 0,
@@ -6613,7 +7837,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SARG,
             frame: 7,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_SARG_RUN1,
             misc1: 0,
             misc2: 0,
@@ -6632,7 +7862,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_SARG_DIE3,
             misc1: 0,
@@ -6651,7 +7885,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SARG,
             frame: 11,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SARG_DIE5,
             misc1: 0,
             misc2: 0,
@@ -6732,7 +7972,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_HEAD,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_HEAD_STND,
             misc1: 0,
             misc2: 0,
@@ -6742,7 +7988,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_HEAD_RUN1,
             misc1: 0,
@@ -6753,7 +8003,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_HEAD_ATK2,
             misc1: 0,
@@ -6764,7 +8018,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_HEAD_ATK3,
             misc1: 0,
@@ -6775,7 +8033,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32771,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_HeadAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_HeadAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_HEAD_RUN1,
             misc1: 0,
@@ -6794,7 +8056,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_HEAD,
             frame: 4,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_HEAD_PAIN3,
             misc1: 0,
             misc2: 0,
@@ -6822,7 +8090,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 7,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_HEAD_DIE3,
             misc1: 0,
@@ -6850,7 +8122,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_HEAD,
             frame: 10,
             tics: 8,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_HEAD_DIE6,
             misc1: 0,
             misc2: 0,
@@ -6967,7 +8245,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOSS,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOSS_STND2,
             misc1: 0,
             misc2: 0,
@@ -6976,7 +8260,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOSS,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOSS_STND,
             misc1: 0,
             misc2: 0,
@@ -6986,7 +8276,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN2,
             misc1: 0,
@@ -6997,7 +8291,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN3,
             misc1: 0,
@@ -7008,7 +8306,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN4,
             misc1: 0,
@@ -7019,7 +8321,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN5,
             misc1: 0,
@@ -7030,7 +8336,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN6,
             misc1: 0,
@@ -7041,7 +8351,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN7,
             misc1: 0,
@@ -7052,7 +8366,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN8,
             misc1: 0,
@@ -7063,7 +8381,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN1,
             misc1: 0,
@@ -7074,7 +8396,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_ATK2,
             misc1: 0,
@@ -7085,7 +8411,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_ATK3,
             misc1: 0,
@@ -7096,7 +8426,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_BruisAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BruisAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_RUN1,
             misc1: 0,
@@ -7115,7 +8449,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOSS,
             frame: 7,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOSS_RUN1,
             misc1: 0,
             misc2: 0,
@@ -7134,7 +8474,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_BOSS_DIE3,
             misc1: 0,
@@ -7153,7 +8497,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOSS,
             frame: 11,
             tics: 8,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOSS_DIE5,
             misc1: 0,
             misc2: 0,
@@ -7181,7 +8531,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 14,
             tics: (-(1)),
             action: actionf_t {
-                acp1: Some(A_BossDeath),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BossDeath as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -7254,7 +8608,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOS2,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOS2_STND2,
             misc1: 0,
             misc2: 0,
@@ -7263,7 +8623,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOS2,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOS2_STND,
             misc1: 0,
             misc2: 0,
@@ -7273,7 +8639,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN2,
             misc1: 0,
@@ -7284,7 +8654,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN3,
             misc1: 0,
@@ -7295,7 +8669,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN4,
             misc1: 0,
@@ -7306,7 +8684,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN5,
             misc1: 0,
@@ -7317,7 +8699,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN6,
             misc1: 0,
@@ -7328,7 +8714,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN7,
             misc1: 0,
@@ -7339,7 +8729,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN8,
             misc1: 0,
@@ -7350,7 +8744,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN1,
             misc1: 0,
@@ -7361,7 +8759,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_ATK2,
             misc1: 0,
@@ -7372,7 +8774,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_ATK3,
             misc1: 0,
@@ -7383,7 +8789,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 6,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_BruisAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BruisAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_RUN1,
             misc1: 0,
@@ -7402,7 +8812,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOS2,
             frame: 7,
             tics: 2,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOS2_RUN1,
             misc1: 0,
             misc2: 0,
@@ -7421,7 +8837,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_BOS2_DIE3,
             misc1: 0,
@@ -7440,7 +8860,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BOS2,
             frame: 11,
             tics: 8,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_BOS2_DIE5,
             misc1: 0,
             misc2: 0,
@@ -7539,7 +8965,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKUL,
             frame: 32768,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKULL_STND2,
             misc1: 0,
             misc2: 0,
@@ -7548,7 +8980,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKUL,
             frame: 32769,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKULL_STND,
             misc1: 0,
             misc2: 0,
@@ -7558,7 +8996,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKULL_RUN2,
             misc1: 0,
@@ -7569,7 +9011,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SKULL_RUN1,
             misc1: 0,
@@ -7580,7 +9026,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32770,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SKULL_ATK2,
             misc1: 0,
@@ -7591,7 +9041,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32771,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_SkullAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SkullAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SKULL_ATK3,
             misc1: 0,
@@ -7628,7 +9082,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKUL,
             frame: 32772,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKULL_RUN1,
             misc1: 0,
             misc2: 0,
@@ -7647,7 +9107,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_SKULL_DIE3,
             misc1: 0,
@@ -7666,7 +9130,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SKUL,
             frame: 32776,
             tics: 6,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SKULL_DIE5,
             misc1: 0,
             misc2: 0,
@@ -7693,7 +9163,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPID,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPID_STND2,
             misc1: 0,
             misc2: 0,
@@ -7702,7 +9178,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPID,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPID_STND,
             misc1: 0,
             misc2: 0,
@@ -7712,7 +9194,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Metal),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Metal as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN2,
             misc1: 0,
@@ -7723,7 +9209,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN3,
             misc1: 0,
@@ -7734,7 +9224,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN4,
             misc1: 0,
@@ -7745,7 +9239,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN5,
             misc1: 0,
@@ -7756,7 +9254,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Metal),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Metal as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN6,
             misc1: 0,
@@ -7767,7 +9269,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN7,
             misc1: 0,
@@ -7778,7 +9284,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN8,
             misc1: 0,
@@ -7789,7 +9299,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN9,
             misc1: 0,
@@ -7800,7 +9314,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Metal),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Metal as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN10,
             misc1: 0,
@@ -7811,7 +9329,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN11,
             misc1: 0,
@@ -7822,7 +9344,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN12,
             misc1: 0,
@@ -7833,7 +9359,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_RUN1,
             misc1: 0,
@@ -7844,7 +9374,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_ATK2,
             misc1: 0,
@@ -7855,7 +9389,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_SPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_ATK3,
             misc1: 0,
@@ -7866,7 +9404,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_SPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_ATK4,
             misc1: 0,
@@ -7877,7 +9419,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_SpidRefire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SpidRefire as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_ATK2,
             misc1: 0,
@@ -7896,7 +9442,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPID,
             frame: 8,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPID_RUN1,
             misc1: 0,
             misc2: 0,
@@ -7906,7 +9458,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_SPID_DIE2,
             misc1: 0,
@@ -7916,7 +9472,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SPID,
             frame: 10,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPID_DIE3,
             misc1: 0,
             misc2: 0,
@@ -7998,7 +9560,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 18,
             tics: (-(1)),
             action: actionf_t {
-                acp1: Some(A_BossDeath),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BossDeath as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -8008,7 +9574,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BSPI,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BSPI_STND2,
             misc1: 0,
             misc2: 0,
@@ -8017,7 +9589,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BSPI,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BSPI_STND,
             misc1: 0,
             misc2: 0,
@@ -8036,7 +9614,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_BabyMetal),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BabyMetal as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN2,
             misc1: 0,
@@ -8047,7 +9629,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN3,
             misc1: 0,
@@ -8058,7 +9644,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN4,
             misc1: 0,
@@ -8069,7 +9659,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN5,
             misc1: 0,
@@ -8080,7 +9674,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN6,
             misc1: 0,
@@ -8091,7 +9689,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN7,
             misc1: 0,
@@ -8102,7 +9704,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_BabyMetal),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BabyMetal as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN8,
             misc1: 0,
@@ -8113,7 +9719,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN9,
             misc1: 0,
@@ -8124,7 +9734,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN10,
             misc1: 0,
@@ -8135,7 +9749,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN11,
             misc1: 0,
@@ -8146,7 +9764,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN12,
             misc1: 0,
@@ -8157,7 +9779,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_RUN1,
             misc1: 0,
@@ -8168,7 +9794,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_ATK2,
             misc1: 0,
@@ -8179,7 +9809,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_BspiAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BspiAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_ATK3,
             misc1: 0,
@@ -8199,7 +9833,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32775,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_SpidRefire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SpidRefire as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_ATK2,
             misc1: 0,
@@ -8218,7 +9856,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BSPI,
             frame: 8,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_BSPI_RUN1,
             misc1: 0,
             misc2: 0,
@@ -8228,7 +9872,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 20,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_BSPI_DIE2,
             misc1: 0,
@@ -8238,7 +9886,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_BSPI,
             frame: 10,
             tics: 7,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_BSPI_DIE3,
             misc1: 0,
             misc2: 0,
@@ -8284,7 +9938,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 15,
             tics: (-(1)),
             action: actionf_t {
-                acp1: Some(A_BossDeath),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BossDeath as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -8420,7 +10078,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CYBR,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_CYBER_STND2,
             misc1: 0,
             misc2: 0,
@@ -8429,7 +10093,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CYBR,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_CYBER_STND,
             misc1: 0,
             misc2: 0,
@@ -8438,7 +10108,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CYBR,
             frame: 0,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Hoof) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Hoof as *const (),
+                    )
+                }),
+            },
             nextstate: S_CYBER_RUN2,
             misc1: 0,
             misc2: 0,
@@ -8448,7 +10124,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN3,
             misc1: 0,
@@ -8459,7 +10139,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN4,
             misc1: 0,
@@ -8470,7 +10154,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN5,
             misc1: 0,
@@ -8481,7 +10169,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN6,
             misc1: 0,
@@ -8492,7 +10184,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN7,
             misc1: 0,
@@ -8503,7 +10199,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Metal),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Metal as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN8,
             misc1: 0,
@@ -8514,7 +10214,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN1,
             misc1: 0,
@@ -8525,7 +10229,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_ATK2,
             misc1: 0,
@@ -8536,7 +10244,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 12,
             action: actionf_t {
-                acp1: Some(A_CyberAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CyberAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_ATK3,
             misc1: 0,
@@ -8547,7 +10259,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 12,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_ATK4,
             misc1: 0,
@@ -8558,7 +10274,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 12,
             action: actionf_t {
-                acp1: Some(A_CyberAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CyberAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_ATK5,
             misc1: 0,
@@ -8569,7 +10289,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 12,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_ATK6,
             misc1: 0,
@@ -8580,7 +10304,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 12,
             action: actionf_t {
-                acp1: Some(A_CyberAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CyberAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_RUN1,
             misc1: 0,
@@ -8590,7 +10318,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CYBR,
             frame: 6,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_CYBER_RUN1,
             misc1: 0,
             misc2: 0,
@@ -8609,7 +10343,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 8,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_CYBER_DIE3,
             misc1: 0,
@@ -8646,7 +10384,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_CYBR,
             frame: 12,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_CYBER_DIE7,
             misc1: 0,
             misc2: 0,
@@ -8683,7 +10427,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 15,
             tics: (-(1)),
             action: actionf_t {
-                acp1: Some(A_BossDeath),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BossDeath as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -8693,7 +10441,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_PAIN,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_PAIN_STND,
             misc1: 0,
             misc2: 0,
@@ -8703,7 +10457,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN2,
             misc1: 0,
@@ -8714,7 +10472,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN3,
             misc1: 0,
@@ -8725,7 +10487,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN4,
             misc1: 0,
@@ -8736,7 +10502,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN5,
             misc1: 0,
@@ -8747,7 +10517,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN6,
             misc1: 0,
@@ -8758,7 +10532,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN1,
             misc1: 0,
@@ -8769,7 +10547,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_ATK2,
             misc1: 0,
@@ -8780,7 +10562,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_ATK3,
             misc1: 0,
@@ -8791,7 +10577,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32773,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_ATK4,
             misc1: 0,
@@ -8802,7 +10592,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32773,
             tics: 0,
             action: actionf_t {
-                acp1: Some(A_PainAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_PainAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_RUN1,
             misc1: 0,
@@ -8821,7 +10615,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_PAIN,
             frame: 6,
             tics: 6,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_PAIN_RUN1,
             misc1: 0,
             misc2: 0,
@@ -8840,7 +10640,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32776,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_DIE3,
             misc1: 0,
@@ -8869,7 +10673,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32779,
             tics: 8,
             action: actionf_t {
-                acp1: Some(A_PainDie),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_PainDie as *const (),
+                    )
+                }),
             },
             nextstate: S_PAIN_DIE6,
             misc1: 0,
@@ -8942,7 +10750,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SSWV,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SSWV_STND2,
             misc1: 0,
             misc2: 0,
@@ -8951,7 +10765,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SSWV,
             frame: 1,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_SSWV_STND,
             misc1: 0,
             misc2: 0,
@@ -8961,7 +10781,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN2,
             misc1: 0,
@@ -8972,7 +10796,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN3,
             misc1: 0,
@@ -8983,7 +10811,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN4,
             misc1: 0,
@@ -8994,7 +10826,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN5,
             misc1: 0,
@@ -9005,7 +10841,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN6,
             misc1: 0,
@@ -9016,7 +10856,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN7,
             misc1: 0,
@@ -9027,7 +10871,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN8,
             misc1: 0,
@@ -9038,7 +10886,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 3,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_Chase),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Chase as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_RUN1,
             misc1: 0,
@@ -9049,7 +10901,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 4,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_ATK2,
             misc1: 0,
@@ -9060,7 +10916,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_ATK3,
             misc1: 0,
@@ -9071,7 +10931,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_CPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_ATK4,
             misc1: 0,
@@ -9082,7 +10946,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_FaceTarget),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_FaceTarget as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_ATK5,
             misc1: 0,
@@ -9093,7 +10961,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32774,
             tics: 4,
             action: actionf_t {
-                acp1: Some(A_CPosAttack),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CPosAttack as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_ATK6,
             misc1: 0,
@@ -9104,7 +10976,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 5,
             tics: 1,
             action: actionf_t {
-                acp1: Some(A_CPosRefire),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_CPosRefire as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_ATK2,
             misc1: 0,
@@ -9123,7 +10999,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SSWV,
             frame: 7,
             tics: 3,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_SSWV_RUN1,
             misc1: 0,
             misc2: 0,
@@ -9142,7 +11024,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 9,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_DIE3,
             misc1: 0,
@@ -9152,7 +11038,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SSWV,
             frame: 10,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SSWV_DIE4,
             misc1: 0,
             misc2: 0,
@@ -9189,7 +11081,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 14,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_XScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_XScream as *const (),
+                    )
+                }),
             },
             nextstate: S_SSWV_XDIE3,
             misc1: 0,
@@ -9199,7 +11095,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SSWV,
             frame: 15,
             tics: 5,
-            action: actionf_t { acp1: Some(A_Fall) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fall as *const (),
+                    )
+                }),
+            },
             nextstate: S_SSWV_XDIE4,
             misc1: 0,
             misc2: 0,
@@ -9335,7 +11237,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 2,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_COMMKEEN4,
             misc1: 0,
@@ -9409,7 +11315,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 10,
             tics: 6,
             action: actionf_t {
-                acp1: Some(A_KeenDie),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_KeenDie as *const (),
+                    )
+                }),
             },
             nextstate: S_COMMKEEN12,
             misc1: 0,
@@ -9437,7 +11347,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_KEEN,
             frame: 12,
             tics: 8,
-            action: actionf_t { acp1: Some(A_Pain) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Pain as *const (),
+                    )
+                }),
+            },
             nextstate: S_KEENSTND,
             misc1: 0,
             misc2: 0,
@@ -9456,7 +11372,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 1,
             tics: 36,
             action: actionf_t {
-                acp1: Some(A_BrainPain),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BrainPain as *const (),
+                    )
+                }),
             },
             nextstate: S_BRAIN,
             misc1: 0,
@@ -9467,7 +11387,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 100,
             action: actionf_t {
-                acp1: Some(A_BrainScream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BrainScream as *const (),
+                    )
+                }),
             },
             nextstate: S_BRAIN_DIE2,
             misc1: 0,
@@ -9496,7 +11420,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: (-(1)),
             action: actionf_t {
-                acp1: Some(A_BrainDie),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BrainDie as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -9506,7 +11434,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_SSWV,
             frame: 0,
             tics: 10,
-            action: actionf_t { acp1: Some(A_Look) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Look as *const (),
+                    )
+                }),
+            },
             nextstate: S_BRAINEYE,
             misc1: 0,
             misc2: 0,
@@ -9516,7 +11450,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 181,
             action: actionf_t {
-                acp1: Some(A_BrainAwake),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BrainAwake as *const (),
+                    )
+                }),
             },
             nextstate: S_BRAINEYE1,
             misc1: 0,
@@ -9527,7 +11465,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 0,
             tics: 150,
             action: actionf_t {
-                acp1: Some(A_BrainSpit),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BrainSpit as *const (),
+                    )
+                }),
             },
             nextstate: S_BRAINEYE1,
             misc1: 0,
@@ -9538,7 +11480,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32768,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_SpawnSound),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SpawnSound as *const (),
+                    )
+                }),
             },
             nextstate: S_SPAWN2,
             misc1: 0,
@@ -9549,7 +11495,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_SpawnFly),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SpawnFly as *const (),
+                    )
+                }),
             },
             nextstate: S_SPAWN3,
             misc1: 0,
@@ -9560,7 +11510,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32770,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_SpawnFly),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SpawnFly as *const (),
+                    )
+                }),
             },
             nextstate: S_SPAWN4,
             misc1: 0,
@@ -9571,7 +11525,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32771,
             tics: 3,
             action: actionf_t {
-                acp1: Some(A_SpawnFly),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_SpawnFly as *const (),
+                    )
+                }),
             },
             nextstate: S_SPAWN1,
             misc1: 0,
@@ -9581,7 +11539,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32768,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE2,
             misc1: 0,
             misc2: 0,
@@ -9590,7 +11554,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32769,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE3,
             misc1: 0,
             misc2: 0,
@@ -9599,7 +11569,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32770,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE4,
             misc1: 0,
             misc2: 0,
@@ -9608,7 +11584,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32771,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE5,
             misc1: 0,
             misc2: 0,
@@ -9617,7 +11599,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32772,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE6,
             misc1: 0,
             misc2: 0,
@@ -9626,7 +11614,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32773,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE7,
             misc1: 0,
             misc2: 0,
@@ -9635,7 +11629,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32774,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_SPAWNFIRE8,
             misc1: 0,
             misc2: 0,
@@ -9644,7 +11644,13 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             sprite: SPR_FIRE,
             frame: 32775,
             tics: 4,
-            action: actionf_t { acp1: Some(A_Fire) },
+            action: actionf_t {
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Fire as *const (),
+                    )
+                }),
+            },
             nextstate: S_NULL,
             misc1: 0,
             misc2: 0,
@@ -9672,7 +11678,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32771,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_BrainExplode),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_BrainExplode as *const (),
+                    )
+                }),
             },
             nextstate: S_NULL,
             misc1: 0,
@@ -9746,7 +11756,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32769,
             tics: 5,
             action: actionf_t {
-                acp1: Some(A_Scream),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Scream as *const (),
+                    )
+                }),
             },
             nextstate: S_BEXP3,
             misc1: 0,
@@ -9766,7 +11780,11 @@ pub static mut states: [state_t; (NUMSTATES) as usize] = unsafe {
             frame: 32771,
             tics: 10,
             action: actionf_t {
-                acp1: Some(A_Explode),
+                acp1: Some(unsafe {
+                    std::mem::transmute::<*const (), unsafe extern "C" fn(*mut std::ffi::c_void)>(
+                        A_Explode as *const (),
+                    )
+                }),
             },
             nextstate: S_BEXP5,
             misc1: 0,

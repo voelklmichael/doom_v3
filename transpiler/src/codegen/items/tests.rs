@@ -431,6 +431,7 @@ fn var_malformed_multi_declarator_type_is_flagged_not_emitted_broken() {
         &KnownTypeNames::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert!(!out.contains("static mut m_y2: fixed_t m_x2,"));
@@ -450,6 +451,7 @@ fn var_without_initializer_becomes_extern_block() {
         &KnownTypeNames::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert!(out.contains("unsafe extern \"C\" {"));
@@ -467,6 +469,7 @@ fn var_without_initializer_still_becomes_zeroed_stub() {
     let out = emit_var(
         &vd,
         &KnownTypeNames::new(),
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &mut BTreeSet::new(),
@@ -492,6 +495,7 @@ fn var_with_scalar_initializer_is_translated() {
         &KnownTypeNames::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert_eq!(
@@ -514,6 +518,7 @@ fn var_char_array_from_string_literal_is_translated() {
     let out = emit_var(
         &vd,
         &KnownTypeNames::new(),
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &mut BTreeSet::new(),
@@ -548,6 +553,7 @@ fn var_flat_scalar_array_is_translated() {
         &KnownTypeNames::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert!(!out.contains("std::mem::zeroed()"), "got: {out}");
@@ -578,6 +584,7 @@ fn var_struct_typed_array_stays_a_stub_this_phase() {
         &KnownTypeNames::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert!(out.contains("std::mem::zeroed()"), "got: {out}");
@@ -596,6 +603,7 @@ fn var_null_pointer_literal_becomes_null_mut() {
     let out = emit_var(
         &vd,
         &KnownTypeNames::new(),
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &mut BTreeSet::new(),
@@ -617,6 +625,7 @@ fn static_var_drops_pub() {
     let out = emit_var(
         &vd,
         &KnownTypeNames::new(),
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &mut BTreeSet::new(),
@@ -651,6 +660,7 @@ fn bare_struct_var_is_translated_to_a_named_field_literal() {
         &vd,
         &KnownTypeNames::new(),
         &records,
+        &HashMap::new(),
         &HashMap::new(),
         &mut needed,
     );
@@ -692,7 +702,13 @@ fn emit_items_appends_one_deduped_zeroed_const_per_module() {
         (make_var("a"), Trivia::default()),
         (make_var("b"), Trivia::default()),
     ];
-    let out = emit_items(&items, &KnownTypeNames::new(), &records, &HashMap::new());
+    let out = emit_items(
+        &items,
+        &KnownTypeNames::new(),
+        &records,
+        &HashMap::new(),
+        &HashMap::new(),
+    );
     assert_eq!(
         out.matches("const ZEROED_point_t: point_t = unsafe { std::mem::zeroed() };")
             .count(),
@@ -857,6 +873,7 @@ fn conditional_emits_only_the_active_branch() {
         &KnownTypeNames::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert!(out.contains(" a:"));
@@ -890,6 +907,7 @@ fn conditional_none_emits_nothing() {
             &KnownTypeNames::new(),
             &HashMap::new(),
             &HashMap::new(),
+            &HashMap::new(),
             &mut BTreeSet::new()
         ),
         ""
@@ -911,6 +929,7 @@ fn conditional_unknown_is_flagged_not_silently_dropped() {
     let out = emit_conditional(
         &group,
         &KnownTypeNames::new(),
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &mut BTreeSet::new(),
@@ -949,6 +968,7 @@ fn bare_preproc_item_emits_nothing() {
         &known,
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert_eq!(out, "");
@@ -966,6 +986,7 @@ fn define_object_item_emits_a_const() {
             value: "1".to_string(),
         })),
         &known,
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &mut BTreeSet::new(),

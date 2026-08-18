@@ -23,8 +23,10 @@
 
 use super::expr::{render_expr, unescape_c_string};
 use super::ident::ident;
-use super::types::{map_type, normalize, strip_tag_keyword, type_is_malformed};
-use crate::parser::ast::{ActiveBranch, Init, RecordDecl, RecordKind, Type};
+use super::types::{
+    format_return_suffix, map_type, normalize, strip_tag_keyword, type_is_malformed,
+};
+use crate::parser::ast::{ActiveBranch, FnSig, Init, RecordDecl, RecordKind, Type};
 use crate::parser::scan;
 use crate::parser::stmt::expr::{Expr, KnownTypeNames, parse_expr};
 use crate::parser::stmt::lex::lex_ctoks;
@@ -46,6 +48,7 @@ pub fn render_scalar_init(
     ty: &Type,
     known: &KnownTypeNames,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
 ) -> Option<String> {
     let expr = parse_init_expr(text, known);
     let rendered = render_expr(&expr)?;
@@ -75,7 +78,46 @@ pub fn render_scalar_init(
             "None".to_string()
         }
         (Type::FunctionPointer { .. }, Expr::Ident(name)) if name == "NULL" => "None".to_string(),
-        (Type::FunctionPointer { .. }, Expr::Ident(_)) => format!("Some({rendered})"),
+        (Type::FunctionPointer { ret, params }, Expr::Ident(name)) => {
+            // Real Doom idiom (`info.c`'s `states[]` table): every state's
+            // action function is stored through `actionf_t`'s first union
+            // member (`acp1`, a 1-arg signature), regardless of the actual
+            // function's own declared arity (0, 1, or 2 args) - C's looser
+            // function-pointer conversion rules permit this silently, Rust
+            // correctly rejects a direct assignment when the arities
+            // differ. `known_functions` (the real function's own corpus-wide
+            // signature) tells us whether this specific case actually needs
+            // the fixup: same arity coerces directly (no transmute - a
+            // same-type transmute is itself a clippy warning, and this is
+            // the common case - most action functions genuinely are 1-arg);
+            // a real arity mismatch (or a callee this build can't resolve,
+            // e.g. one only ever seen via an opaque function-body stub)
+            // goes through a `transmute`, matching the same permissive-
+            // conversion idiom the original C already relied on. Routed
+            // through `*const ()` rather than `usize` - these values sit in
+            // a `static`'s own initializer, a const-eval context where a
+            // pointer-to-*integer* cast is rejected outright ("pointers
+            // cannot be cast to integers during const eval", a real error
+            // hit via the actual `--emit-rust` + build run); a pointer-to-
+            // *pointer* reinterpretation stays const-evaluable, since it
+            // never needs to know the pointer's actual runtime address, only
+            // its type.
+            let needs_transmute = known_functions
+                .get(name.as_str())
+                .is_none_or(|sig| sig.params.len() != params.len());
+            if needs_transmute {
+                let inner_ty = format!(
+                    "unsafe extern \"C\" fn({}){}",
+                    params.iter().map(map_type).collect::<Vec<_>>().join(", "),
+                    format_return_suffix(ret)
+                );
+                format!(
+                    "Some(unsafe {{ std::mem::transmute::<*const (), {inner_ty}>({rendered} as *const ()) }})"
+                )
+            } else {
+                format!("Some({rendered})")
+            }
+        }
         _ => rendered,
     })
 }
@@ -146,12 +188,14 @@ fn resolve_record<'a>(
 /// `flatten_active_elements`), or when a leaf expression contains an
 /// `Expr::Raw` (same "no Rust equivalent" fallback every other `render_*`
 /// function in this codebase shares).
+#[allow(clippy::too_many_arguments)]
 pub fn render_array_init(
     init: &Init,
     ty: &Type,
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<(String, String)> {
     let Type::Array(elem_ty, dim) = ty else {
@@ -166,6 +210,7 @@ pub fn render_array_init(
             known,
             known_records,
             known_typedefs,
+            known_functions,
             needed_zeroed,
         ),
         // A mid-list `#ifdef` at the array's own top level - never occurs in
@@ -239,6 +284,7 @@ fn render_char_array_from_string(
 /// the `m_menu.c` menu tables/`m_misc.c`'s `defaults[]`/...). `dim: None`
 /// gets its real length from the (post-`#ifdef`-flattening) element count,
 /// same reasoning as the string-literal case above.
+#[allow(clippy::too_many_arguments)]
 fn render_scalar_or_nested_array(
     elements: &[Init],
     elem_ty: &Type,
@@ -246,6 +292,7 @@ fn render_scalar_or_nested_array(
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<(String, String)> {
     let mut flat = Vec::with_capacity(elements.len());
@@ -260,6 +307,7 @@ fn render_scalar_or_nested_array(
             known,
             known_records,
             known_typedefs,
+            known_functions,
             needed_zeroed,
         )?;
         elem_type_text.get_or_insert(this_type);
@@ -330,12 +378,14 @@ fn flatten_active_elements<'a>(elements: &'a [Init], out: &mut Vec<&'a Init>) ->
 /// `render_struct_literal` for a field's value (a field's *declared* type
 /// text never depends on any one row's content, so the pairing is simply
 /// discarded there).
+#[allow(clippy::too_many_arguments)]
 fn render_value(
     element: &Init,
     target_ty: &Type,
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<(String, String)> {
     match element {
@@ -354,6 +404,7 @@ fn render_value(
             known,
             known_records,
             known_typedefs,
+            known_functions,
             needed_zeroed,
         ),
         // A struct/union-typed row/field (`states[]`'s own rows; a nested
@@ -370,6 +421,7 @@ fn render_value(
                 known,
                 known_records,
                 known_typedefs,
+                known_functions,
                 needed_zeroed,
             )?;
             Some((type_name, rendered))
@@ -383,6 +435,7 @@ fn render_value(
             known,
             known_records,
             known_typedefs,
+            known_functions,
             needed_zeroed,
         ),
         // Anything else `Braced` (0 or >1 items against a target that isn't
@@ -390,7 +443,8 @@ fn render_value(
         // bail rather than guess.
         Init::Braced(_) => None,
         Init::Expr(text) => {
-            let rendered = render_scalar_init(text, target_ty, known, known_typedefs)?;
+            let rendered =
+                render_scalar_init(text, target_ty, known, known_typedefs, known_functions)?;
             Some((map_type(target_ty), rendered))
         }
         // A mid-list `#ifdef` sitting directly in field-value position (not
@@ -429,6 +483,7 @@ fn render_struct_literal(
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<String> {
     if rd.kind == RecordKind::Union {
@@ -439,6 +494,7 @@ fn render_struct_literal(
             known,
             known_records,
             known_typedefs,
+            known_functions,
         );
     }
     if elements.len() > rd.fields.len() {
@@ -455,6 +511,7 @@ fn render_struct_literal(
             known,
             known_records,
             known_typedefs,
+            known_functions,
             needed_zeroed,
         )?;
         parts.push(format!("{}: {value}", ident(&field.name)));
@@ -485,6 +542,7 @@ fn render_union_literal(
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
 ) -> Option<String> {
     let [element] = elements else {
         return None;
@@ -504,6 +562,7 @@ fn render_union_literal(
         known,
         known_records,
         known_typedefs,
+        known_functions,
         &mut nested_needed,
     )?;
     // Never actually populated by any real corpus shape (a union field
@@ -524,12 +583,14 @@ fn render_union_literal(
 /// `cheat_god`, ~19 real corpus cases), reusing the exact same positional
 /// field-zip `render_struct_literal` already provides for one row of an
 /// array of structs.
+#[allow(clippy::too_many_arguments)]
 pub fn render_struct_init(
     init: &Init,
     ty: &Type,
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<String> {
     let Init::Braced(elements) = init else {
@@ -544,6 +605,7 @@ pub fn render_struct_init(
         known,
         known_records,
         known_typedefs,
+        known_functions,
         needed_zeroed,
     )
 }
