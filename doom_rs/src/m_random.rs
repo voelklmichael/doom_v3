@@ -56,7 +56,7 @@ static mut rcsid: [std::ffi::c_char; 51] = unsafe {
     ]
 };
 
-pub static mut rndtable: [std::ffi::c_uchar; (256) as usize] = unsafe {
+pub static mut rndtable: [std::ffi::c_uchar; 256] = unsafe {
     [
         0, 8, 109, 220, 222, 241, 149, 107, 75, 248, 254, 140, 16, 66, 74, 21, 211, 47, 80, 242,
         154, 27, 205, 128, 161, 89, 77, 36, 95, 110, 85, 48, 212, 140, 211, 249, 22, 79, 200, 50,

@@ -225,11 +225,11 @@ pub const MAXPLMOVE: std::ffi::c_int = (forwardmove[(1) as usize]);
 
 pub const TURBOTHRESHOLD: std::ffi::c_int = 0x32;
 
-pub static mut forwardmove: [fixed_t; (2) as usize] = unsafe { [0x19, 0x32] };
+pub static mut forwardmove: [fixed_t; 2] = unsafe { [0x19, 0x32] };
 
-pub static mut sidemove: [fixed_t; (2) as usize] = unsafe { [0x18, 0x28] };
+pub static mut sidemove: [fixed_t; 2] = unsafe { [0x18, 0x28] };
 
-pub static mut angleturn: [fixed_t; (3) as usize] = unsafe { [640, 1280, 320] };
+pub static mut angleturn: [fixed_t; 3] = unsafe { [640, 1280, 320] };
 
 pub const SLOWTURNTICS: std::ffi::c_int = 6;
 
@@ -340,16 +340,27 @@ pub unsafe extern "C" fn G_ScreenShot() {
     todo!("body not yet translated")
 }
 
-pub static mut pars: [[std::ffi::c_int; (10) as usize]; (4) as usize] = unsafe {
+pub static mut pars: [[std::ffi::c_int; 10]; 4] = unsafe {
     [
-        [0],
+        [
+            0,
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+        ],
         [0, 30, 75, 120, 90, 165, 180, 180, 30, 165],
         [0, 90, 90, 90, 120, 90, 360, 240, 30, 170],
         [0, 90, 45, 90, 150, 90, 90, 165, 30, 135],
     ]
 };
 
-pub static mut cpars: [std::ffi::c_int; (32) as usize] = unsafe {
+pub static mut cpars: [std::ffi::c_int; 32] = unsafe {
     [
         30, 90, 120, 120, 90, 150, 120, 120, 270, 90, 210, 150, 150, 150, 210, 150, 420, 150, 210,
         150, 240, 150, 180, 150, 150, 300, 330, 420, 300, 180, 120, 30,

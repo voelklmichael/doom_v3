@@ -191,7 +191,7 @@ pub static mut skullAnimCounter: std::ffi::c_short = unsafe { std::mem::zeroed()
 
 pub static mut whichSkull: std::ffi::c_short = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut skullName: [[std::ffi::c_char; 9]; (2) as usize] = unsafe {
+pub static mut skullName: [[std::ffi::c_char; 9]; 2] = unsafe {
     [
         [
             77 as std::ffi::c_char,
@@ -1047,7 +1047,7 @@ pub unsafe extern "C" fn M_Episode(choice: std::ffi::c_int) {
     todo!("body not yet translated")
 }
 
-pub static mut detailNames: [[std::ffi::c_char; 9]; (2) as usize] = unsafe {
+pub static mut detailNames: [[std::ffi::c_char; 9]; 2] = unsafe {
     [
         [
             77 as std::ffi::c_char,
@@ -1074,7 +1074,7 @@ pub static mut detailNames: [[std::ffi::c_char; 9]; (2) as usize] = unsafe {
     ]
 };
 
-pub static mut msgNames: [[std::ffi::c_char; 9]; (2) as usize] = unsafe {
+pub static mut msgNames: [[std::ffi::c_char; 9]; 2] = unsafe {
     [
         [
             77 as std::ffi::c_char,
@@ -1133,14 +1133,14 @@ pub unsafe extern "C" fn M_FinishReadThis(choice: std::ffi::c_int) {
     todo!("body not yet translated")
 }
 
-pub static mut quitsounds: [std::ffi::c_int; (8) as usize] = unsafe {
+pub static mut quitsounds: [std::ffi::c_int; 8] = unsafe {
     [
         sfx_pldeth, sfx_dmpain, sfx_popain, sfx_slop, sfx_telept, sfx_posit1, sfx_posit3,
         sfx_sgtatk,
     ]
 };
 
-pub static mut quitsounds2: [std::ffi::c_int; (8) as usize] = unsafe {
+pub static mut quitsounds2: [std::ffi::c_int; 8] = unsafe {
     [
         sfx_vilact, sfx_getpow, sfx_boscub, sfx_slop, sfx_skeswg, sfx_kntdth, sfx_bspact,
         sfx_sgtatk,

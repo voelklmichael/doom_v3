@@ -134,7 +134,7 @@ pub unsafe extern "C" fn P_CheckMissileRange(actor: *mut mobj_t) -> boolean {
     todo!("body not yet translated")
 }
 
-pub static mut xspeed: [fixed_t; (8) as usize] = unsafe {
+pub static mut xspeed: [fixed_t; 8] = unsafe {
     [
         FRACUNIT,
         47000,
@@ -147,7 +147,7 @@ pub static mut xspeed: [fixed_t; (8) as usize] = unsafe {
     ]
 };
 
-pub static mut yspeed: [fixed_t; (8) as usize] = unsafe {
+pub static mut yspeed: [fixed_t; 8] = unsafe {
     [
         0,
         47000,

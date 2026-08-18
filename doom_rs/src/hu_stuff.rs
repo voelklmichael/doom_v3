@@ -532,7 +532,7 @@ pub static mut english_shiftxform: [std::ffi::c_char; 128] = unsafe {
     ]
 };
 
-pub static mut frenchKeyMap: [std::ffi::c_char; (128) as usize] = unsafe {
+pub static mut frenchKeyMap: [std::ffi::c_char; 128] = unsafe {
     [
         0,
         1,

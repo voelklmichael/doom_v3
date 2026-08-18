@@ -266,9 +266,28 @@ fn render_scalar_or_nested_array(
         rendered_elems.push(this_init);
     }
     let elem_type_text = elem_type_text.unwrap_or_else(|| map_type(elem_ty));
-    let len_text = match dim {
-        Some(d) => format!("({d}) as usize"),
-        None => rendered_elems.len().to_string(),
+    // C's own "the rest default to zero" rule applies to any under-sized
+    // brace-init, not just the char-array-from-string idiom
+    // `render_char_array_from_string` already pads (real corpus cases:
+    // `g_game.c`'s `pars[4][10]`'s `{0}` rows, `wi_stuff.c`'s
+    // `lnodes[NUMEPISODES][NUMMAPS]` only specifying 3 of 4 episodes) -
+    // `std::mem::zeroed()` pads correctly regardless of the element shape
+    // (scalar, nested array, or struct/union row), same primitive this
+    // module already uses for the `ZEROED_{name}` struct-update placeholder.
+    // Only a literal integer dim can be padded this way (the exact count
+    // must be known at codegen time); a symbolic dim falls back to the
+    // existing verbatim-cast length text, unpadded, same precedent as
+    // `render_char_array_from_string`.
+    let declared_len = dim.as_ref().and_then(|d| d.trim().parse::<usize>().ok());
+    if let Some(n) = declared_len {
+        for _ in rendered_elems.len()..n {
+            rendered_elems.push("std::mem::zeroed()".to_string());
+        }
+    }
+    let len_text = match (declared_len, dim) {
+        (Some(n), _) => n.to_string(),
+        (None, Some(d)) => format!("({d}) as usize"),
+        (None, None) => rendered_elems.len().to_string(),
     };
     Some((
         format!("[{elem_type_text}; {len_text}]"),

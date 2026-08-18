@@ -244,6 +244,28 @@ fn flat_scalar_array_with_explicit_dim_keeps_dim() {
 }
 
 #[test]
+fn flat_scalar_array_with_literal_dim_pads_missing_elements_with_zeroed() {
+    // g_game.c's `pars[4][10] = { {0}, ... }` idiom - a row shorter than
+    // its declared literal length gets the rest zero-defaulted.
+    let ty = arr(named("int"), Some("4"));
+    let init = Init::Braced(vec![Init::Expr("0".to_string())]);
+    let (ty_text, init_text) = render_array_init(
+        &init,
+        &ty,
+        &known(),
+        &no_records(),
+        &no_typedefs(),
+        &mut BTreeSet::new(),
+    )
+    .unwrap();
+    assert_eq!(ty_text, "[std::ffi::c_int; 4]");
+    assert_eq!(
+        init_text,
+        "[0, std::mem::zeroed(), std::mem::zeroed(), std::mem::zeroed()]"
+    );
+}
+
+#[test]
 fn nested_2d_scalar_array_recurses_one_level() {
     // v_video.c's gammatable[5][256]-style shape, shrunk for the test.
     let ty = arr(arr(named("int"), None), None);
