@@ -91,7 +91,9 @@ pub static mut numlumps: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TOD
 
 pub static mut lumpcache: *mut *mut std::ffi::c_void = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub const strcmpi: std::ffi::c_int = strcasecmp;
+/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):
+#define strcmpi strcasecmp
+*/
 
 pub unsafe extern "C" fn strupr(s: *mut std::ffi::c_char) {
     todo!("body not yet translated")

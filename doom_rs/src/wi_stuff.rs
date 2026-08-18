@@ -431,7 +431,9 @@ pub const SP_FRAGS: std::ffi::c_int = 6;
 
 pub const SP_TIME: std::ffi::c_int = 8;
 
-pub const SP_PAR: std::ffi::c_int = ST_TIME;
+/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):
+#define SP_PAR ST_TIME
+*/
 
 pub const SP_PAUSE: std::ffi::c_int = 1;
 

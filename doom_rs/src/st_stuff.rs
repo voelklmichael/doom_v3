@@ -337,10 +337,15 @@ pub const ST_OUTWIDTH: std::ffi::c_int = 52;
 
 pub const ST_OUTHEIGHT: std::ffi::c_int = 1;
 
-pub const ST_MAPWIDTH: std::ffi::c_int =
-    (strlen((*mapnames.add((((gameepisode - 1) * 9) + (gamemap - 1)) as usize))));
+/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):
+#define ST_MAPWIDTH \
+    (strlen(mapnames[(gameepisode-1)*9+(gamemap-1)]))
+*/
 
-pub const ST_MAPTITLEX: std::ffi::c_int = (SCREENWIDTH - (ST_MAPWIDTH * ST_CHATFONTWIDTH));
+/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):
+#define ST_MAPTITLEX \
+    (SCREENWIDTH - ST_MAPWIDTH * ST_CHATFONTWIDTH)
+*/
 
 pub const ST_MAPTITLEY: std::ffi::c_int = 0;
 

@@ -112,7 +112,9 @@ pub const S_CLOSE_DIST: std::ffi::c_int = (160 * 0x10000);
 
 pub const S_ATTENUATOR: std::ffi::c_int = ((S_CLIPPING_DIST - S_CLOSE_DIST) >> FRACBITS);
 
-pub const NORM_VOLUME: std::ffi::c_int = snd_MaxVolume;
+/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):
+#define NORM_VOLUME snd_MaxVolume
+*/
 
 pub const NORM_PITCH: std::ffi::c_int = 128;
 
