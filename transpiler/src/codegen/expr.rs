@@ -101,8 +101,8 @@ pub fn render_expr(expr: &Expr, known_globals: &HashMap<String, Type>) -> Option
             then_expr,
             else_expr,
         } => format!(
-            "(if ({}) != 0 {{ {} }} else {{ {} }})",
-            render_expr(cond, known_globals)?,
+            "(if {} {{ {} }} else {{ {} }})",
+            render_condition(cond, known_globals)?,
             render_expr(then_expr, known_globals)?,
             render_expr(else_expr, known_globals)?
         ),
@@ -221,6 +221,47 @@ pub(crate) fn is_sizeof_shaped(expr: &Expr) -> bool {
     }
 }
 
+/// Renders `expr` in *condition* position (an `if`/`while`/`for`/ternary
+/// test) - C conditions are ints (`0` is false, anything else true), Rust's
+/// are `bool`. A comparison (`<`/`>`/`<=`/`>=`/`==`/`!=`) already renders as
+/// a real Rust `bool` via the ordinary `render_expr` path, so it passes
+/// through unchanged; `&&`/`||` recurse on both sides (the dominant real
+/// corpus shape this exists for, e.g. `if (a < b && c)` - `c` alone is
+/// `std::ffi::c_int`-typed, so without this it fails to typecheck against
+/// `&&`'s `bool` operand); anything else (including a bare identifier, or
+/// `!x`, which `render_unary` already renders as an int - see this module's
+/// own doc comment on why `!` gets special-cased there) gets a trailing
+/// `!= 0`, matching C's own "any nonzero value is true" rule exactly.
+pub(crate) fn render_condition(
+    expr: &Expr,
+    known_globals: &HashMap<String, Type>,
+) -> Option<String> {
+    match expr {
+        Expr::Paren(inner) => Some(format!("({})", render_condition(inner, known_globals)?)),
+        Expr::Binary {
+            op:
+                BinaryOp::Lt
+                | BinaryOp::Gt
+                | BinaryOp::Le
+                | BinaryOp::Ge
+                | BinaryOp::EqEq
+                | BinaryOp::NotEq,
+            ..
+        } => render_expr(expr, known_globals),
+        Expr::Binary {
+            op: op @ (BinaryOp::LogAnd | BinaryOp::LogOr),
+            lhs,
+            rhs,
+        } => Some(format!(
+            "({} {} {})",
+            render_condition(lhs, known_globals)?,
+            binary_op_text(*op),
+            render_condition(rhs, known_globals)?
+        )),
+        _ => Some(format!("({}) != 0", render_expr(expr, known_globals)?)),
+    }
+}
+
 /// Renders a C string literal (`text` includes its surrounding quotes) as
 /// `(c"...").as_ptr()`, with one target-*content*-aware fixup: a literal
 /// whose unescaped bytes are *entirely* NUL (C's own explicit "empty string"
@@ -246,18 +287,61 @@ fn render_str_lit(text: &str) -> Option<String> {
             return None;
         }
     }
-    Some(format!("(c{text}).as_ptr()"))
+    // Real corpus case (`r_data.c`'s `printf("\x8...")`, a backspace-erase
+    // idiom - 11 sites): C's `\x` hex escape consumes as many hex digits as
+    // follow (no fixed width), but Rust's requires exactly two - reusing
+    // the original C text verbatim (as every other escape in this corpus
+    // safely can, since `\n`/`\t`/`\r`/`\\`/`\"`/`\'`/`\0` all spell
+    // identically in both languages) is a hard parse error here, not
+    // merely a possible value mismatch, so this one shape needs its own
+    // fixup before the literal is reused.
+    Some(format!("(c{}).as_ptr()", pad_hex_escapes(text)))
+}
+
+/// Zero-pads every `\xH` (a single hex digit) in `text` to Rust's required
+/// `\x0H`. Only ever consumes up to 2 hex digits after `\x`, matching
+/// Rust's own fixed-width `\xHH` escape - the corpus's real occurrences are
+/// all exactly 1 digit (confirmed via corpus-wide grep), so this never
+/// needs to handle a longer run.
+fn pad_hex_escapes(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut chars = text.chars().peekable();
+    while let Some(c) = chars.next() {
+        out.push(c);
+        if c != '\\' || chars.peek() != Some(&'x') {
+            continue;
+        }
+        out.push(chars.next().unwrap()); // the 'x' itself
+        let mut digits = String::new();
+        while digits.len() < 2 {
+            match chars.peek() {
+                Some(d) if d.is_ascii_hexdigit() => {
+                    digits.push(*d);
+                    chars.next();
+                }
+                _ => break,
+            }
+        }
+        while digits.len() < 2 {
+            digits.insert(0, '0');
+        }
+        out.push_str(&digits);
+    }
+    out
 }
 
 /// Unescapes a C string/char literal's inner text (quotes already stripped)
 /// into its real bytes: `\n`/`\t`/`\r`/`\0`/`\\`/`\"`/`\'` map to their real
-/// byte value, anything else passes through as literal text (best-effort,
-/// never panics - keeps the backslash rather than silently dropping it).
-/// Shared by `render_str_lit` above and `codegen::init`'s
-/// char-array-from-string-literal rendering (the `rcsid[]` idiom).
+/// byte value, `\xHH...` (any run of hex digits, C's own variable-width
+/// rule - only the first byte's worth is kept, this corpus never needs
+/// more) decodes to its real byte value, anything else passes through as
+/// literal text (best-effort, never panics - keeps the backslash rather
+/// than silently dropping it). Shared by `render_str_lit` above and
+/// `codegen::init`'s char-array-from-string-literal rendering (the
+/// `rcsid[]` idiom).
 pub(crate) fn unescape_c_string(inner: &str) -> Vec<u8> {
     let mut bytes = Vec::new();
-    let mut chars = inner.chars();
+    let mut chars = inner.chars().peekable();
     while let Some(c) = chars.next() {
         if c != '\\' {
             let mut buf = [0u8; 4];
@@ -272,6 +356,22 @@ pub(crate) fn unescape_c_string(inner: &str) -> Vec<u8> {
             Some('\\') => bytes.push(b'\\'),
             Some('"') => bytes.push(b'"'),
             Some('\'') => bytes.push(b'\''),
+            Some('x') => {
+                let mut digits = String::new();
+                while digits.len() < 2 {
+                    match chars.peek() {
+                        Some(d) if d.is_ascii_hexdigit() => {
+                            digits.push(*d);
+                            chars.next();
+                        }
+                        _ => break,
+                    }
+                }
+                match u8::from_str_radix(&digits, 16) {
+                    Ok(byte) => bytes.push(byte),
+                    Err(_) => bytes.extend_from_slice(b"\\x"),
+                }
+            }
             // Best-effort passthrough for any other escape (none exist in
             // this corpus's real occurrences of either caller's shape) -
             // keep both bytes rather than silently drop the backslash.
