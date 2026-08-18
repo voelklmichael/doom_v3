@@ -451,6 +451,18 @@ pub(crate) fn parse_declarator_with_base(s: &str) -> Option<(Vec<Storage>, Type,
     if ty_text.is_empty() {
         return None;
     }
+    // A bare `struct`/`union`/`enum` keyword with nothing else as the type
+    // text means the "name" token we just grabbed (`last`) is actually the
+    // record's tag, not a separate declarator name - i.e. this whole input
+    // is a tagless-variable-free forward declaration like `struct line_s;`
+    // (r_defs.h), not a variable of type "struct" named after its own tag.
+    // Must fail here rather than accept it, or `line_s` gets misclassified
+    // as `ItemKind::Var` with type `Named("struct")` (renders as the
+    // keyword-escaped `struct_`, a nonexistent type) instead of falling
+    // through classification to `ItemKind::Raw` as intended.
+    if matches!(ty_text.as_str(), "struct" | "union" | "enum") {
+        return None;
+    }
     let base_ty = parse_type_text(&ty_text);
     let mut ty = base_ty.clone();
     for _ in 0..star_count {

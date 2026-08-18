@@ -24,7 +24,13 @@ pub struct vertex_t {
     pub y: fixed_t,
 }
 
-pub static mut line_s: struct_ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+/* TODO: unparsed C construct, needs manual translation:
+
+
+
+// Forward of LineDefs, for Sectors.
+struct line_s;
+*/
 
 #[repr(C)]
 #[derive(Copy, Clone)]
