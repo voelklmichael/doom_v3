@@ -29,6 +29,21 @@ fn simple_expr_and_decl_statements_round_trip() {
 }
 
 #[test]
+fn statement_that_is_not_a_valid_expression_degrades_to_raw() {
+    // am_map.c's real local `enum { LEFT=1, RIGHT=2 };` - a local
+    // anonymous-enum type definition, a shape this parser has no
+    // declaration handling for at all. Must degrade to `StmtKind::Raw`
+    // (byte-preserving, safely commented out by codegen) rather than
+    // silently parsing as just `Expr::Ident("enum")` with the rest of the
+    // real tokens dropped from the structured tree entirely.
+    let src = "enum { LEFT=1, RIGHT=2 };";
+    round_trips(src);
+    let block = body(src);
+    assert_eq!(block.stmts.len(), 1);
+    assert!(matches!(block.stmts[0].0.kind, StmtKind::Raw));
+}
+
+#[test]
 fn else_if_chain_is_nested_if() {
     let src = "if (a) {\n    x = 1;\n} else if (b) {\n    x = 2;\n} else {\n    x = 3;\n}\n";
     round_trips(src);

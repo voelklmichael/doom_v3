@@ -27,6 +27,31 @@ fn bare_forward_declaration_is_not_a_variable() {
 }
 
 #[test]
+fn storage_only_declaration_defaults_to_implicit_int() {
+    // am_map.c's real `static nexttic = 0;` / `register outcode1 = 0;` -
+    // pre-ANSI-C's "implicit int" rule: a storage-class specifier with no
+    // type specifier at all defaults to `int`. Without this, the shared
+    // `parse_declarator_with_base` heuristic (storage keywords consumed,
+    // nothing left for `ty_text`) failed to parse the whole declaration,
+    // which - at statement level - doesn't just degrade cleanly to
+    // `StmtKind::Raw`, it fragments into multiple bogus bare-identifier
+    // expression statements (confirmed via a real `--emit-rust` run).
+    let cds = try_parse_var_flat("static nexttic = 0;").unwrap();
+    assert_eq!(cds.len(), 1);
+    assert_eq!(cds[0].storage, vec![Storage::Static]);
+    assert_eq!(cds[0].ty, Type::Named("int".to_string()));
+    assert_eq!(cds[0].name, "nexttic");
+}
+
+#[test]
+fn bare_identifier_with_no_storage_keyword_still_fails() {
+    // A bare `foo;` never looked like a declaration attempt in the first
+    // place - the implicit-int fallback must not turn every unparseable
+    // expression statement into a bogus `int` declaration.
+    assert!(try_parse_var_flat("foo;").is_none());
+}
+
+#[test]
 fn braced_array_style() {
     let cd =
         try_parse_var_braced("mobjinfo_t mobjinfo[NUMMOBJTYPES] =", &scan(" /* ... */ ")).unwrap();

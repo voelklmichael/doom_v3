@@ -13,7 +13,7 @@ use super::super::ast::{Comment, RawToken, Trivia};
 use super::super::preproc::parse_directive;
 use super::ast::{Block, ForInit, Label, Stmt, StmtKind};
 use super::decl::{looks_like_decl_start, split_ctoks_top_level, trim_trivia, try_parse_decl_stmt};
-use super::expr::{KnownTypeNames, parse_expr};
+use super::expr::{KnownTypeNames, parse_expr, parse_expr_checked};
 use super::lex::{CTok, Punct, render_ctoks, tokenize_chunks};
 use std::ops::Range;
 
@@ -456,7 +456,19 @@ fn parse_decl_or_expr_stmt(cur: &mut Cursor, known: &KnownTypeNames) -> StmtKind
     if trim_trivia(toks).is_empty() {
         return StmtKind::Empty;
     }
-    StmtKind::Expr(parse_expr(toks, known))
+    // `parse_expr` alone would happily return a partial match here (see
+    // `parse_expr_checked`'s own doc comment for the real corpus case this
+    // guards against - a local anonymous `enum { ... };` type definition,
+    // which isn't a valid expression *or* a declaration this parser
+    // recognizes, but "enum" alone parses as `Expr::Ident("enum")`,
+    // silently dropping everything after it). Falling through to
+    // `StmtKind::Raw` here is exactly this parser's standard "couldn't
+    // parse this" degrade - the same one every other unrecognized
+    // statement shape already uses.
+    match parse_expr_checked(toks, known) {
+        Some(expr) => StmtKind::Expr(expr),
+        None => StmtKind::Raw,
+    }
 }
 
 // ---------------------------------------------------------------------

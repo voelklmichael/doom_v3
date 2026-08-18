@@ -194,6 +194,34 @@ pub fn parse_expr(toks: &[CTok], known: &KnownTypeNames) -> Expr {
     parse_comma(&mut cur, known)
 }
 
+/// Same as `parse_expr`, but `None` if the parse didn't consume *all* of
+/// `toks` (skipping only trailing trivia/comments) - `parse_expr` alone
+/// always returns *some* `Expr`, even when it only matched a leading
+/// prefix of `toks` and silently left real tokens unconsumed (a genuinely
+/// invalid expression, not a partial-but-valid one). Needed by
+/// `stmt::parse::parse_decl_or_expr_stmt`: a statement-position token range
+/// that isn't a valid expression at all (real corpus case: `am_map.c`'s
+/// local `enum { LEFT=1, RIGHT=2, ... };` - an anonymous local-scope enum
+/// *type* definition, a shape `stmt::decl` has no handling for at all,
+/// distinct from an ordinary variable declaration) would otherwise parse as
+/// `Expr::Ident("enum")` alone, with the rest of the real tokens silently
+/// dropped from the structured tree entirely - `Stmt.raw` still holds them
+/// byte-exact (this parser's own round-trip guarantee never depended on
+/// `StmtKind` being correct), but nothing ever reads `raw` for a
+/// successfully-parsed `Expr` statement, so the bytes were being lost in
+/// practice the moment anything downstream trusted the `Expr` alone. Every
+/// other `parse_expr` call site (macros, initializers) already only ever
+/// feeds a token range known by construction to be exactly one expression,
+/// so they don't need this - `parse_expr` itself is left unchanged for them.
+pub fn parse_expr_checked(toks: &[CTok], known: &KnownTypeNames) -> Option<Expr> {
+    let mut cur = Cursor::new(toks);
+    let expr = parse_comma(&mut cur, known);
+    if cur.peek().is_some() {
+        return None;
+    }
+    Some(expr)
+}
+
 /// `pub(super)` (rather than private) so `stmt::decl::looks_like_decl_start`
 /// can reuse the same base-keyword list when deciding whether a statement
 /// looks like the start of a local declaration - one source of truth for

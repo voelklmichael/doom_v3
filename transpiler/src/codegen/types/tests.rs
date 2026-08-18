@@ -109,6 +109,22 @@ fn tag_prefixed_system_header_type_also_resolves() {
 }
 
 #[test]
+fn anonymous_union_body_is_not_mistaken_for_a_tag_name() {
+    // i_video.c's real local `union { double d; unsigned u[2]; } pixel;` -
+    // `stmt::decl`'s flat last-token-is-the-name heuristic (no nested-
+    // anonymous-record handling, unlike record.rs's field parser) captures
+    // the whole `{ ... }` body as this declarator's type text.
+    // `strip_tag_keyword` must not accept the `{ double d; unsigned
+    // u[2]; }` remainder as an ordinary tag name (real corpus tags always
+    // look like `mobj_s`) - it isn't a clean identifier, and passing it
+    // through verbatim would be a Rust *syntax* error, not just a type
+    // mismatch.
+    assert!(type_is_malformed(&named(
+        "union { double d; unsigned u[2]; }"
+    )));
+}
+
+#[test]
 fn bare_struct_or_union_with_no_tag_is_not_treated_as_tag_reference() {
     // Only reached in practice via record.rs's synthesized nested-field
     // placeholder, which codegen's item-emission substitutes before calling

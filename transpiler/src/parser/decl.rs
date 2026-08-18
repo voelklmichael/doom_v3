@@ -447,9 +447,20 @@ pub(crate) fn parse_declarator_with_base(s: &str) -> Option<(Vec<Storage>, Type,
             _ => ty_parts.push(t),
         }
     }
-    let ty_text = ty_parts.join(" ");
+    let mut ty_text = ty_parts.join(" ");
     if ty_text.is_empty() {
-        return None;
+        // Real corpus case: am_map.c's `register outcode1 = 0;`/
+        // `register outcode2 = 0;` - pre-ANSI-C's "implicit int" rule (a
+        // declaration with a storage-class specifier but no type specifier
+        // defaults to `int`). Only apply this when a real storage keyword
+        // was actually found (`storage` non-empty) - otherwise this input
+        // never looked like a declaration attempt in the first place (e.g.
+        // a bare identifier `foo;` on its own), and failing here as before
+        // is still correct.
+        if storage.is_empty() {
+            return None;
+        }
+        ty_text = "int".to_string();
     }
     // A bare `struct`/`union`/`enum` keyword with nothing else as the type
     // text means the "name" token we just grabbed (`last`) is actually the
