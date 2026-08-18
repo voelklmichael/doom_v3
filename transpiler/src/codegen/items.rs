@@ -37,6 +37,7 @@ pub fn emit_items(
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
 ) -> String {
     let mut needed_zeroed = BTreeSet::new();
     let mut out = emit_items_inner(
@@ -44,6 +45,7 @@ pub fn emit_items(
         known,
         known_records,
         known_typedefs,
+        known_functions,
         &mut needed_zeroed,
     );
     for type_name in &needed_zeroed {
@@ -62,11 +64,21 @@ fn emit_items_inner(
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     items
         .iter()
-        .map(|(item, _)| emit_item(item, known, known_records, known_typedefs, needed_zeroed))
+        .map(|(item, _)| {
+            emit_item(
+                item,
+                known,
+                known_records,
+                known_typedefs,
+                known_functions,
+                needed_zeroed,
+            )
+        })
         .collect()
 }
 
@@ -79,11 +91,13 @@ fn emit_items_inner(
 /// function-body parsing already uses). `known_records`/`known_typedefs`/
 /// `needed_zeroed` are only used by `Var` (see `emit_var`)/`Conditional`
 /// (which may recurse into a branch containing a `Var`).
+#[allow(clippy::too_many_arguments)]
 fn emit_item(
     item: &Item,
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     match &item.kind {
@@ -92,13 +106,27 @@ fn emit_item(
         ItemKind::Enum(ed) => emit_enum(ed),
         ItemKind::Var(vds) => vds
             .iter()
-            .map(|vd| emit_var(vd, known, known_records, known_typedefs, needed_zeroed))
+            .map(|vd| {
+                emit_var(
+                    vd,
+                    known,
+                    known_records,
+                    known_typedefs,
+                    known_functions,
+                    needed_zeroed,
+                )
+            })
             .collect(),
         ItemKind::FunctionDecl(sig) => emit_function_decl(sig),
         ItemKind::FunctionDef(sig, _body) => emit_function_def(sig),
-        ItemKind::Conditional(group) => {
-            emit_conditional(group, known, known_records, known_typedefs, needed_zeroed)
-        }
+        ItemKind::Conditional(group) => emit_conditional(
+            group,
+            known,
+            known_records,
+            known_typedefs,
+            known_functions,
+            needed_zeroed,
+        ),
         ItemKind::Raw => emit_raw(&item.raw),
         // #include has no Rust equivalent (cross-module refs are handled via
         // `use` imports at module-assembly time, see codegen::module).
@@ -364,11 +392,13 @@ fn is_static(storage: &[Storage]) -> bool {
     storage.contains(&Storage::Static)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn emit_var(
     vd: &VarDecl,
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     if is_malformed(&vd.name) || type_is_malformed(&vd.ty) {
@@ -414,6 +444,7 @@ fn emit_var(
                 known,
                 known_records,
                 known_typedefs,
+                known_functions,
                 needed_zeroed,
             ) {
                 return format!(
@@ -421,7 +452,8 @@ fn emit_var(
                 );
             }
         } else if let Init::Expr(text) = init
-            && let Some(rendered) = render_scalar_init(text, &vd.ty, known, known_typedefs)
+            && let Some(rendered) =
+                render_scalar_init(text, &vd.ty, known, known_typedefs, known_functions)
         {
             // Always wrapped in `unsafe {}`, matching the zeroed-stub path
             // below - a plain literal doesn't need it, but a reference to
@@ -438,6 +470,7 @@ fn emit_var(
                 known,
                 known_records,
                 known_typedefs,
+                known_functions,
                 needed_zeroed,
             )
         {
@@ -515,11 +548,13 @@ fn emit_function_def(sig: &FnSig) -> String {
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn emit_conditional(
     group: &CondGroup,
     known: &KnownTypeNames,
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     match group.active {
@@ -528,12 +563,22 @@ fn emit_conditional(
             known,
             known_records,
             known_typedefs,
+            known_functions,
             needed_zeroed,
         ),
         ActiveBranch::Else => group
             .else_body
             .as_ref()
-            .map(|b| emit_items_inner(b, known, known_records, known_typedefs, needed_zeroed))
+            .map(|b| {
+                emit_items_inner(
+                    b,
+                    known,
+                    known_records,
+                    known_typedefs,
+                    known_functions,
+                    needed_zeroed,
+                )
+            })
             .unwrap_or_default(),
         ActiveBranch::None => String::new(),
         ActiveBranch::Unknown => {

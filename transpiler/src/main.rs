@@ -5,7 +5,8 @@ use transpiler::codegen::{
 };
 use transpiler::parse_file_with_types;
 use transpiler::parser::corpus::{
-    compute_known_defines, compute_known_records, compute_known_type_names, compute_known_typedefs,
+    compute_known_defines, compute_known_functions, compute_known_records,
+    compute_known_type_names, compute_known_typedefs,
 };
 use transpiler::parser::evidence::{collect_evidence, summarize};
 use transpiler::parser::stmt::expr::KnownTypeNames;
@@ -151,6 +152,7 @@ fn run_codegen() {
     let known_defines = compute_known_defines(&all);
     let known_records = compute_known_records(&all);
     let known_typedefs = compute_known_typedefs(&all);
+    let known_functions = compute_known_functions(&all);
     let predefined: HashMap<String, String> = PREDEFINED_MACROS
         .iter()
         .map(|m| (m.to_string(), String::new()))
@@ -226,6 +228,11 @@ fn run_codegen() {
         // union, whose own fields are typedef'd function pointers) needs to
         // see typedefs from either half of the merged pair too.
         let mut module_typedefs: HashMap<String, transpiler::parser::ast::Type> = HashMap::new();
+        // Same reasoning again for function signatures: resolving a real
+        // function's own arity (see `codegen::init::render_scalar_init`'s
+        // union-function-pointer fixup) needs to see functions declared in
+        // either half of the merged pair too.
+        let mut module_functions: HashMap<String, transpiler::parser::ast::FnSig> = HashMap::new();
         for name in &constituent_files {
             if let Some(k) = known_types.get(name) {
                 module_known.extend(k);
@@ -236,9 +243,17 @@ fn run_codegen() {
             if let Some(t) = known_typedefs.get(name) {
                 module_typedefs.extend(t.iter().map(|(k, v)| (k.clone(), v.clone())));
             }
+            if let Some(f) = known_functions.get(name) {
+                module_functions.extend(f.iter().map(|(k, v)| (k.clone(), v.clone())));
+            }
         }
-        let body =
-            codegen_items::emit_items(&merged, &module_known, &module_records, &module_typedefs);
+        let body = codegen_items::emit_items(
+            &merged,
+            &module_known,
+            &module_records,
+            &module_typedefs,
+            &module_functions,
+        );
 
         let mut text = uses.concat();
         if !text.is_empty() {

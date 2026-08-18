@@ -1,5 +1,5 @@
 use super::{render_array_init, render_scalar_init, render_struct_init};
-use crate::parser::ast::{Init, RecordDecl, Type};
+use crate::parser::ast::{FnSig, Init, RecordDecl, Type};
 use crate::parser::stmt::expr::KnownTypeNames;
 use std::collections::{BTreeSet, HashMap};
 
@@ -15,6 +15,10 @@ fn no_typedefs() -> HashMap<String, Type> {
     HashMap::new()
 }
 
+fn no_functions() -> HashMap<String, FnSig> {
+    HashMap::new()
+}
+
 fn named(s: &str) -> Type {
     Type::Named(s.to_string())
 }
@@ -22,7 +26,14 @@ fn named(s: &str) -> Type {
 #[test]
 fn simple_int_literal() {
     assert_eq!(
-        render_scalar_init("0", &named("int"), &known(), &no_typedefs()).unwrap(),
+        render_scalar_init(
+            "0",
+            &named("int"),
+            &known(),
+            &no_typedefs(),
+            &no_functions()
+        )
+        .unwrap(),
         "0"
     );
 }
@@ -30,7 +41,14 @@ fn simple_int_literal() {
 #[test]
 fn hex_literal_with_suffix() {
     assert_eq!(
-        render_scalar_init("0xc000000", &named("int"), &known(), &no_typedefs()).unwrap(),
+        render_scalar_init(
+            "0xc000000",
+            &named("int"),
+            &known(),
+            &no_typedefs(),
+            &no_functions()
+        )
+        .unwrap(),
         "0xc000000"
     );
 }
@@ -43,7 +61,14 @@ fn bool_literal_ident() {
     // these to `false_`/`true_` at the definition site via `ident()`, so a
     // reference here must resolve to the same escaped name to compile.
     assert_eq!(
-        render_scalar_init("true", &named("boolean"), &known(), &no_typedefs()).unwrap(),
+        render_scalar_init(
+            "true",
+            &named("boolean"),
+            &known(),
+            &no_typedefs(),
+            &no_functions()
+        )
+        .unwrap(),
         "true_"
     );
 }
@@ -56,7 +81,8 @@ fn references_another_already_emitted_const() {
             "E1TEXT",
             &Type::Pointer(Box::new(named("char"))),
             &known(),
-            &no_typedefs()
+            &no_typedefs(),
+            &no_functions()
         )
         .unwrap(),
         "E1TEXT"
@@ -67,7 +93,7 @@ fn references_another_already_emitted_const() {
 fn null_pointer_literal_becomes_null_mut() {
     let ty = Type::Pointer(Box::new(named("Display")));
     assert_eq!(
-        render_scalar_init("0", &ty, &known(), &no_typedefs()).unwrap(),
+        render_scalar_init("0", &ty, &known(), &no_typedefs(), &no_functions()).unwrap(),
         "std::ptr::null_mut()"
     );
 }
@@ -75,7 +101,14 @@ fn null_pointer_literal_becomes_null_mut() {
 #[test]
 fn non_pointer_zero_is_not_touched() {
     assert_eq!(
-        render_scalar_init("0", &named("int"), &known(), &no_typedefs()).unwrap(),
+        render_scalar_init(
+            "0",
+            &named("int"),
+            &known(),
+            &no_typedefs(),
+            &no_functions()
+        )
+        .unwrap(),
         "0"
     );
 }
@@ -84,7 +117,14 @@ fn non_pointer_zero_is_not_touched() {
 fn address_of_expression() {
     // m_menu.c-style: `&mousearray[1]`.
     let ty = Type::Pointer(Box::new(named("boolean")));
-    let out = render_scalar_init("&mousearray[1]", &ty, &known(), &no_typedefs()).unwrap();
+    let out = render_scalar_init(
+        "&mousearray[1]",
+        &ty,
+        &known(),
+        &no_typedefs(),
+        &no_functions(),
+    )
+    .unwrap();
     assert!(out.contains("mousearray"), "got: {out}");
     assert!(!out.contains("null_mut"), "got: {out}");
 }
@@ -104,6 +144,7 @@ fn char_array_from_unsized_string_literal_infers_length() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -123,6 +164,7 @@ fn char_array_from_string_literal_with_explicit_dim_keeps_dim() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -145,6 +187,7 @@ fn explicit_dim_longer_than_the_string_pads_with_zeros() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -164,6 +207,7 @@ fn non_literal_dim_falls_back_to_verbatim_cast() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -179,6 +223,7 @@ fn char_array_from_string_literal_unescapes_common_escapes() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -200,6 +245,7 @@ fn non_char_array_rejects_string_literal_init() {
             &known(),
             &no_records(),
             &no_typedefs(),
+            &no_functions(),
             &mut BTreeSet::new()
         )
         .is_none()
@@ -220,6 +266,7 @@ fn flat_scalar_array_infers_length_from_element_count() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -237,6 +284,7 @@ fn flat_scalar_array_with_explicit_dim_keeps_dim() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -255,6 +303,7 @@ fn flat_scalar_array_with_literal_dim_pads_missing_elements_with_zeroed() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -285,6 +334,7 @@ fn nested_2d_scalar_array_recurses_one_level() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -302,6 +352,7 @@ fn single_element_brace_around_scalar_is_unwrapped() {
         &known(),
         &no_records(),
         &no_typedefs(),
+        &no_functions(),
         &mut BTreeSet::new(),
     )
     .unwrap();
@@ -326,6 +377,7 @@ fn struct_typed_array_row_with_unknown_record_bails_out() {
             &known(),
             &no_records(),
             &no_typedefs(),
+            &no_functions(),
             &mut BTreeSet::new()
         )
         .is_none()
@@ -341,6 +393,7 @@ fn scalar_target_type_is_rejected() {
             &known(),
             &no_records(),
             &no_typedefs(),
+            &no_functions(),
             &mut BTreeSet::new()
         )
         .is_none()
@@ -377,6 +430,28 @@ fn records_with(name: &str, rd: RecordDecl) -> HashMap<String, RecordDecl> {
     m
 }
 
+fn functions_with(name: &str, sig: FnSig) -> HashMap<String, FnSig> {
+    let mut m = HashMap::new();
+    m.insert(name.to_string(), sig);
+    m
+}
+
+fn fn_sig(param_count: usize) -> FnSig {
+    FnSig {
+        storage: vec![],
+        ret_ty: named("void"),
+        name: String::new(),
+        params: (0..param_count)
+            .map(|_| crate::parser::ast::Param {
+                ty: named("void"),
+                name: String::new(),
+                storage: vec![],
+            })
+            .collect(),
+        variadic: false,
+    }
+}
+
 #[test]
 fn bare_struct_var_zips_fields_positionally() {
     let rd = record(vec![field("x", named("int")), field("y", named("int"))]);
@@ -392,6 +467,7 @@ fn bare_struct_var_zips_fields_positionally() {
         &known(),
         &records,
         &no_typedefs(),
+        &no_functions(),
         &mut needed,
     )
     .unwrap();
@@ -415,6 +491,7 @@ fn partial_row_gets_zeroed_update_syntax_and_records_the_type() {
         &known(),
         &records,
         &no_typedefs(),
+        &no_functions(),
         &mut needed,
     )
     .unwrap();
@@ -438,6 +515,7 @@ fn too_many_values_bails_out() {
             &known(),
             &records,
             &no_typedefs(),
+            &no_functions(),
             &mut needed
         )
         .is_none()
@@ -476,6 +554,7 @@ fn nested_struct_typed_field_recurses() {
         &known(),
         &records,
         &no_typedefs(),
+        &no_functions(),
         &mut needed,
     )
     .unwrap();
@@ -494,6 +573,11 @@ fn function_pointer_field_wraps_bare_ident_in_some_and_null_in_none() {
     };
     let rd = record(vec![field("action", fnptr)]);
     let records = records_with("state_t", rd);
+    // A_Light0's own real signature matches the field's declared arity (both
+    // 0-arg) - the common real-corpus case, which coerces directly with no
+    // transmute needed (see `arity_mismatch_goes_through_a_transmute` below
+    // for the mismatched case).
+    let functions = functions_with("A_Light0", fn_sig(0));
     let mut needed = BTreeSet::new();
     let some = render_struct_init(
         &Init::Braced(vec![Init::Braced(vec![Init::Expr("A_Light0".to_string())])]),
@@ -501,6 +585,7 @@ fn function_pointer_field_wraps_bare_ident_in_some_and_null_in_none() {
         &known(),
         &records,
         &no_typedefs(),
+        &functions,
         &mut needed,
     )
     .unwrap();
@@ -511,10 +596,71 @@ fn function_pointer_field_wraps_bare_ident_in_some_and_null_in_none() {
         &known(),
         &records,
         &no_typedefs(),
+        &functions,
         &mut needed,
     )
     .unwrap();
     assert_eq!(none, "state_t { action: None }");
+}
+
+#[test]
+fn arity_mismatch_goes_through_a_transmute() {
+    // info.c's real states[] idiom: every action function is stored through
+    // actionf_t's first union member (1-arg), regardless of the function's
+    // own real arity - here A_WeaponReady is a real 0-arg function assigned
+    // against a 1-arg target field, which Rust rejects without a transmute.
+    let fnptr = Type::FunctionPointer {
+        ret: Box::new(named("void")),
+        params: vec![named("void")],
+    };
+    let rd = record(vec![field("action", fnptr)]);
+    let records = records_with("state_t", rd);
+    let functions = functions_with("A_WeaponReady", fn_sig(0));
+    let mut needed = BTreeSet::new();
+    let out = render_struct_init(
+        &Init::Braced(vec![Init::Braced(vec![Init::Expr(
+            "A_WeaponReady".to_string(),
+        )])]),
+        &named("state_t"),
+        &known(),
+        &records,
+        &no_typedefs(),
+        &functions,
+        &mut needed,
+    )
+    .unwrap();
+    assert_eq!(
+        out,
+        "state_t { action: Some(unsafe { std::mem::transmute::<*const (), unsafe extern \"C\" fn(())>(A_WeaponReady as *const ()) }) }"
+    );
+}
+
+#[test]
+fn unknown_callee_defaults_to_a_transmute() {
+    // A callee this build can't resolve at all (e.g. one only ever seen
+    // through an opaque function-body stub, or simply not yet in
+    // known_functions) must still compile - default to the safe transmute
+    // path rather than assuming the arities happen to match.
+    let fnptr = Type::FunctionPointer {
+        ret: Box::new(named("void")),
+        params: vec![named("void")],
+    };
+    let rd = record(vec![field("action", fnptr)]);
+    let records = records_with("state_t", rd);
+    let mut needed = BTreeSet::new();
+    let out = render_struct_init(
+        &Init::Braced(vec![Init::Braced(vec![Init::Expr(
+            "A_UnknownFunc".to_string(),
+        )])]),
+        &named("state_t"),
+        &known(),
+        &records,
+        &no_typedefs(),
+        &no_functions(),
+        &mut needed,
+    )
+    .unwrap();
+    assert!(out.contains("std::mem::transmute"), "got: {out}");
 }
 
 #[test]
@@ -549,6 +695,7 @@ fn union_of_typedefd_function_pointers_zips_only_the_first_field() {
         typedef_name: Some("actionf_t".to_string()),
     };
     let records = records_with("actionf_t", union_rd);
+    let functions = functions_with("A_Light0", fn_sig(1));
     let mut needed = BTreeSet::new();
 
     let some = render_struct_init(
@@ -557,6 +704,7 @@ fn union_of_typedefd_function_pointers_zips_only_the_first_field() {
         &known(),
         &records,
         &typedefs,
+        &functions,
         &mut needed,
     )
     .unwrap();
@@ -568,6 +716,7 @@ fn union_of_typedefd_function_pointers_zips_only_the_first_field() {
         &known(),
         &records,
         &typedefs,
+        &functions,
         &mut needed,
     )
     .unwrap();
@@ -598,6 +747,7 @@ fn union_with_more_than_one_value_bails_out() {
             &known(),
             &records,
             &no_typedefs(),
+            &no_functions(),
             &mut needed
         )
         .is_none()
@@ -622,6 +772,7 @@ fn char_array_field_from_bare_string_literal_without_extra_braces() {
         &known(),
         &records,
         &no_typedefs(),
+        &no_functions(),
         &mut needed,
     )
     .unwrap();
@@ -654,8 +805,16 @@ fn array_of_struct_rows_uses_the_record_type_as_element_type() {
         ]),
     ]);
     let mut needed = BTreeSet::new();
-    let (ty_text, init_text) =
-        render_array_init(&init, &ty, &known(), &records, &no_typedefs(), &mut needed).unwrap();
+    let (ty_text, init_text) = render_array_init(
+        &init,
+        &ty,
+        &known(),
+        &records,
+        &no_typedefs(),
+        &no_functions(),
+        &mut needed,
+    )
+    .unwrap();
     assert_eq!(ty_text, "[point_t; 2]");
     assert_eq!(
         init_text,
@@ -688,8 +847,16 @@ fn mid_list_ifdef_splices_the_active_branch_rows() {
         Init::Braced(vec![Init::Expr("3".to_string())]),
     ]);
     let mut needed = BTreeSet::new();
-    let (_, init_text) =
-        render_array_init(&init, &ty, &known(), &records, &no_typedefs(), &mut needed).unwrap();
+    let (_, init_text) = render_array_init(
+        &init,
+        &ty,
+        &known(),
+        &records,
+        &no_typedefs(),
+        &no_functions(),
+        &mut needed,
+    )
+    .unwrap();
     assert_eq!(
         init_text,
         "[point_t { x: 1 }, point_t { x: 2 }, point_t { x: 3 }]"
@@ -716,6 +883,15 @@ fn unresolved_mid_list_ifdef_bails_the_whole_array() {
     let init = Init::Braced(vec![Init::Braced(vec![Init::Expr("1".to_string())]), cond]);
     let mut needed = BTreeSet::new();
     assert!(
-        render_array_init(&init, &ty, &known(), &records, &no_typedefs(), &mut needed).is_none()
+        render_array_init(
+            &init,
+            &ty,
+            &known(),
+            &records,
+            &no_typedefs(),
+            &no_functions(),
+            &mut needed
+        )
+        .is_none()
     );
 }
