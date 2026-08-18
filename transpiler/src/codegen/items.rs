@@ -38,6 +38,7 @@ pub fn emit_items(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
 ) -> String {
     let mut needed_zeroed = BTreeSet::new();
     let mut out = emit_items_inner(
@@ -46,6 +47,7 @@ pub fn emit_items(
         known_records,
         known_typedefs,
         known_functions,
+        known_globals,
         &mut needed_zeroed,
     );
     for type_name in &needed_zeroed {
@@ -65,6 +67,7 @@ fn emit_items_inner(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     items
@@ -76,6 +79,7 @@ fn emit_items_inner(
                 known_records,
                 known_typedefs,
                 known_functions,
+                known_globals,
                 needed_zeroed,
             )
         })
@@ -98,6 +102,7 @@ fn emit_item(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     match &item.kind {
@@ -113,6 +118,7 @@ fn emit_item(
                     known_records,
                     known_typedefs,
                     known_functions,
+                    known_globals,
                     needed_zeroed,
                 )
             })
@@ -125,6 +131,7 @@ fn emit_item(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         ),
         ItemKind::Raw => emit_raw(&item.raw),
@@ -399,6 +406,7 @@ fn emit_var(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     if is_malformed(&vd.name) || type_is_malformed(&vd.ty) {
@@ -445,6 +453,7 @@ fn emit_var(
                 known_records,
                 known_typedefs,
                 known_functions,
+                known_globals,
                 needed_zeroed,
             ) {
                 return format!(
@@ -452,8 +461,14 @@ fn emit_var(
                 );
             }
         } else if let Init::Expr(text) = init
-            && let Some(rendered) =
-                render_scalar_init(text, &vd.ty, known, known_typedefs, known_functions)
+            && let Some(rendered) = render_scalar_init(
+                text,
+                &vd.ty,
+                known,
+                known_typedefs,
+                known_functions,
+                known_globals,
+            )
         {
             // Always wrapped in `unsafe {}`, matching the zeroed-stub path
             // below - a plain literal doesn't need it, but a reference to
@@ -471,6 +486,7 @@ fn emit_var(
                 known_records,
                 known_typedefs,
                 known_functions,
+                known_globals,
                 needed_zeroed,
             )
         {
@@ -555,6 +571,7 @@ fn emit_conditional(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     match group.active {
@@ -564,6 +581,7 @@ fn emit_conditional(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         ),
         ActiveBranch::Else => group
@@ -576,6 +594,7 @@ fn emit_conditional(
                     known_records,
                     known_typedefs,
                     known_functions,
+                    known_globals,
                     needed_zeroed,
                 )
             })

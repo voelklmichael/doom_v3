@@ -91,49 +91,49 @@ pub const TEXTSPEED: std::ffi::c_int = 3;
 
 pub const TEXTWAIT: std::ffi::c_int = 250;
 
-pub static mut e1text: *mut std::ffi::c_char = unsafe { E1TEXT };
+pub static mut e1text: *mut std::ffi::c_char = unsafe { E1TEXT as *mut std::ffi::c_char };
 
-pub static mut e2text: *mut std::ffi::c_char = unsafe { E2TEXT };
+pub static mut e2text: *mut std::ffi::c_char = unsafe { E2TEXT as *mut std::ffi::c_char };
 
-pub static mut e3text: *mut std::ffi::c_char = unsafe { E3TEXT };
+pub static mut e3text: *mut std::ffi::c_char = unsafe { E3TEXT as *mut std::ffi::c_char };
 
-pub static mut e4text: *mut std::ffi::c_char = unsafe { E4TEXT };
+pub static mut e4text: *mut std::ffi::c_char = unsafe { E4TEXT as *mut std::ffi::c_char };
 
-pub static mut c1text: *mut std::ffi::c_char = unsafe { C1TEXT };
+pub static mut c1text: *mut std::ffi::c_char = unsafe { C1TEXT as *mut std::ffi::c_char };
 
-pub static mut c2text: *mut std::ffi::c_char = unsafe { C2TEXT };
+pub static mut c2text: *mut std::ffi::c_char = unsafe { C2TEXT as *mut std::ffi::c_char };
 
-pub static mut c3text: *mut std::ffi::c_char = unsafe { C3TEXT };
+pub static mut c3text: *mut std::ffi::c_char = unsafe { C3TEXT as *mut std::ffi::c_char };
 
-pub static mut c4text: *mut std::ffi::c_char = unsafe { C4TEXT };
+pub static mut c4text: *mut std::ffi::c_char = unsafe { C4TEXT as *mut std::ffi::c_char };
 
-pub static mut c5text: *mut std::ffi::c_char = unsafe { C5TEXT };
+pub static mut c5text: *mut std::ffi::c_char = unsafe { C5TEXT as *mut std::ffi::c_char };
 
-pub static mut c6text: *mut std::ffi::c_char = unsafe { C6TEXT };
+pub static mut c6text: *mut std::ffi::c_char = unsafe { C6TEXT as *mut std::ffi::c_char };
 
-pub static mut p1text: *mut std::ffi::c_char = unsafe { P1TEXT };
+pub static mut p1text: *mut std::ffi::c_char = unsafe { P1TEXT as *mut std::ffi::c_char };
 
-pub static mut p2text: *mut std::ffi::c_char = unsafe { P2TEXT };
+pub static mut p2text: *mut std::ffi::c_char = unsafe { P2TEXT as *mut std::ffi::c_char };
 
-pub static mut p3text: *mut std::ffi::c_char = unsafe { P3TEXT };
+pub static mut p3text: *mut std::ffi::c_char = unsafe { P3TEXT as *mut std::ffi::c_char };
 
-pub static mut p4text: *mut std::ffi::c_char = unsafe { P4TEXT };
+pub static mut p4text: *mut std::ffi::c_char = unsafe { P4TEXT as *mut std::ffi::c_char };
 
-pub static mut p5text: *mut std::ffi::c_char = unsafe { P5TEXT };
+pub static mut p5text: *mut std::ffi::c_char = unsafe { P5TEXT as *mut std::ffi::c_char };
 
-pub static mut p6text: *mut std::ffi::c_char = unsafe { P6TEXT };
+pub static mut p6text: *mut std::ffi::c_char = unsafe { P6TEXT as *mut std::ffi::c_char };
 
-pub static mut t1text: *mut std::ffi::c_char = unsafe { T1TEXT };
+pub static mut t1text: *mut std::ffi::c_char = unsafe { T1TEXT as *mut std::ffi::c_char };
 
-pub static mut t2text: *mut std::ffi::c_char = unsafe { T2TEXT };
+pub static mut t2text: *mut std::ffi::c_char = unsafe { T2TEXT as *mut std::ffi::c_char };
 
-pub static mut t3text: *mut std::ffi::c_char = unsafe { T3TEXT };
+pub static mut t3text: *mut std::ffi::c_char = unsafe { T3TEXT as *mut std::ffi::c_char };
 
-pub static mut t4text: *mut std::ffi::c_char = unsafe { T4TEXT };
+pub static mut t4text: *mut std::ffi::c_char = unsafe { T4TEXT as *mut std::ffi::c_char };
 
-pub static mut t5text: *mut std::ffi::c_char = unsafe { T5TEXT };
+pub static mut t5text: *mut std::ffi::c_char = unsafe { T5TEXT as *mut std::ffi::c_char };
 
-pub static mut t6text: *mut std::ffi::c_char = unsafe { T6TEXT };
+pub static mut t6text: *mut std::ffi::c_char = unsafe { T6TEXT as *mut std::ffi::c_char };
 
 pub static mut finaletext: *mut std::ffi::c_char = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -169,75 +169,75 @@ pub struct castinfo_t {
 pub static mut castorder: [castinfo_t; 18] = unsafe {
     [
         castinfo_t {
-            name: CC_ZOMBIE,
+            name: CC_ZOMBIE as *mut std::ffi::c_char,
             type_: MT_POSSESSED,
         },
         castinfo_t {
-            name: CC_SHOTGUN,
+            name: CC_SHOTGUN as *mut std::ffi::c_char,
             type_: MT_SHOTGUY,
         },
         castinfo_t {
-            name: CC_HEAVY,
+            name: CC_HEAVY as *mut std::ffi::c_char,
             type_: MT_CHAINGUY,
         },
         castinfo_t {
-            name: CC_IMP,
+            name: CC_IMP as *mut std::ffi::c_char,
             type_: MT_TROOP,
         },
         castinfo_t {
-            name: CC_DEMON,
+            name: CC_DEMON as *mut std::ffi::c_char,
             type_: MT_SERGEANT,
         },
         castinfo_t {
-            name: CC_LOST,
+            name: CC_LOST as *mut std::ffi::c_char,
             type_: MT_SKULL,
         },
         castinfo_t {
-            name: CC_CACO,
+            name: CC_CACO as *mut std::ffi::c_char,
             type_: MT_HEAD,
         },
         castinfo_t {
-            name: CC_HELL,
+            name: CC_HELL as *mut std::ffi::c_char,
             type_: MT_KNIGHT,
         },
         castinfo_t {
-            name: CC_BARON,
+            name: CC_BARON as *mut std::ffi::c_char,
             type_: MT_BRUISER,
         },
         castinfo_t {
-            name: CC_ARACH,
+            name: CC_ARACH as *mut std::ffi::c_char,
             type_: MT_BABY,
         },
         castinfo_t {
-            name: CC_PAIN,
+            name: CC_PAIN as *mut std::ffi::c_char,
             type_: MT_PAIN,
         },
         castinfo_t {
-            name: CC_REVEN,
+            name: CC_REVEN as *mut std::ffi::c_char,
             type_: MT_UNDEAD,
         },
         castinfo_t {
-            name: CC_MANCU,
+            name: CC_MANCU as *mut std::ffi::c_char,
             type_: MT_FATSO,
         },
         castinfo_t {
-            name: CC_ARCH,
+            name: CC_ARCH as *mut std::ffi::c_char,
             type_: MT_VILE,
         },
         castinfo_t {
-            name: CC_SPIDER,
+            name: CC_SPIDER as *mut std::ffi::c_char,
             type_: MT_SPIDER,
         },
         castinfo_t {
-            name: CC_CYBER,
+            name: CC_CYBER as *mut std::ffi::c_char,
             type_: MT_CYBORG,
         },
         castinfo_t {
-            name: CC_HERO,
+            name: CC_HERO as *mut std::ffi::c_char,
             type_: MT_PLAYER,
         },
         castinfo_t {
-            name: NULL,
+            name: std::ptr::null_mut(),
             type_: 0,
         },
     ]

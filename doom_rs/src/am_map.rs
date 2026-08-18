@@ -633,7 +633,7 @@ static mut cheat_amap_seq: [std::ffi::c_uchar; 5] = unsafe { [0xb2, 0x26, 0x26, 
 
 static mut cheat_amap: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_amap_seq,
+        sequence: cheat_amap_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };

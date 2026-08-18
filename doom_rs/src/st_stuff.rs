@@ -486,42 +486,42 @@ pub static mut cheat_mypos_seq: [std::ffi::c_uchar; 8] =
 
 pub static mut cheat_mus: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_mus_seq,
+        sequence: cheat_mus_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_god: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_god_seq,
+        sequence: cheat_god_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_ammo: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_ammo_seq,
+        sequence: cheat_ammo_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_ammonokey: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_ammonokey_seq,
+        sequence: cheat_ammonokey_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_noclip: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_noclip_seq,
+        sequence: cheat_noclip_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_commercial_noclip: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_commercial_noclip_seq,
+        sequence: cheat_commercial_noclip_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
@@ -561,21 +561,21 @@ pub static mut cheat_powerup: [cheatseq_t; 7] = unsafe {
 
 pub static mut cheat_choppers: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_choppers_seq,
+        sequence: cheat_choppers_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_clev: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_clev_seq,
+        sequence: cheat_clev_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };
 
 pub static mut cheat_mypos: cheatseq_t = unsafe {
     cheatseq_t {
-        sequence: cheat_mypos_seq,
+        sequence: cheat_mypos_seq.as_mut_ptr(),
         p: std::ptr::null_mut(),
     }
 };

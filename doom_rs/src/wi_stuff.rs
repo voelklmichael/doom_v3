@@ -408,8 +408,13 @@ static mut NUMANIMS: [std::ffi::c_int; (NUMEPISODES) as usize] = unsafe {
     ]
 };
 
-static mut anims: [*mut anim_t; (NUMEPISODES) as usize] =
-    unsafe { [epsd0animinfo, epsd1animinfo, epsd2animinfo] };
+static mut anims: [*mut anim_t; (NUMEPISODES) as usize] = unsafe {
+    [
+        epsd0animinfo.as_mut_ptr(),
+        epsd1animinfo.as_mut_ptr(),
+        epsd2animinfo.as_mut_ptr(),
+    ]
+};
 
 pub const FB: std::ffi::c_int = 0;
 

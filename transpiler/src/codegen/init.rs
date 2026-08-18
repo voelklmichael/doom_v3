@@ -49,6 +49,7 @@ pub fn render_scalar_init(
     known: &KnownTypeNames,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
 ) -> Option<String> {
     let expr = parse_init_expr(text, known);
     let rendered = render_expr(&expr)?;
@@ -67,6 +68,51 @@ pub fn render_scalar_init(
         // `s_sound.c`'s `mus_playing`.
         (Type::Pointer(_), Expr::IntLit(lit)) if lit.trim() == "0" => {
             "std::ptr::null_mut()".to_string()
+        }
+        (Type::Pointer(_), Expr::Ident(name)) if name == "NULL" => {
+            "std::ptr::null_mut()".to_string()
+        }
+        // A bare identifier reference against a pointer-typed target - two
+        // real corpus shapes, told apart via `known_globals` (the
+        // identifier's own real declared `Type`, corpus-wide):
+        // 1. `am_map.c`'s `cheat_amap_seq`/`m_menu.c`'s `MainMenu`-style
+        //    table rows: `name` is itself an *array*, and C's implicit
+        //    array-to-pointer decay (passing an array's name where a pointer
+        //    is expected) has no Rust equivalent via a bare `as` cast
+        //    (arrays and pointers aren't cast-compatible types at all,
+        //    `E0605`) - `.as_mut_ptr()` is the real Rust equivalent of that
+        //    decay.
+        // 2. `f_finale.c`'s `e1text = E1TEXT` referencing a string-literal
+        //    macro const, `dstrings.c`'s `QUITMSG`-style rows: `name` isn't
+        //    a known array (usually a macro const, invisible to
+        //    `known_globals` - only real `Var` declarations are tracked
+        //    there). `codegen::types::map_type` always emits `*mut T` for a
+        //    pointer field/var (see its own doc comment: no sound basis to
+        //    place `*const` correctly, given this AST's `Storage::Const`
+        //    doesn't distinguish pointer-const from pointee-const), but a
+        //    string-literal-valued macro const (see `codegen::macros`)
+        //    always renders as `*const c_char` - a real, deterministic
+        //    mismatch, not a deferred-feature gap. An explicit `as *mut T`
+        //    cast is always valid Rust syntax regardless of whether `name`
+        //    already happens to be `*mut`-typed (a `*mut`-to-`*mut` identity
+        //    cast is a no-op, just possibly redundant), so it's applied
+        //    unconditionally for every other bare-identifier case rather
+        //    than trying to track every possible source's own inferred type.
+        (Type::Pointer(_), Expr::Ident(name)) if name != "NULL" => {
+            if matches!(known_globals.get(name.as_str()), Some(Type::Array(_, _))) {
+                format!("{rendered}.as_mut_ptr()")
+            } else {
+                format!("{rendered} as {}", map_type(resolved_ty))
+            }
+        }
+        // A direct string literal against a pointer target (`sprnames[]`-
+        // style scalar table elements, `m_misc.c`'s `default_t.name` fields)
+        // - `render_expr`'s own `StrLit` case always renders `(c"...").
+        // as_ptr()`, which is `*const c_char` by construction, same
+        // mismatch as the bare-identifier case above, always needing the
+        // cast (a literal is never itself already `*mut`-typed).
+        (Type::Pointer(_), Expr::StrLit(_)) => {
+            format!("{rendered} as {}", map_type(resolved_ty))
         }
         // A function-pointer-typed target maps to `Option<unsafe extern "C"
         // fn(...)>` (see `codegen::types::map_type`), so a bare `0`/`NULL`
@@ -196,6 +242,7 @@ pub fn render_array_init(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<(String, String)> {
     let Type::Array(elem_ty, dim) = ty else {
@@ -211,6 +258,7 @@ pub fn render_array_init(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         ),
         // A mid-list `#ifdef` at the array's own top level - never occurs in
@@ -293,6 +341,7 @@ fn render_scalar_or_nested_array(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<(String, String)> {
     let mut flat = Vec::with_capacity(elements.len());
@@ -308,6 +357,7 @@ fn render_scalar_or_nested_array(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         )?;
         elem_type_text.get_or_insert(this_type);
@@ -386,6 +436,7 @@ fn render_value(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<(String, String)> {
     match element {
@@ -405,6 +456,7 @@ fn render_value(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         ),
         // A struct/union-typed row/field (`states[]`'s own rows; a nested
@@ -422,6 +474,7 @@ fn render_value(
                 known_records,
                 known_typedefs,
                 known_functions,
+                known_globals,
                 needed_zeroed,
             )?;
             Some((type_name, rendered))
@@ -436,6 +489,7 @@ fn render_value(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         ),
         // Anything else `Braced` (0 or >1 items against a target that isn't
@@ -443,8 +497,14 @@ fn render_value(
         // bail rather than guess.
         Init::Braced(_) => None,
         Init::Expr(text) => {
-            let rendered =
-                render_scalar_init(text, target_ty, known, known_typedefs, known_functions)?;
+            let rendered = render_scalar_init(
+                text,
+                target_ty,
+                known,
+                known_typedefs,
+                known_functions,
+                known_globals,
+            )?;
             Some((map_type(target_ty), rendered))
         }
         // A mid-list `#ifdef` sitting directly in field-value position (not
@@ -484,6 +544,7 @@ fn render_struct_literal(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<String> {
     if rd.kind == RecordKind::Union {
@@ -495,6 +556,7 @@ fn render_struct_literal(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
         );
     }
     if elements.len() > rd.fields.len() {
@@ -512,6 +574,7 @@ fn render_struct_literal(
             known_records,
             known_typedefs,
             known_functions,
+            known_globals,
             needed_zeroed,
         )?;
         parts.push(format!("{}: {value}", ident(&field.name)));
@@ -535,6 +598,7 @@ fn render_struct_literal(
 /// always exactly one value, confirmed via corpus-wide scan. A row with zero
 /// or more than one value isn't a shape this corpus's own source uses for a
 /// union, so bails (`None`) rather than guess which member (if any) is meant.
+#[allow(clippy::too_many_arguments)]
 fn render_union_literal(
     elements: &[Init],
     type_name: &str,
@@ -543,6 +607,7 @@ fn render_union_literal(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
 ) -> Option<String> {
     let [element] = elements else {
         return None;
@@ -563,6 +628,7 @@ fn render_union_literal(
         known_records,
         known_typedefs,
         known_functions,
+        known_globals,
         &mut nested_needed,
     )?;
     // Never actually populated by any real corpus shape (a union field
@@ -591,6 +657,7 @@ pub fn render_struct_init(
     known_records: &HashMap<String, RecordDecl>,
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> Option<String> {
     let Init::Braced(elements) = init else {
@@ -606,6 +673,7 @@ pub fn render_struct_init(
         known_records,
         known_typedefs,
         known_functions,
+        known_globals,
         needed_zeroed,
     )
 }
