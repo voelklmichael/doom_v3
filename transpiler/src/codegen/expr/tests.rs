@@ -29,6 +29,26 @@ fn str_lit_becomes_c_string_ptr() {
 }
 
 #[test]
+fn all_nul_str_lit_becomes_empty_c_string() {
+    // p_switch.c's real alphSwitchList[] sentinel row: `{"\0","\0",0}` -
+    // Rust's `c"..."` literal syntax rejects an embedded NUL outright
+    // (E0729-style hard parse error), unlike every other C escape, which
+    // passes through as valid Rust syntax unchanged.
+    assert_eq!(
+        render_expr(&Expr::StrLit("\"\\0\"".into())).unwrap(),
+        "(c\"\").as_ptr()"
+    );
+}
+
+#[test]
+fn nul_elsewhere_in_str_lit_bails_rather_than_guess() {
+    // Never confirmed to occur in this corpus - no safe translation exists,
+    // so this must degrade the containing declaration rather than emit
+    // invalid Rust syntax.
+    assert!(render_expr(&Expr::StrLit("\"foo\\0bar\"".into())).is_none());
+}
+
+#[test]
 fn char_lit_becomes_byte_lit_cast_to_c_int() {
     // C char literals are int-typed, so this must compose with surrounding
     // std::ffi::c_int arithmetic (see am_map.h's AM_MSGHEADER, which shifts

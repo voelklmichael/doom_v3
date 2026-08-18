@@ -310,3 +310,111 @@ fn define_inside_a_conditional_branch_is_not_harvested() {
     let defines = own_defines(&items);
     assert!(!defines.contains_key("INSIDE_BRANCH"));
 }
+
+fn typedefs_for(map: &HashMap<String, HashMap<String, Type>>, file: &str) -> HashMap<String, Type> {
+    map.get(file).cloned().unwrap_or_default()
+}
+
+#[test]
+fn harvests_function_pointer_typedef() {
+    // d_think.h's real `typedef void (*actionf_v)();`.
+    let map = compute_known_typedefs(&[corpus_path("d_think.h")]);
+    let typedefs = typedefs_for(&map, "d_think.h");
+    assert_eq!(
+        typedefs.get("actionf_v"),
+        Some(&Type::FunctionPointer {
+            ret: Box::new(Type::Named("void".to_string())),
+            params: vec![],
+        })
+    );
+}
+
+#[test]
+fn unrelated_identifiers_are_not_known_typedefs() {
+    let map = compute_known_typedefs(&[corpus_path("d_think.h")]);
+    let typedefs = typedefs_for(&map, "d_think.h");
+    assert!(!typedefs.contains_key("some_totally_unrelated_name"));
+}
+
+#[test]
+fn skips_unreadable_paths_without_failing_typedefs() {
+    let map = compute_known_typedefs(&[PathBuf::from("/nonexistent/path/does_not_exist.h")]);
+    assert!(map.is_empty());
+}
+
+fn records_for(
+    map: &HashMap<String, HashMap<String, RecordDecl>>,
+    file: &str,
+) -> HashMap<String, RecordDecl> {
+    map.get(file).cloned().unwrap_or_default()
+}
+
+#[test]
+fn harvests_anonymous_typedef_record_by_typedef_name() {
+    // info.h's `state_t` is `typedef struct { ... } state_t;` - no tag, so
+    // only reachable via its typedef name.
+    let map = compute_known_records(&[corpus_path("info.h")]);
+    let records = records_for(&map, "info.h");
+    let rd = records.get("state_t").expect("expected state_t");
+    assert_eq!(
+        rd.fields
+            .iter()
+            .map(|f| f.name.as_str())
+            .collect::<Vec<_>>(),
+        vec![
+            "sprite",
+            "frame",
+            "tics",
+            "action",
+            "nextstate",
+            "misc1",
+            "misc2"
+        ]
+    );
+}
+
+#[test]
+fn harvests_tagged_typedef_record_by_both_spellings() {
+    // p_mobj.h's `typedef struct mobj_s { ... } mobj_t;` - a real
+    // self-referential tag/typedef pair (the struct's own `snext` field is
+    // declared via the tag, since the typedef isn't complete yet at that
+    // point in the struct's own body) - both spellings must resolve to the
+    // same fields, mirroring `codegen::types::map_type`'s own "resolve via
+    // either spelling" rule.
+    let map = compute_known_records(&[corpus_path("p_mobj.h")]);
+    let records = records_for(&map, "p_mobj.h");
+    let by_typedef = records.get("mobj_t").expect("expected mobj_t");
+    let by_tag = records.get("mobj_s").expect("expected mobj_s");
+    assert_eq!(
+        by_typedef
+            .fields
+            .iter()
+            .map(|f| &f.name)
+            .collect::<Vec<_>>(),
+        by_tag.fields.iter().map(|f| &f.name).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn unrelated_identifiers_are_not_known_records() {
+    let map = compute_known_records(&[corpus_path("info.h")]);
+    let records = records_for(&map, "info.h");
+    assert!(!records.contains_key("some_totally_unrelated_name"));
+}
+
+#[test]
+fn sees_records_transitively_included() {
+    // p_mobj.h directly #includes info.h - state_t (defined there) should
+    // be visible from p_mobj.h without p_mobj.h declaring it itself,
+    // mirroring `sees_types_transitively_included`/`sees_globals_...` one
+    // layer up.
+    let map = compute_known_records(&[corpus_path("p_mobj.h"), corpus_path("info.h")]);
+    let p_mobj_records = records_for(&map, "p_mobj.h");
+    assert!(p_mobj_records.contains_key("state_t"));
+}
+
+#[test]
+fn skips_unreadable_paths_without_failing_records() {
+    let map = compute_known_records(&[PathBuf::from("/nonexistent/path/does_not_exist.h")]);
+    assert!(map.is_empty());
+}

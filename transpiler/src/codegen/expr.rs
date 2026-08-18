@@ -32,13 +32,16 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
         Expr::IntLit(text) => sanitize_int_literal(text),
         Expr::FloatLit(text) => render_float_lit(text),
         // `text` already includes the surrounding quotes (see
-        // `scan::scan`'s `StringLit`/`CharLit` handling) - prefixing `c`/`b`
-        // turns a C string/char literal into a Rust C-string/byte literal
-        // directly. Escape-sequence compatibility (e.g. a C octal escape,
-        // not valid in a Rust literal) is an accepted gap, same class as
-        // every other "best-effort, visible compile error if wrong" case
-        // in this module.
-        Expr::StrLit(text) => format!("(c{text}).as_ptr()"),
+        // `scan::scan`'s `StringLit`/`CharLit` handling) - prefixing `c`
+        // turns a C string literal into a Rust C-string literal directly.
+        // Escape-sequence compatibility (e.g. a C octal escape, not valid in
+        // a Rust literal) is an accepted gap, same class as every other
+        // "best-effort, visible compile error if wrong" case in this
+        // module - *except* an embedded NUL escape (`\0`), which Rust's
+        // `c"..."` syntax rejects outright as a hard parse error (a C
+        // string's terminator is always implicit, never spelled) rather
+        // than merely producing a wrong value - see `render_str_lit`.
+        Expr::StrLit(text) => render_str_lit(text)?,
         // A C char literal's *type* is `int`, not `char` (integer
         // promotion applies even to the literal itself) - real corpus
         // proof: `am_map.h`'s `AM_MSGHEADER` is `('a'<<24)+('m'<<16)`,
@@ -111,6 +114,71 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
         }
         Expr::Raw(_) => return None,
     })
+}
+
+/// Renders a C string literal (`text` includes its surrounding quotes) as
+/// `(c"...").as_ptr()`, with one target-*content*-aware fixup: a literal
+/// whose unescaped bytes are *entirely* NUL (C's own explicit "empty string"
+/// idiom, `"\0"` - real corpus case: `p_switch.c`'s `alphSwitchList[]`
+/// sentinel row `{"\0","\0",0}`) becomes an empty `c""` literal instead -
+/// byte-for-byte different from C's `"\0"` (which also carries its own
+/// *implicit* terminator, two NUL bytes total) but identical as a
+/// NUL-terminated string (`strlen`/`strcmp`, which is the only way this
+/// corpus ever reads these fields, see the value as C's own terminator
+/// convention already treats both as "the empty string"). A NUL escape
+/// anywhere *else* in a literal (never confirmed to occur in this corpus)
+/// has no safe translation - Rust's `c"..."` syntax rejects it outright, and
+/// there's no other fixed-length literal syntax in expression position - so
+/// this bails (`None`) rather than guess or silently truncate.
+fn render_str_lit(text: &str) -> Option<String> {
+    let trimmed = text.trim();
+    if let Some(inner) = trimmed.strip_prefix('"').and_then(|s| s.strip_suffix('"')) {
+        let bytes = unescape_c_string(inner);
+        if !bytes.is_empty() && bytes.iter().all(|b| *b == 0) {
+            return Some("(c\"\").as_ptr()".to_string());
+        }
+        if bytes.contains(&0) {
+            return None;
+        }
+    }
+    Some(format!("(c{text}).as_ptr()"))
+}
+
+/// Unescapes a C string/char literal's inner text (quotes already stripped)
+/// into its real bytes: `\n`/`\t`/`\r`/`\0`/`\\`/`\"`/`\'` map to their real
+/// byte value, anything else passes through as literal text (best-effort,
+/// never panics - keeps the backslash rather than silently dropping it).
+/// Shared by `render_str_lit` above and `codegen::init`'s
+/// char-array-from-string-literal rendering (the `rcsid[]` idiom).
+pub(crate) fn unescape_c_string(inner: &str) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    let mut chars = inner.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            let mut buf = [0u8; 4];
+            bytes.extend_from_slice(c.encode_utf8(&mut buf).as_bytes());
+            continue;
+        }
+        match chars.next() {
+            Some('n') => bytes.push(b'\n'),
+            Some('t') => bytes.push(b'\t'),
+            Some('r') => bytes.push(b'\r'),
+            Some('0') => bytes.push(0),
+            Some('\\') => bytes.push(b'\\'),
+            Some('"') => bytes.push(b'"'),
+            Some('\'') => bytes.push(b'\''),
+            // Best-effort passthrough for any other escape (none exist in
+            // this corpus's real occurrences of either caller's shape) -
+            // keep both bytes rather than silently drop the backslash.
+            Some(other) => {
+                bytes.push(b'\\');
+                let mut buf = [0u8; 4];
+                bytes.extend_from_slice(other.encode_utf8(&mut buf).as_bytes());
+            }
+            None => bytes.push(b'\\'),
+        }
+    }
+    bytes
 }
 
 /// `__FILE__`/`__LINE__` are C preprocessor builtins with no real `Expr`

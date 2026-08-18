@@ -86,7 +86,7 @@ pub static mut screens: [*mut byte; (5) as usize] = unsafe { std::mem::zeroed() 
 
 pub static mut dirtybox: [std::ffi::c_int; (4) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut gammatable: [[byte; (256) as usize]; (5) as usize] = unsafe {
+pub static mut gammatable: [[byte; 256]; 5] = unsafe {
     [
         [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,

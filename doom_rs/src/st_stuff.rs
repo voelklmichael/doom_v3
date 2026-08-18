@@ -455,7 +455,7 @@ pub static mut cheat_noclip_seq: [std::ffi::c_uchar; 11] = unsafe {
 pub static mut cheat_commercial_noclip_seq: [std::ffi::c_uchar; 7] =
     unsafe { [0xb2, 0x26, 0xe2, 0x36, 0xb2, 0x2a, 0xff] };
 
-pub static mut cheat_powerup_seq: [[std::ffi::c_uchar; (10) as usize]; (7) as usize] = unsafe {
+pub static mut cheat_powerup_seq: [[std::ffi::c_uchar; 10]; 7] = unsafe {
     [
         [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x6e, 0xff],
         [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xea, 0xff],
@@ -463,7 +463,18 @@ pub static mut cheat_powerup_seq: [[std::ffi::c_uchar; (10) as usize]; (7) as us
         [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x6a, 0xff],
         [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xa2, 0xff],
         [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x36, 0xff],
-        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xff],
+        [
+            0xb2,
+            0x26,
+            0x62,
+            0xa6,
+            0x32,
+            0xf6,
+            0x36,
+            0x26,
+            0xff,
+            std::mem::zeroed(),
+        ],
     ]
 };
 
@@ -473,25 +484,101 @@ pub static mut cheat_clev_seq: [std::ffi::c_uchar; 10] =
 pub static mut cheat_mypos_seq: [std::ffi::c_uchar; 8] =
     unsafe { [0xb2, 0x26, 0xb6, 0xba, 0x2a, 0xf6, 0xea, 0xff] };
 
-pub static mut cheat_mus: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_mus: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_mus_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_god: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_god: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_god_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_ammo: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_ammo: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_ammo_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_ammonokey: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_ammonokey: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_ammonokey_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_noclip: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_noclip: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_noclip_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_commercial_noclip: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_commercial_noclip: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_commercial_noclip_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_powerup: [cheatseq_t; (7) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_powerup: [cheatseq_t; 7] = unsafe {
+    [
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(0) as usize],
+            p: std::ptr::null_mut(),
+        },
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(1) as usize],
+            p: std::ptr::null_mut(),
+        },
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(2) as usize],
+            p: std::ptr::null_mut(),
+        },
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(3) as usize],
+            p: std::ptr::null_mut(),
+        },
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(4) as usize],
+            p: std::ptr::null_mut(),
+        },
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(5) as usize],
+            p: std::ptr::null_mut(),
+        },
+        cheatseq_t {
+            sequence: cheat_powerup_seq[(6) as usize],
+            p: std::ptr::null_mut(),
+        },
+    ]
+};
 
-pub static mut cheat_choppers: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_choppers: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_choppers_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_clev: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_clev: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_clev_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
-pub static mut cheat_mypos: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_mypos: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_mypos_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
 unsafe extern "C" {
     pub static mut mapnames: *mut *mut std::ffi::c_char;

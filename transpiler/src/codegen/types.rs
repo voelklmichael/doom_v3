@@ -80,7 +80,7 @@ fn is_void(ty: &Type) -> bool {
 /// trimmed) - normalize to single-space-separated words before matching
 /// against the builtin table, so irregular source spacing can't cause a
 /// real builtin to fall through to the passthrough case.
-fn normalize(name: &str) -> String {
+pub(crate) fn normalize(name: &str) -> String {
     name.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
@@ -92,7 +92,7 @@ fn normalize(name: &str) -> String {
 /// *anonymous* nested field, which codegen substitutes with a synthesized
 /// name before ever calling `map_type` - see `codegen::items::emit_field`
 /// - so it should never actually reach this function).
-fn strip_tag_keyword(normalized: &str) -> Option<&str> {
+pub(crate) fn strip_tag_keyword(normalized: &str) -> Option<&str> {
     for kw in ["struct ", "union ", "enum "] {
         if let Some(rest) = normalized.strip_prefix(kw) {
             let rest = rest.trim();

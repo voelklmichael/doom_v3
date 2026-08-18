@@ -426,7 +426,13 @@ fn var_malformed_multi_declarator_type_is_flagged_not_emitted_broken() {
         name: "m_y2".to_string(),
         initializer: None,
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(!out.contains("static mut m_y2: fixed_t m_x2,"));
     assert!(out.contains("TODO"));
 }
@@ -439,7 +445,13 @@ fn var_without_initializer_becomes_extern_block() {
         name: "key_right".to_string(),
         initializer: None,
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(out.contains("unsafe extern \"C\" {"));
     assert!(out.contains("pub static mut key_right: std::ffi::c_int;"));
 }
@@ -452,7 +464,13 @@ fn var_without_initializer_still_becomes_zeroed_stub() {
         name: "modifiedgame".to_string(),
         initializer: None,
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(
         out.contains(
             "pub static mut modifiedgame: std::ffi::c_int = unsafe { std::mem::zeroed() };"
@@ -469,7 +487,13 @@ fn var_with_scalar_initializer_is_translated() {
         name: "usegamma".to_string(),
         initializer: Some(crate::parser::ast::Init::Expr("0".to_string())),
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert_eq!(
         out,
         "pub static mut usegamma: std::ffi::c_int = unsafe { 0 };\n\n"
@@ -487,7 +511,13 @@ fn var_char_array_from_string_literal_is_translated() {
         name: "rcsid".to_string(),
         initializer: Some(crate::parser::ast::Init::Expr("\"hi\"".to_string())),
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(!out.contains("std::mem::zeroed()"), "got: {out}");
     assert!(!out.contains("TODO"), "got: {out}");
     assert!(
@@ -513,7 +543,13 @@ fn var_flat_scalar_array_is_translated() {
             crate::parser::ast::Init::Expr("109".to_string()),
         ])),
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(!out.contains("std::mem::zeroed()"), "got: {out}");
     assert!(
         out.contains("pub static mut rndtable: [std::ffi::c_int; 3] = unsafe { [0, 8, 109] };"),
@@ -537,7 +573,13 @@ fn var_struct_typed_array_stays_a_stub_this_phase() {
             ]),
         ])),
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(out.contains("std::mem::zeroed()"), "got: {out}");
     assert!(out.contains("TODO"));
 }
@@ -551,7 +593,13 @@ fn var_null_pointer_literal_becomes_null_mut() {
         name: "X_display".to_string(),
         initializer: Some(crate::parser::ast::Init::Expr("0".to_string())),
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(
         out.contains("= unsafe { std::ptr::null_mut() };"),
         "got: {out}"
@@ -566,9 +614,93 @@ fn static_var_drops_pub() {
         name: "internal_counter".to_string(),
         initializer: Some(crate::parser::ast::Init::Expr("0".to_string())),
     };
-    let out = emit_var(&vd, &KnownTypeNames::new());
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(!out.contains("pub static mut"));
     assert!(out.contains("static mut internal_counter"));
+}
+
+#[test]
+fn bare_struct_var_is_translated_to_a_named_field_literal() {
+    // m_menu.c-style: `menu_t MainDef = { numitems, ..., routine };`
+    let rd = RecordDecl {
+        kind: RecordKind::Struct,
+        tag: None,
+        fields: vec![field("x", named("int")), field("y", named("int"))],
+        names: vec![],
+        typedef_name: Some("point_t".to_string()),
+    };
+    let mut records = HashMap::new();
+    records.insert("point_t".to_string(), rd);
+    let vd = VarDecl {
+        storage: vec![],
+        ty: named("point_t"),
+        name: "origin".to_string(),
+        initializer: Some(crate::parser::ast::Init::Braced(vec![
+            crate::parser::ast::Init::Expr("1".to_string()),
+            crate::parser::ast::Init::Expr("2".to_string()),
+        ])),
+    };
+    let mut needed = BTreeSet::new();
+    let out = emit_var(
+        &vd,
+        &KnownTypeNames::new(),
+        &records,
+        &HashMap::new(),
+        &mut needed,
+    );
+    assert!(!out.contains("std::mem::zeroed()"), "got: {out}");
+    assert!(
+        out.contains("pub static mut origin: point_t = unsafe { point_t { x: 1, y: 2 } };"),
+        "got: {out}"
+    );
+    assert!(needed.is_empty());
+}
+
+#[test]
+fn emit_items_appends_one_deduped_zeroed_const_per_module() {
+    // Two vars, both partial rows against the *same* struct type - the
+    // const must be emitted exactly once for the whole module, not once
+    // per var, and it must appear regardless of declaration order (Rust
+    // doesn't require const items to precede their use site).
+    let rd = RecordDecl {
+        kind: RecordKind::Struct,
+        tag: None,
+        fields: vec![field("x", named("int")), field("y", named("int"))],
+        names: vec![],
+        typedef_name: Some("point_t".to_string()),
+    };
+    let mut records = HashMap::new();
+    records.insert("point_t".to_string(), rd);
+
+    let make_var = |name: &str| {
+        item(ItemKind::Var(VarDecl {
+            storage: vec![],
+            ty: named("point_t"),
+            name: name.to_string(),
+            initializer: Some(crate::parser::ast::Init::Braced(vec![
+                crate::parser::ast::Init::Expr("1".to_string()),
+            ])),
+        }))
+    };
+    let items: Vec<(Item, Trivia)> = vec![
+        (make_var("a"), Trivia::default()),
+        (make_var("b"), Trivia::default()),
+    ];
+    let out = emit_items(&items, &KnownTypeNames::new(), &records, &HashMap::new());
+    assert_eq!(
+        out.matches("const ZEROED_point_t: point_t = unsafe { std::mem::zeroed() };")
+            .count(),
+        1,
+        "got: {out}"
+    );
+    assert!(out.contains("static mut a: point_t"));
+    assert!(out.contains("static mut b: point_t"));
 }
 
 // ---- Functions ----
@@ -720,7 +852,13 @@ fn conditional_emits_only_the_active_branch() {
         else_body: Some(vec![(inner_var("b"), Trivia::default())]),
         active: ActiveBranch::Branch(0),
     };
-    let out = emit_conditional(&group, &KnownTypeNames::new());
+    let out = emit_conditional(
+        &group,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(out.contains(" a:"));
     assert!(!out.contains(" b:"));
 }
@@ -746,7 +884,16 @@ fn conditional_none_emits_nothing() {
         else_body: None,
         active: ActiveBranch::None,
     };
-    assert_eq!(emit_conditional(&group, &KnownTypeNames::new()), "");
+    assert_eq!(
+        emit_conditional(
+            &group,
+            &KnownTypeNames::new(),
+            &HashMap::new(),
+            &HashMap::new(),
+            &mut BTreeSet::new()
+        ),
+        ""
+    );
 }
 
 #[test]
@@ -761,7 +908,13 @@ fn conditional_unknown_is_flagged_not_silently_dropped() {
         else_body: None,
         active: ActiveBranch::Unknown,
     };
-    let out = emit_conditional(&group, &KnownTypeNames::new());
+    let out = emit_conditional(
+        &group,
+        &KnownTypeNames::new(),
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
+    );
     assert!(out.contains("TODO"));
     assert!(out.contains("unresolved"));
 }
@@ -794,6 +947,9 @@ fn bare_preproc_item_emits_nothing() {
             angled: false,
         })),
         &known,
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
     );
     assert_eq!(out, "");
 }
@@ -810,6 +966,9 @@ fn define_object_item_emits_a_const() {
             value: "1".to_string(),
         })),
         &known,
+        &HashMap::new(),
+        &HashMap::new(),
+        &mut BTreeSet::new(),
     );
     assert_eq!(out, "pub const FOO: std::ffi::c_int = 1;\n\n");
 }

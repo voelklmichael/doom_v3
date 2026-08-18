@@ -164,19 +164,30 @@ pub unsafe extern "C" fn R_AddLine(line: *mut seg_t) {
     todo!("body not yet translated")
 }
 
-pub static mut checkcoord: [[std::ffi::c_int; (4) as usize]; (12) as usize] = unsafe {
+pub static mut checkcoord: [[std::ffi::c_int; 4]; 12] = unsafe {
     [
         [3, 0, 2, 1],
         [3, 0, 2, 0],
         [3, 1, 2, 0],
-        [0],
+        [
+            0,
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+        ],
         [2, 0, 2, 1],
         [0, 0, 0, 0],
         [3, 1, 3, 0],
-        [0],
+        [
+            0,
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+            std::mem::zeroed(),
+        ],
         [2, 0, 3, 1],
         [2, 1, 3, 1],
         [2, 1, 3, 0],
+        std::mem::zeroed(),
     ]
 };
 
