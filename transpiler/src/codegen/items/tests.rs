@@ -477,10 +477,10 @@ fn var_with_scalar_initializer_is_translated() {
 }
 
 #[test]
-fn var_array_typed_initializer_stays_a_stub_this_phase() {
-    // char rcsid[] = "..." - an Array-typed target with a scalar
-    // Init::Expr, deferred to a later phase of this arc even though the
-    // Init variant itself is scalar (codegen::init doc comment).
+fn var_char_array_from_string_literal_is_translated() {
+    // char rcsid[] = "..." - the corpus's real rcsid idiom (62 occurrences),
+    // now translated to a real fixed-size char array with the length
+    // inferred from the string's own byte count + a null terminator.
     let vd = VarDecl {
         storage: vec![],
         ty: Type::Array(Box::new(named("char")), None),
@@ -488,7 +488,57 @@ fn var_array_typed_initializer_stays_a_stub_this_phase() {
         initializer: Some(crate::parser::ast::Init::Expr("\"hi\"".to_string())),
     };
     let out = emit_var(&vd, &KnownTypeNames::new());
-    assert!(out.contains("std::mem::zeroed()"));
+    assert!(!out.contains("std::mem::zeroed()"), "got: {out}");
+    assert!(!out.contains("TODO"), "got: {out}");
+    assert!(
+        out.contains("pub static mut rcsid: [std::ffi::c_char; 3]"),
+        "got: {out}"
+    );
+    assert!(
+        out.contains("[104 as std::ffi::c_char, 105 as std::ffi::c_char, 0]"),
+        "got: {out}"
+    );
+}
+
+#[test]
+fn var_flat_scalar_array_is_translated() {
+    // A flat scalar table, e.g. `int rndtable[] = {0, 8, 109};`.
+    let vd = VarDecl {
+        storage: vec![],
+        ty: Type::Array(Box::new(named("int")), None),
+        name: "rndtable".to_string(),
+        initializer: Some(crate::parser::ast::Init::Braced(vec![
+            crate::parser::ast::Init::Expr("0".to_string()),
+            crate::parser::ast::Init::Expr("8".to_string()),
+            crate::parser::ast::Init::Expr("109".to_string()),
+        ])),
+    };
+    let out = emit_var(&vd, &KnownTypeNames::new());
+    assert!(!out.contains("std::mem::zeroed()"), "got: {out}");
+    assert!(
+        out.contains("pub static mut rndtable: [std::ffi::c_int; 3] = unsafe { [0, 8, 109] };"),
+        "got: {out}"
+    );
+}
+
+#[test]
+fn var_struct_typed_array_stays_a_stub_this_phase() {
+    // states[]/mobjinfo[]-style: each row is itself a multi-item Braced
+    // group against a non-Array element type - needs a later phase's
+    // record-field-lookup infrastructure, still deferred.
+    let vd = VarDecl {
+        storage: vec![],
+        ty: Type::Array(Box::new(named("state_t")), None),
+        name: "states".to_string(),
+        initializer: Some(crate::parser::ast::Init::Braced(vec![
+            crate::parser::ast::Init::Braced(vec![
+                crate::parser::ast::Init::Expr("SPR_TROO".to_string()),
+                crate::parser::ast::Init::Expr("0".to_string()),
+            ]),
+        ])),
+    };
+    let out = emit_var(&vd, &KnownTypeNames::new());
+    assert!(out.contains("std::mem::zeroed()"), "got: {out}");
     assert!(out.contains("TODO"));
 }
 

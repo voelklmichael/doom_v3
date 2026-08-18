@@ -13,6 +13,15 @@ pub struct weaponinfo_t {
     pub flashstate: std::ffi::c_int,
 }
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 6] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 pub static mut weaponinfo: [weaponinfo_t; (NUMWEAPONS) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated

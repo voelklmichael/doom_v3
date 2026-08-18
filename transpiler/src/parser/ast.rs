@@ -129,15 +129,42 @@ pub fn render_tokens_no_comments(tokens: &[RawToken]) -> String {
 }
 
 /// Splits `s` on top-level occurrences of `sep`, treating `(...)`, `[...]`
-/// and `{...}` as opaque (never splitting inside them). Used for enum
-/// variant lists, struct field lists, and braced-initializer element lists
-/// once they're back down to plain text.
+/// and `{...}` as opaque (never splitting inside them), and a `'...'`/`"..."`
+/// literal as an opaque unit too (a bracket, quote, or `sep` character
+/// *inside* one never affects splitting or depth-counting) - real corpus
+/// case: `hu_stuff.c`'s `frenchKeyMap[]` has array elements `'('`, `')'`,
+/// and `','` sitting among plain scalar elements; without this, the `(`/`)`
+/// pair falsely opened/closed a depth level (swallowing the real top-level
+/// comma between them into one bogus element) and the comma inside `','`
+/// falsely split what should have been one element into three. Used for
+/// enum variant lists, struct field lists, and braced-initializer element
+/// lists once they're back down to plain text.
 pub(crate) fn split_top_level(s: &str, sep: char) -> Vec<String> {
     let mut out = Vec::new();
     let mut depth = 0i32;
     let mut cur = String::new();
-    for c in s.chars() {
+    let mut in_quote: Option<char> = None;
+    let mut chars = s.chars();
+    while let Some(c) = chars.next() {
+        if let Some(quote) = in_quote {
+            cur.push(c);
+            if c == '\\' {
+                // Consume the escaped character verbatim (whatever it is -
+                // notably including the quote character itself, e.g. `\'`
+                // inside a `'...'` literal, which must not end the literal).
+                if let Some(escaped) = chars.next() {
+                    cur.push(escaped);
+                }
+            } else if c == quote {
+                in_quote = None;
+            }
+            continue;
+        }
         match c {
+            '\'' | '"' => {
+                in_quote = Some(c);
+                cur.push(c);
+            }
             '(' | '[' | '{' => {
                 depth += 1;
                 cur.push(c);
@@ -157,6 +184,9 @@ pub(crate) fn split_top_level(s: &str, sep: char) -> Vec<String> {
     }
     out
 }
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Debug, Clone, Serialize)]
 pub enum Comment {
