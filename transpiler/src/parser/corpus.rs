@@ -318,8 +318,10 @@ fn own_global_types(items: &[(Item, Trivia)]) -> HashMap<String, Type> {
 fn collect_global_types(items: &[(Item, Trivia)], globals: &mut HashMap<String, Type>) {
     for (item, _) in items {
         match &item.kind {
-            ItemKind::Var(vd) => {
-                globals.insert(vd.name.clone(), vd.ty.clone());
+            ItemKind::Var(vds) => {
+                for vd in vds {
+                    globals.insert(vd.name.clone(), vd.ty.clone());
+                }
             }
             ItemKind::Conditional(cg) => {
                 for branch in &cg.branches {

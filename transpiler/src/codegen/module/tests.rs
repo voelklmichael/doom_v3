@@ -47,7 +47,7 @@ fn fn_def(name: &str) -> ItemKind {
 /// initializer - see `collect_stronger_names`'s doc comment for why); `true`
 /// represents a real (non-`extern`) definition.
 fn var(name: &str, has_init: bool) -> ItemKind {
-    ItemKind::Var(VarDecl {
+    ItemKind::Var(vec![VarDecl {
         storage: if has_init {
             vec![]
         } else {
@@ -56,7 +56,7 @@ fn var(name: &str, has_init: bool) -> ItemKind {
         ty: named("int"),
         name: name.to_string(),
         initializer: has_init.then(|| crate::parser::ast::Init::Expr("0".to_string())),
-    })
+    }])
 }
 
 fn typedef(name: &str) -> ItemKind {
@@ -241,7 +241,7 @@ fn extern_var_is_dropped_when_a_real_definition_exists() {
     let source = vec![item(var("key_right", true))];
     let merged = merge_items(Some(&header), Some(&source));
     assert_eq!(merged.len(), 1);
-    assert!(matches!(&merged[0].0.kind, ItemKind::Var(vd) if vd.initializer.is_some()));
+    assert!(matches!(&merged[0].0.kind, ItemKind::Var(vds) if vds[0].initializer.is_some()));
 }
 
 #[test]
@@ -254,22 +254,22 @@ fn extern_var_is_dropped_by_a_tentative_definition_with_no_explicit_initializer(
     // mere declarations and dropped neither - a real `cargo build -p
     // doom_rs` failure (duplicate `static mut modifiedgame`). The real
     // signal is `Storage::Extern`, not the initializer.
-    let header = vec![item(ItemKind::Var(VarDecl {
+    let header = vec![item(ItemKind::Var(vec![VarDecl {
         storage: vec![Storage::Extern],
         ty: named("boolean"),
         name: "modifiedgame".to_string(),
         initializer: None,
-    }))];
-    let source = vec![item(ItemKind::Var(VarDecl {
+    }]))];
+    let source = vec![item(ItemKind::Var(vec![VarDecl {
         storage: vec![],
         ty: named("boolean"),
         name: "modifiedgame".to_string(),
         initializer: None, // tentative definition - no explicit `=` in the source either
-    }))];
+    }]))];
     let merged = merge_items(Some(&header), Some(&source));
     assert_eq!(merged.len(), 1);
     assert!(
-        matches!(&merged[0].0.kind, ItemKind::Var(vd) if !vd.storage.contains(&Storage::Extern))
+        matches!(&merged[0].0.kind, ItemKind::Var(vds) if !vds[0].storage.contains(&Storage::Extern))
     );
 }
 

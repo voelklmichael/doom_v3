@@ -679,14 +679,14 @@ fn emit_items_appends_one_deduped_zeroed_const_per_module() {
     records.insert("point_t".to_string(), rd);
 
     let make_var = |name: &str| {
-        item(ItemKind::Var(VarDecl {
+        item(ItemKind::Var(vec![VarDecl {
             storage: vec![],
             ty: named("point_t"),
             name: name.to_string(),
             initializer: Some(crate::parser::ast::Init::Braced(vec![
                 crate::parser::ast::Init::Expr("1".to_string()),
             ])),
-        }))
+        }]))
     };
     let items: Vec<(Item, Trivia)> = vec![
         (make_var("a"), Trivia::default()),
@@ -834,12 +834,12 @@ fn cond_branch(directive: Directive, body: Vec<(Item, Trivia)>) -> CondBranch {
 #[test]
 fn conditional_emits_only_the_active_branch() {
     let inner_var = |name: &str| {
-        item(ItemKind::Var(VarDecl {
+        item(ItemKind::Var(vec![VarDecl {
             storage: vec![],
             ty: named("int"),
             name: name.to_string(),
             initializer: None,
-        }))
+        }]))
     };
     let group = CondGroup {
         branches: vec![cond_branch(
@@ -872,12 +872,12 @@ fn conditional_none_emits_nothing() {
                 negate: false,
             },
             vec![(
-                item(ItemKind::Var(VarDecl {
+                item(ItemKind::Var(vec![VarDecl {
                     storage: vec![],
                     ty: named("int"),
                     name: "a".to_string(),
                     initializer: None,
-                })),
+                }])),
                 Trivia::default(),
             )],
         )],

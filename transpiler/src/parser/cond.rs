@@ -231,9 +231,11 @@ pub fn resolve_conditionals(items: &mut [(Item, Trivia)], defines: &HashMap<Stri
             ItemKind::FunctionDef(_, body) => {
                 super::stmt::cond::resolve_conditionals(&mut body.block, defines)
             }
-            ItemKind::Var(var) => {
-                if let Some(init) = &mut var.initializer {
-                    resolve_init(init, defines);
+            ItemKind::Var(vars) => {
+                for var in vars {
+                    if let Some(init) = &mut var.initializer {
+                        resolve_init(init, defines);
+                    }
                 }
             }
             _ => {}

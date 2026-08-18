@@ -470,7 +470,12 @@ pub enum ItemKind {
     Record(RecordDecl),
     Enum(EnumDecl),
     Typedef(TypedefDecl),
-    Var(VarDecl),
+    /// One or more declarators sharing a single declaration statement (e.g.
+    /// `static fixed_t m_x, m_y;` - `am_map.c` - is one `Item` with two
+    /// `VarDecl`s here, not two `Item`s, since `Item.raw` is the sole
+    /// round-trip source of truth for the *whole* statement's exact bytes).
+    /// The overwhelmingly common case is a single-element `Vec`.
+    Var(Vec<VarDecl>),
     FunctionDecl(FnSig),
     /// Signature + structured body (see `stmt::ast::FnBody`).
     FunctionDef(FnSig, super::stmt::ast::FnBody),

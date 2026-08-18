@@ -90,7 +90,10 @@ fn emit_item(
         ItemKind::Typedef(td) => emit_typedef(td),
         ItemKind::Record(rd) => emit_record(rd),
         ItemKind::Enum(ed) => emit_enum(ed),
-        ItemKind::Var(vd) => emit_var(vd, known, known_records, known_typedefs, needed_zeroed),
+        ItemKind::Var(vds) => vds
+            .iter()
+            .map(|vd| emit_var(vd, known, known_records, known_typedefs, needed_zeroed))
+            .collect(),
         ItemKind::FunctionDecl(sig) => emit_function_decl(sig),
         ItemKind::FunctionDef(sig, _body) => emit_function_def(sig),
         ItemKind::Conditional(group) => {

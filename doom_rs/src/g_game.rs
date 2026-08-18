@@ -160,7 +160,11 @@ pub static mut gametic: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO
 
 pub static mut levelstarttic: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-// TODO: unparsed multi-declarator variable, needs manual translation: totalsecret: /* unrecognized type: int totalkills, totalitems, */,
+pub static mut totalkills: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub static mut totalitems: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+pub static mut totalsecret: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut demoname: [std::ffi::c_char; (32) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

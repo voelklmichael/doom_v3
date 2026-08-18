@@ -341,7 +341,8 @@ fn equals_sign_in_comment_does_not_fake_an_initializer() {
     round_trip(src);
     let items = build(src);
     match &items[0].0.kind {
-        ItemKind::Var(vd) => {
+        ItemKind::Var(vds) => {
+            let vd = &vds[0];
             assert_eq!(vd.storage, vec![Storage::Extern]);
             assert_eq!(vd.ty, Type::Named("int".to_string()));
             assert_eq!(vd.name, "viewangleoffset");
@@ -610,7 +611,8 @@ fn braced_array_var() {
     round_trip(src);
     let items = build(src);
     match &items[0].0.kind {
-        ItemKind::Var(cd) => {
+        ItemKind::Var(vds) => {
+            let cd = &vds[0];
             assert_eq!(cd.name, "defaults");
             match &cd.initializer {
                 Some(Init::Braced(rows)) => {
@@ -675,4 +677,28 @@ fn directive_and_comment_and_const_all_round_trip_together() {
     assert!(matches!(items[0].0.kind, ItemKind::Preproc(_)));
     assert!(matches!(items[1].0.kind, ItemKind::Var(_)));
     assert_eq!(items[1].1.leading.len(), 0);
+}
+
+#[test]
+fn top_level_multi_declarator_var_becomes_one_item_with_two_var_decls() {
+    // am_map.c's real `static fixed_t m_x, m_y;` - previously collapsed
+    // into one malformed VarDecl (`ty: Named("fixed_t m_x,")`, `name:
+    // "m_y"`), silently dropping `m_x` from the structured AST entirely
+    // (though never from `Item.raw`, so round-trip stayed byte-exact
+    // throughout - this is a purely structural gap, same class as the
+    // struct/union multi-declarator field bug fixed earlier).
+    let src = "static fixed_t \tm_x, m_y;";
+    round_trip(src);
+    let items = build(src);
+    assert_eq!(items.len(), 1, "one statement stays one Item");
+    match &items[0].0.kind {
+        ItemKind::Var(vds) => {
+            assert_eq!(vds.len(), 2);
+            assert_eq!(vds[0].name, "m_x");
+            assert_eq!(vds[0].ty, Type::Named("fixed_t".to_string()));
+            assert_eq!(vds[1].name, "m_y");
+            assert_eq!(vds[1].ty, Type::Named("fixed_t".to_string()));
+        }
+        other => panic!("expected Var, got {other:?}"),
+    }
 }

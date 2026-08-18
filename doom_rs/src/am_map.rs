@@ -573,9 +573,13 @@ static mut mtof_zoommul: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initi
 
 static mut ftom_zoommul: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-// TODO: unparsed multi-declarator variable, needs manual translation: m_y: /* unrecognized type: fixed_t m_x, */,
+static mut m_x: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-// TODO: unparsed multi-declarator variable, needs manual translation: m_y2: /* unrecognized type: fixed_t m_x2, */,
+static mut m_y: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+static mut m_x2: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+static mut m_y2: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 static mut m_w: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -601,9 +605,13 @@ static mut min_scale_mtof: fixed_t = unsafe { std::mem::zeroed() }; // TODO: ini
 
 static mut max_scale_mtof: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-// TODO: unparsed multi-declarator variable, needs manual translation: old_m_h: /* unrecognized type: fixed_t old_m_w, */,
+static mut old_m_w: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-// TODO: unparsed multi-declarator variable, needs manual translation: old_m_y: /* unrecognized type: fixed_t old_m_x, */,
+static mut old_m_h: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+static mut old_m_x: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+
+static mut old_m_y: fixed_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 static mut f_oldloc: mpoint_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

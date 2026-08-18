@@ -141,7 +141,8 @@ fn mid_array_initializer_ifdef_item_shape_unaffected_by_top_level_folding() {
     let after = fold_conditionals(build_items(scan(src)));
     assert_eq!(before.len(), after.len());
     match &after[0].0.kind {
-        ItemKind::Var(cd) => {
+        ItemKind::Var(vds) => {
+            let cd = &vds[0];
             assert_eq!(cd.name, "defaults");
             let elements = match &cd.initializer {
                 Some(Init::Braced(elements)) => elements,
@@ -305,7 +306,7 @@ fn resolves_ifdef_inside_braced_initializer() {
     let mut items = build(src);
     resolve_conditionals(&mut items, &defines(&[("FOO", "1")]));
     let cd = match &items[0].0.kind {
-        ItemKind::Var(cd) => cd,
+        ItemKind::Var(vds) => &vds[0],
         other => panic!("expected Var, got {other:?}"),
     };
     let elements = match &cd.initializer {
