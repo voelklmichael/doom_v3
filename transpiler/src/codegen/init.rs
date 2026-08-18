@@ -21,7 +21,7 @@
 //! branch, more initializer values than a struct has fields, an
 //! `Expr::Raw` leaf) on the existing `zeroed()` stub, never a guess.
 
-use super::expr::{render_expr, unescape_c_string};
+use super::expr::{is_float_expr, render_expr, unescape_c_string};
 use super::ident::ident;
 use super::types::{
     format_return_suffix, map_type, normalize, strip_tag_keyword, type_is_malformed,
@@ -163,6 +163,26 @@ pub fn render_scalar_init(
             } else {
                 format!("Some({rendered})")
             }
+        }
+        // A float-shaped expression (see `codegen::expr::is_float_expr`)
+        // against a non-float scalar target - real corpus case: `am_map.c`'s
+        // `mline_t` scaling-factor table rows (`x: -0.867*R`, `R` an
+        // int-typed macro), where `fixed_t x`'s own declared type is
+        // `std::ffi::c_int`. `render_expr`'s own `Binary` handling already
+        // widens the *other* operand to `f64` so the arithmetic itself type-
+        // checks (see there), but the overall result is still an `f64`
+        // value being assigned to an int-typed field/var - C's own implicit
+        // truncating-conversion-on-assignment (no error, no warning, just a
+        // silent truncation) has no Rust equivalent via plain assignment, so
+        // an explicit `as` cast is added here to match it, mirroring every
+        // other "trust C's own semantics, Rust just needs it spelled out"
+        // cast in this module.
+        _ if !matches!(
+            map_type(resolved_ty).as_str(),
+            "std::ffi::c_float" | "std::ffi::c_double"
+        ) && is_float_expr(&expr) =>
+        {
+            format!("({rendered}) as {}", map_type(resolved_ty))
         }
         _ => rendered,
     })

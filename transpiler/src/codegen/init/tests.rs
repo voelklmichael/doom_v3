@@ -216,6 +216,40 @@ fn address_of_expression() {
     assert!(!out.contains("null_mut"), "got: {out}");
 }
 
+#[test]
+fn float_expr_against_int_target_gets_truncating_cast() {
+    // am_map.c's real mline_t scaling-factor table rows (`x: -0.867*R`,
+    // `R` an int-typed macro) - `fixed_t x`'s own declared type is
+    // `std::ffi::c_int`, but the multiplication itself is now correctly
+    // float-shaped (see `codegen::expr`'s `Binary` fixup) - C's own implicit
+    // truncating-conversion-on-assignment needs an explicit `as` cast here,
+    // since Rust has no equivalent via plain assignment.
+    let out = render_scalar_init(
+        "0.867*R",
+        &named("int"),
+        &known(),
+        &no_typedefs(),
+        &no_functions(),
+        &no_globals(),
+    )
+    .unwrap();
+    assert_eq!(out, "((0.867 * ((R) as f64))) as std::ffi::c_int");
+}
+
+#[test]
+fn float_expr_against_float_target_needs_no_extra_cast() {
+    let out = render_scalar_init(
+        "0.867*R",
+        &named("double"),
+        &known(),
+        &no_typedefs(),
+        &no_functions(),
+        &no_globals(),
+    )
+    .unwrap();
+    assert_eq!(out, "(0.867 * ((R) as f64))");
+}
+
 // ---- render_array_init ----
 
 fn arr(elem: Type, dim: Option<&str>) -> Type {

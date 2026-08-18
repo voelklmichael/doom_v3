@@ -6,7 +6,7 @@
 //! exact same lex/parse pipeline `parser::stmt::mod::parse_function_body`
 //! already uses for real function bodies.
 
-use super::expr::render_expr;
+use super::expr::{is_float_expr, render_expr};
 use super::ident::ident;
 use crate::parser::ast::Type;
 use crate::parser::scan;
@@ -49,15 +49,21 @@ fn lex_macro_text(text: &str) -> Vec<CTok> {
 /// most precise signal available and is used verbatim (this is what makes
 /// `m_swap.h`-style `((short)...)`-shaped values - and, once wired into
 /// `emit_define_function`, `SHORT`/`LONG`-shaped function-like macros - type
-/// correctly); anything else - including a bare char literal, which is
-/// `std::ffi::c_int`-typed in real C too (see `render_expr`'s `CharLit`
-/// case) - defaults to `std::ffi::c_int` (matches the enum-constant
-/// precedent).
+/// correctly); a bare `Binary` combination involving a float literal (real
+/// corpus case: `am_map.c`'s `INITSCALEMTOF`, `(.2*FRACUNIT)` - genuinely
+/// `double`-typed in C via its own usual-arithmetic-conversion rule, with no
+/// top-level `Cast`/`FloatLit` of its own for this function to see directly)
+/// is caught via `is_float_expr`; anything else - including a bare char
+/// literal, which is `std::ffi::c_int`-typed in real C too (see
+/// `render_expr`'s `CharLit` case) - defaults to `std::ffi::c_int` (matches
+/// the enum-constant precedent).
 fn infer_scalar_type(expr: &Expr) -> String {
-    match unwrap_paren(expr) {
+    let inner = unwrap_paren(expr);
+    match inner {
         Expr::FloatLit(_) => "std::ffi::c_double".to_string(),
         Expr::StrLit(_) => "*const std::ffi::c_char".to_string(),
         Expr::Cast { ty, .. } => super::types::map_type(ty),
+        _ if is_float_expr(inner) => "std::ffi::c_double".to_string(),
         _ => "std::ffi::c_int".to_string(),
     }
 }

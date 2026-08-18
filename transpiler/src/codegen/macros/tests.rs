@@ -35,6 +35,19 @@ fn float_const_gets_double_type() {
 }
 
 #[test]
+fn bare_float_arithmetic_infers_double_not_int() {
+    // am_map.c's real INITSCALEMTOF: `(.2*FRACUNIT)` - no top-level Cast/
+    // FloatLit of its own for `infer_scalar_type`'s shallow check to see
+    // directly (it's a Binary node), but it's genuinely double-typed in C
+    // via the usual arithmetic conversions (mixing float and int promotes
+    // the whole expression to float) - must not default to c_int.
+    assert_eq!(
+        emit_define_object("INITSCALEMTOF", "(.2*FRACUNIT)", &known()),
+        "pub const INITSCALEMTOF: std::ffi::c_double = ((0.2 * ((FRACUNIT) as f64)));\n\n"
+    );
+}
+
+#[test]
 fn char_const_gets_c_int_type() {
     // A C char literal is int-typed, not char-typed (integer promotion
     // applies to the literal itself) - see `render_expr`'s `CharLit` case.

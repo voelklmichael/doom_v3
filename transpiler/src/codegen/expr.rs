@@ -55,12 +55,33 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
         Expr::Unary { op, expr } => render_unary(*op, expr)?,
         Expr::Postfix { op, expr } => render_postfix(*op, expr)?,
         Expr::Binary { op, lhs, rhs } => {
-            format!(
-                "({} {} {})",
-                render_expr(lhs)?,
-                binary_op_text(*op),
-                render_expr(rhs)?
-            )
+            let lhs_text = render_expr(lhs)?;
+            let rhs_text = render_expr(rhs)?;
+            // C's "usual arithmetic conversions": mixing a floating-point
+            // operand with an integer one implicitly promotes the integer
+            // side to floating-point before the operation - real corpus
+            // cases: `am_map.c`'s `INITSCALEMTOF` (`.2*FRACUNIT`) and its
+            // `mline_t` scaling-factor tables (`-0.867*R`, `0.5*R`, ...).
+            // Rust has no implicit numeric coercion at all (`{float} *
+            // i32` doesn't compile), so whichever side isn't float-shaped
+            // (see `is_float_expr`) needs an explicit widening cast. `f64`
+            // matches every real corpus float literal (none carry an
+            // `f`/`F` suffix, so they'd default to `f64` anyway - this only
+            // needs to widen the *other*, otherwise-int-inferred side to
+            // match it).
+            let lhs_float = is_float_expr(lhs);
+            let rhs_float = is_float_expr(rhs);
+            let lhs_text = if rhs_float && !lhs_float {
+                format!("(({lhs_text}) as f64)")
+            } else {
+                lhs_text
+            };
+            let rhs_text = if lhs_float && !rhs_float {
+                format!("(({rhs_text}) as f64)")
+            } else {
+                rhs_text
+            };
+            format!("({lhs_text} {} {rhs_text})", binary_op_text(*op))
         }
         Expr::Assign { op, lhs, rhs } => {
             format!(
@@ -114,6 +135,31 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
         }
         Expr::Raw(_) => return None,
     })
+}
+
+/// Whether `expr` is C-floating-point-shaped - not a real type-checker, just
+/// enough to recognize the real corpus shapes (a float literal, an
+/// arithmetic combination where either side is float per C's own promotion
+/// rule, or an explicit cast to `float`/`double`) so `render_expr`'s
+/// `Binary` case and `codegen::macros::infer_scalar_type` can each decide
+/// where an int/float mismatch needs an explicit cast. Used both here and
+/// from `codegen::macros` (a macro whose value is a bare `Binary` like
+/// `.2*FRACUNIT` is genuinely `double`-typed in C - there's no top-level
+/// `Cast`/`FloatLit` for `infer_scalar_type`'s own shallower check to see).
+pub(crate) fn is_float_expr(expr: &Expr) -> bool {
+    match expr {
+        Expr::FloatLit(_) => true,
+        Expr::Paren(inner) => is_float_expr(inner),
+        Expr::Unary { expr, .. } => is_float_expr(expr),
+        Expr::Binary { lhs, rhs, .. } => is_float_expr(lhs) || is_float_expr(rhs),
+        Expr::Cast { ty, .. } => {
+            matches!(
+                map_type(ty).as_str(),
+                "std::ffi::c_float" | "std::ffi::c_double"
+            )
+        }
+        _ => false,
+    }
 }
 
 /// Renders a C string literal (`text` includes its surrounding quotes) as
