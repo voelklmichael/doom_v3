@@ -3,7 +3,9 @@ use crate::parser::scan::scan;
 
 #[test]
 fn rcsid_style() {
-    let cd = try_parse_var_flat("static const char rcsid[] = \"$Id$\";").unwrap();
+    let cds = try_parse_var_flat("static const char rcsid[] = \"$Id$\";").unwrap();
+    assert_eq!(cds.len(), 1);
+    let cd = &cds[0];
     assert_eq!(cd.storage, vec![Storage::Static, Storage::Const]);
     assert_eq!(
         cd.ty,
@@ -209,7 +211,9 @@ fn braced_init_unterminated_ifdef_flattens_at_eof() {
 
 #[test]
 fn no_equals_means_no_initializer() {
-    let vd = try_parse_var_flat("extern patch_t* hu_font[HU_FONTSIZE];").unwrap();
+    let vds = try_parse_var_flat("extern patch_t* hu_font[HU_FONTSIZE];").unwrap();
+    assert_eq!(vds.len(), 1);
+    let vd = &vds[0];
     assert_eq!(vd.storage, vec![Storage::Extern]);
     assert_eq!(
         vd.ty,
@@ -228,7 +232,9 @@ fn fnptr_decl_without_initializer() {
     // declarator with no initializer, exercising the same `parse_declarator`
     // fn-pointer path as the initialized case but through the "no top-level
     // `=`" branch of `try_parse_var_flat`.
-    let vd = try_parse_var_flat("extern void (*colfunc)(void);").unwrap();
+    let vds = try_parse_var_flat("extern void (*colfunc)(void);").unwrap();
+    assert_eq!(vds.len(), 1);
+    let vd = &vds[0];
     assert_eq!(vd.storage, vec![Storage::Extern]);
     assert_eq!(
         vd.ty,
@@ -239,6 +245,50 @@ fn fnptr_decl_without_initializer() {
     );
     assert_eq!(vd.name, "colfunc");
     assert!(vd.initializer.is_none());
+}
+
+#[test]
+fn multi_declarator_var_splits_into_multiple_var_decls() {
+    // am_map.c's real `static fixed_t m_x, m_y;` - previously collapsed
+    // into one malformed VarDecl (`ty: Named("fixed_t m_x,")`, `name:
+    // "m_y"`), silently dropping `m_x` from the AST entirely.
+    let vds = try_parse_var_flat("static fixed_t m_x, m_y;").unwrap();
+    assert_eq!(vds.len(), 2);
+    assert_eq!(vds[0].storage, vec![Storage::Static]);
+    assert_eq!(vds[0].ty, Type::Named("fixed_t".to_string()));
+    assert_eq!(vds[0].name, "m_x");
+    assert!(vds[0].initializer.is_none());
+    assert_eq!(vds[1].storage, vec![Storage::Static]);
+    assert_eq!(vds[1].ty, Type::Named("fixed_t".to_string()));
+    assert_eq!(vds[1].name, "m_y");
+    assert!(vds[1].initializer.is_none());
+}
+
+#[test]
+fn multi_declarator_var_with_three_names() {
+    // g_game.c's real `int totalkills, totalitems, totalsecret;`.
+    let vds = try_parse_var_flat("int totalkills, totalitems, totalsecret;").unwrap();
+    let names: Vec<&str> = vds.iter().map(|v| v.name.as_str()).collect();
+    assert_eq!(names, vec!["totalkills", "totalitems", "totalsecret"]);
+}
+
+#[test]
+fn multi_declarator_var_with_per_declarator_initializers_and_pointer_star() {
+    // Not a real corpus case, but valid C (`int *a, b;` - the pointer star
+    // applies per-declarator, not to the shared base type) and per-
+    // declarator initializers must each attach to their own VarDecl, not
+    // leak into a sibling's.
+    let vds = try_parse_var_flat("int *a = 0, b = 1;").unwrap();
+    assert_eq!(vds.len(), 2);
+    assert_eq!(
+        vds[0].ty,
+        Type::Pointer(Box::new(Type::Named("int".to_string())))
+    );
+    assert_eq!(vds[0].name, "a");
+    assert!(matches!(&vds[0].initializer, Some(Init::Expr(s)) if s == "0"));
+    assert_eq!(vds[1].ty, Type::Named("int".to_string()));
+    assert_eq!(vds[1].name, "b");
+    assert!(matches!(&vds[1].initializer, Some(Init::Expr(s)) if s == "1"));
 }
 
 #[test]

@@ -270,8 +270,8 @@ fn lower_unit(mut unit: Vec<Chunk>, known: &KnownTypeNames) -> (Item, Trivia) {
     let text = declarator_text(&unit);
     let kind = if let Some(td) = try_parse_typedef_flat(&text) {
         ItemKind::Typedef(td)
-    } else if let Some(vd) = try_parse_var_flat(&text) {
-        ItemKind::Var(vd)
+    } else if let Some(vds) = try_parse_var_flat(&text) {
+        ItemKind::Var(vds)
     } else if let Some(sig) = text
         .trim()
         .strip_suffix(';')
@@ -328,7 +328,7 @@ fn classify_group_unit(unit: &[Chunk], raw: &str, known: &KnownTypeNames) -> Ite
     if header_trim.ends_with('=')
         && let Some(vd) = try_parse_var_braced(header_trim, &inner)
     {
-        return ItemKind::Var(vd);
+        return ItemKind::Var(vec![vd]);
     }
 
     let _ = raw;

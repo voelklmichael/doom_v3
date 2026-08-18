@@ -207,8 +207,12 @@ fn collect_stronger_names(items: &[(Item, Trivia)]) -> (HashSet<String>, HashSet
         ItemKind::FunctionDef(sig, _) => {
             has_def.insert(sig.name.clone());
         }
-        ItemKind::Var(vd) if !vd.storage.contains(&Storage::Extern) => {
-            has_real_var_def.insert(vd.name.clone());
+        ItemKind::Var(vds) => {
+            for vd in vds {
+                if !vd.storage.contains(&Storage::Extern) {
+                    has_real_var_def.insert(vd.name.clone());
+                }
+            }
         }
         _ => {}
     });
@@ -312,12 +316,22 @@ fn dedup_active(
                 true
             }
             ItemKind::FunctionDecl(sig) => !has_def.contains(&sig.name),
-            ItemKind::Var(vd) => {
-                if vd.storage.contains(&Storage::Extern) && has_real_var_def.contains(&vd.name) {
-                    false
-                } else {
-                    seen_vars.insert(vd.name.clone())
-                }
+            ItemKind::Var(vds) => {
+                // A multi-declarator statement (e.g. `static fixed_t m_x,
+                // m_y;`) is one `Item` sharing one `Vec<VarDecl>` - each
+                // declarator is checked/deduped independently (`emit_var`
+                // renders each on its own line, never via `item.raw`), and
+                // the whole `Item` is only dropped once every declarator in
+                // it has been superseded or already seen.
+                vds.retain(|vd| {
+                    if vd.storage.contains(&Storage::Extern) && has_real_var_def.contains(&vd.name)
+                    {
+                        false
+                    } else {
+                        seen_vars.insert(vd.name.clone())
+                    }
+                });
+                !vds.is_empty()
             }
             ItemKind::Typedef(td) => seen_types.insert(td.name.clone()),
             ItemKind::Record(rd) => match record_name(rd) {

@@ -19,30 +19,48 @@ use super::preproc::{self, Directive};
 /// Parses a plain `;`-terminated statement with no top-level brace group,
 /// e.g. `static const char rcsid[] = "...";` (initializer) or
 /// `extern int key_right;` (no initializer - `initializer` comes back
-/// `None`). Returns `None` only if the declarator itself doesn't parse.
-pub fn try_parse_var_flat(stmt: &str) -> Option<VarDecl> {
+/// `None`). Splits on any top-level comma into multiple `VarDecl`s sharing
+/// one base type first (e.g. `static fixed_t m_x, m_y;` - `am_map.c`; C
+/// forbids repeating the type word on a later declarator) - mirrors
+/// `record.rs`'s identical `parse_field_group` fix for struct/union fields
+/// and `stmt::decl::try_parse_decl_stmt`'s identical local-declaration
+/// handling, via the same `parse_declarator_with_base`/
+/// `parse_bare_declarator_suffix` pair. All-or-nothing: if any declarator in
+/// the group fails to parse, the whole group is dropped rather than
+/// guessing which subset is safe to keep - matches this function's
+/// pre-existing single-declarator failure behavior (an unparseable
+/// declaration was already silently dropped here, not changed by this fix).
+/// Returns `None` only if the first declarator itself doesn't parse.
+pub fn try_parse_var_flat(stmt: &str) -> Option<Vec<VarDecl>> {
     let s = stmt.trim();
     let s = s.strip_suffix(';').unwrap_or(s).trim();
-    match split_top_level_eq(s) {
-        Some((decl_part, init_part)) => {
-            let (storage, ty, name) = parse_declarator(decl_part.trim())?;
-            Some(VarDecl {
-                storage,
-                ty,
-                name,
-                initializer: Some(Init::Expr(init_part.trim().to_string())),
-            })
-        }
-        None => {
-            let (storage, ty, name) = parse_declarator(s)?;
-            Some(VarDecl {
-                storage,
-                ty,
-                name,
-                initializer: None,
-            })
-        }
+    let mut pieces = split_top_level(s, ',').into_iter();
+    let first = pieces.next()?;
+    let (decl_part, init_part) = match split_top_level_eq(first.trim()) {
+        Some((d, i)) => (d, Some(i.trim().to_string())),
+        None => (first.trim(), None),
+    };
+    let (storage, base_ty, ty, name) = parse_declarator_with_base(decl_part.trim())?;
+    let mut out = vec![VarDecl {
+        storage: storage.clone(),
+        ty,
+        name,
+        initializer: init_part.map(Init::Expr),
+    }];
+    for piece in pieces {
+        let (decl_part, init_part) = match split_top_level_eq(piece.trim()) {
+            Some((d, i)) => (d, Some(i.trim().to_string())),
+            None => (piece.trim(), None),
+        };
+        let (ty, name) = parse_bare_declarator_suffix(decl_part.trim(), &base_ty)?;
+        out.push(VarDecl {
+            storage: storage.clone(),
+            ty,
+            name,
+            initializer: init_part.map(Init::Expr),
+        });
     }
+    Some(out)
 }
 
 /// Parses the `TYPE NAME[dims] =` header preceding a brace-initializer
