@@ -52,7 +52,59 @@ unsafe extern "C" {
     pub fn G_PlayDemo(name: *mut std::ffi::c_char);
 }
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 49] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        103 as std::ffi::c_char,
+        95 as std::ffi::c_char,
+        103 as std::ffi::c_char,
+        97 as std::ffi::c_char,
+        109 as std::ffi::c_char,
+        101 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        99 as std::ffi::c_char,
+        44 as std::ffi::c_char,
+        118 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        56 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        53 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        69 as std::ffi::c_char,
+        120 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 pub const SAVEGAMESIZE: std::ffi::c_int = 0x2c000;
 
@@ -173,11 +225,11 @@ pub const MAXPLMOVE: std::ffi::c_int = (forwardmove[(1) as usize]);
 
 pub const TURBOTHRESHOLD: std::ffi::c_int = 0x32;
 
-pub static mut forwardmove: [fixed_t; (2) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut forwardmove: [fixed_t; (2) as usize] = unsafe { [0x19, 0x32] };
 
-pub static mut sidemove: [fixed_t; (2) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut sidemove: [fixed_t; (2) as usize] = unsafe { [0x18, 0x28] };
 
-pub static mut angleturn: [fixed_t; (3) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut angleturn: [fixed_t; (3) as usize] = unsafe { [640, 1280, 320] };
 
 pub const SLOWTURNTICS: std::ffi::c_int = 6;
 
@@ -288,10 +340,21 @@ pub unsafe extern "C" fn G_ScreenShot() {
     todo!("body not yet translated")
 }
 
-pub static mut pars: [[std::ffi::c_int; (10) as usize]; (4) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut pars: [[std::ffi::c_int; (10) as usize]; (4) as usize] = unsafe {
+    [
+        [0],
+        [0, 30, 75, 120, 90, 165, 180, 180, 30, 165],
+        [0, 90, 90, 90, 120, 90, 360, 240, 30, 170],
+        [0, 90, 45, 90, 150, 90, 90, 165, 30, 135],
+    ]
+};
 
-pub static mut cpars: [std::ffi::c_int; (32) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cpars: [std::ffi::c_int; (32) as usize] = unsafe {
+    [
+        30, 90, 120, 120, 90, 150, 120, 120, 270, 90, 210, 150, 150, 150, 210, 150, 420, 150, 210,
+        150, 240, 150, 180, 150, 150, 300, 330, 420, 300, 180, 120, 30,
+    ]
+};
 
 pub static mut secretexit: boolean = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

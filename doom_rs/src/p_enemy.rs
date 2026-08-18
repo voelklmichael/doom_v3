@@ -31,7 +31,60 @@ use crate::s_sound::*;
 use crate::sounds::*;
 use crate::tables::*;
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 50] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        95 as std::ffi::c_char,
+        101 as std::ffi::c_char,
+        110 as std::ffi::c_char,
+        101 as std::ffi::c_char,
+        109 as std::ffi::c_char,
+        121 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        99 as std::ffi::c_char,
+        44 as std::ffi::c_char,
+        118 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        53 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        53 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        69 as std::ffi::c_char,
+        120 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 pub const DI_EAST: std::ffi::c_int = 0;
 pub const DI_NORTHEAST: std::ffi::c_int = DI_EAST + 1;
@@ -46,9 +99,22 @@ pub const NUMDIRS: std::ffi::c_int = DI_NODIR + 1;
 
 pub type dirtype_t = std::ffi::c_int;
 
-pub static mut opposite: *mut dirtype_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut opposite: [dirtype_t; 9] = unsafe {
+    [
+        DI_WEST,
+        DI_SOUTHWEST,
+        DI_SOUTH,
+        DI_SOUTHEAST,
+        DI_EAST,
+        DI_NORTHEAST,
+        DI_NORTH,
+        DI_NORTHWEST,
+        DI_NODIR,
+    ]
+};
 
-pub static mut diags: *mut dirtype_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut diags: [dirtype_t; 4] =
+    unsafe { [DI_NORTHWEST, DI_NORTHEAST, DI_SOUTHWEST, DI_SOUTHEAST] };
 
 pub static mut soundtarget: *mut mobj_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -68,9 +134,31 @@ pub unsafe extern "C" fn P_CheckMissileRange(actor: *mut mobj_t) -> boolean {
     todo!("body not yet translated")
 }
 
-pub static mut xspeed: [fixed_t; (8) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut xspeed: [fixed_t; (8) as usize] = unsafe {
+    [
+        FRACUNIT,
+        47000,
+        0,
+        (-(47000)),
+        (-(FRACUNIT)),
+        (-(47000)),
+        0,
+        47000,
+    ]
+};
 
-pub static mut yspeed: [fixed_t; (8) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut yspeed: [fixed_t; (8) as usize] = unsafe {
+    [
+        0,
+        47000,
+        FRACUNIT,
+        47000,
+        0,
+        (-(47000)),
+        (-(FRACUNIT)),
+        (-(47000)),
+    ]
+};
 
 pub const MAXSPECIALCROSS: std::ffi::c_int = 8;
 

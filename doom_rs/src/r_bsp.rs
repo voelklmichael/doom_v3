@@ -60,7 +60,58 @@ unsafe extern "C" {
 
 pub type drawfunc_t = Option<unsafe extern "C" fn(std::ffi::c_int, std::ffi::c_int)>;
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 48] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        114 as std::ffi::c_char,
+        95 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        115 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        99 as std::ffi::c_char,
+        44 as std::ffi::c_char,
+        118 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        53 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        69 as std::ffi::c_char,
+        120 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 pub static mut curline: *mut seg_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -113,8 +164,21 @@ pub unsafe extern "C" fn R_AddLine(line: *mut seg_t) {
     todo!("body not yet translated")
 }
 
-pub static mut checkcoord: [[std::ffi::c_int; (4) as usize]; (12) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut checkcoord: [[std::ffi::c_int; (4) as usize]; (12) as usize] = unsafe {
+    [
+        [3, 0, 2, 1],
+        [3, 0, 2, 0],
+        [3, 1, 2, 0],
+        [0],
+        [2, 0, 2, 1],
+        [0, 0, 0, 0],
+        [3, 1, 3, 0],
+        [0],
+        [2, 0, 3, 1],
+        [2, 1, 3, 1],
+        [2, 1, 3, 0],
+    ]
+};
 
 pub unsafe extern "C" fn R_CheckBBox(bspcoord: *mut fixed_t) -> boolean {
     todo!("body not yet translated")

@@ -41,7 +41,59 @@ pub const AM_MSGENTERED: std::ffi::c_int = (AM_MSGHEADER | ((b'e' as std::ffi::c
 
 pub const AM_MSGEXITED: std::ffi::c_int = (AM_MSGHEADER | ((b'x' as std::ffi::c_int) << 8));
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 49] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        97 as std::ffi::c_char,
+        109 as std::ffi::c_char,
+        95 as std::ffi::c_char,
+        109 as std::ffi::c_char,
+        97 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        99 as std::ffi::c_char,
+        44 as std::ffi::c_char,
+        118 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        69 as std::ffi::c_char,
+        120 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 pub const REDS: std::ffi::c_int = (256 - (5 * 16));
 
@@ -300,7 +352,7 @@ static mut markpointnum: std::ffi::c_int = unsafe { 0 };
 
 static mut followplayer: std::ffi::c_int = unsafe { 1 };
 
-static mut cheat_amap_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut cheat_amap_seq: [std::ffi::c_uchar; 5] = unsafe { [0xb2, 0x26, 0x26, 0x2e, 0xff] };
 
 static mut cheat_amap: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 

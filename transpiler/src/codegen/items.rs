@@ -6,7 +6,7 @@
 //! module-assembly concern, not an item-emission one).
 
 use super::ident::{ident, synthesize_nested_name};
-use super::init::render_scalar_init;
+use super::init::{render_array_init, render_scalar_init};
 use super::macros::{emit_define_function, emit_define_object};
 use super::types::{
     format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
@@ -328,30 +328,39 @@ fn emit_var(vd: &VarDecl, known: &KnownTypeNames) -> String {
     if vd.storage.contains(&Storage::Extern) {
         return format!("unsafe extern \"C\" {{\n    {vis}static mut {name}: {ty};\n}}\n\n");
     }
-    // A scalar initializer against a scalar (non-`Array`) type is the only
-    // shape `codegen::init` handles so far - an `Array`-typed target (even
-    // with a scalar `Init::Expr`, e.g. `char rcsid[] = "...";`) and every
-    // `Init::Braced`/`Init::Conditional` shape are deferred to later phases
-    // of this arc (see the approved plan) and still fall through to the
-    // zeroed stub below.
-    if let Some(Init::Expr(text)) = &vd.initializer
-        && !matches!(vd.ty, Type::Array(_, _))
-        && let Some(rendered) = render_scalar_init(text, &vd.ty, known)
-    {
-        // Always wrapped in `unsafe {}`, matching the zeroed-stub path
-        // below - a plain literal doesn't need it, but a reference to
-        // another `static mut` (real corpus case: `r_main.c`'s
-        // `finecosine = &finesine[FINEANGLES/4]`) does, and this codegen
-        // has no cheap way to tell the two apart without a much bigger
-        // static-vs-const name lookup - an unnecessary `unsafe` block is
-        // harmless, an omitted necessary one is a compile error.
-        return format!("{vis}static mut {name}: {ty} = unsafe {{ {rendered} }};\n\n");
+    if let Some(init) = &vd.initializer {
+        if matches!(vd.ty, Type::Array(_, _)) {
+            // An `Array`-typed target's real Rust type depends on the
+            // initializer itself whenever the C declaration left the
+            // dimension unsized (`Array(_, None)`, e.g. `char rcsid[]`/a
+            // flat scalar table) - `render_array_init` returns the paired
+            // type text instead of the generic `ty` computed above. Still
+            // deferred: a struct/union-typed table row (`states[]`/
+            // `mobjinfo[]`/...), which needs a later phase's record-field-
+            // lookup infrastructure - falls through to the zeroed stub below.
+            if let Some((array_ty, rendered)) = render_array_init(init, &vd.ty, known) {
+                return format!(
+                    "{vis}static mut {name}: {array_ty} = unsafe {{ {rendered} }};\n\n"
+                );
+            }
+        } else if let Init::Expr(text) = init
+            && let Some(rendered) = render_scalar_init(text, &vd.ty, known)
+        {
+            // Always wrapped in `unsafe {}`, matching the zeroed-stub path
+            // below - a plain literal doesn't need it, but a reference to
+            // another `static mut` (real corpus case: `r_main.c`'s
+            // `finecosine = &finesine[FINEANGLES/4]`) does, and this codegen
+            // has no cheap way to tell the two apart without a much bigger
+            // static-vs-const name lookup - an unnecessary `unsafe` block is
+            // harmless, an omitted necessary one is a compile error.
+            return format!("{vis}static mut {name}: {ty} = unsafe {{ {rendered} }};\n\n");
+        }
     }
     // Zero matches C's own implicit-zero-initialization for a tentative
     // definition, and stands in as a documented stub when a real explicit
-    // initializer exists but isn't translatable yet (an `Array`/`Braced`/
-    // `Conditional` shape not yet covered, or one this codegen genuinely
-    // can't parse).
+    // initializer exists but isn't translatable yet (a struct/union-typed
+    // table row, an `Init::Conditional` outside an array, or one this
+    // codegen genuinely can't parse).
     format!(
         "{vis}static mut {name}: {ty} = unsafe {{ std::mem::zeroed() }}; // TODO: initializer not yet translated\n\n"
     )

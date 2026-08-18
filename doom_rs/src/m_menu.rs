@@ -38,7 +38,59 @@ use crate::v_video::*;
 use crate::w_wad::*;
 use crate::z_zone::*;
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 49] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        109 as std::ffi::c_char,
+        95 as std::ffi::c_char,
+        109 as std::ffi::c_char,
+        101 as std::ffi::c_char,
+        110 as std::ffi::c_char,
+        117 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        99 as std::ffi::c_char,
+        44 as std::ffi::c_char,
+        118 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        53 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        69 as std::ffi::c_char,
+        120 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 unsafe extern "C" {
     pub static mut hu_font: [*mut patch_t; (HU_FONTSIZE) as usize];
@@ -82,7 +134,7 @@ pub static mut messageRoutine: Option<unsafe extern "C" fn(std::ffi::c_int)> =
 pub const SAVESTRINGSIZE: std::ffi::c_int = 24;
 
 pub static mut gammamsg: [[std::ffi::c_char; (26) as usize]; (5) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+    unsafe { [GAMMALVL0, GAMMALVL1, GAMMALVL2, GAMMALVL3, GAMMALVL4] };
 
 pub static mut saveStringEnter: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -140,7 +192,7 @@ pub static mut skullAnimCounter: std::ffi::c_short = unsafe { std::mem::zeroed()
 pub static mut whichSkull: std::ffi::c_short = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
 pub static mut skullName: [[std::ffi::c_char; (9) as usize]; (2) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+    unsafe { [(c"M_SKULL1").as_ptr(), (c"M_SKULL2").as_ptr()] };
 
 pub static mut currentMenu: *mut menu_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
@@ -360,10 +412,10 @@ pub unsafe extern "C" fn M_Episode(choice: std::ffi::c_int) {
 }
 
 pub static mut detailNames: [[std::ffi::c_char; (9) as usize]; (2) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+    unsafe { [(c"M_GDHIGH").as_ptr(), (c"M_GDLOW").as_ptr()] };
 
 pub static mut msgNames: [[std::ffi::c_char; (9) as usize]; (2) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+    unsafe { [(c"M_MSGOFF").as_ptr(), (c"M_MSGON").as_ptr()] };
 
 pub unsafe extern "C" fn M_DrawOptions() {
     todo!("body not yet translated")
@@ -397,9 +449,19 @@ pub unsafe extern "C" fn M_FinishReadThis(choice: std::ffi::c_int) {
     todo!("body not yet translated")
 }
 
-pub static mut quitsounds: [std::ffi::c_int; (8) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut quitsounds: [std::ffi::c_int; (8) as usize] = unsafe {
+    [
+        sfx_pldeth, sfx_dmpain, sfx_popain, sfx_slop, sfx_telept, sfx_posit1, sfx_posit3,
+        sfx_sgtatk,
+    ]
+};
 
-pub static mut quitsounds2: [std::ffi::c_int; (8) as usize] = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut quitsounds2: [std::ffi::c_int; (8) as usize] = unsafe {
+    [
+        sfx_vilact, sfx_getpow, sfx_boscub, sfx_slop, sfx_skeswg, sfx_kntdth, sfx_bspact,
+        sfx_sgtatk,
+    ]
+};
 
 pub unsafe extern "C" fn M_QuitResponse(ch: std::ffi::c_int) {
     todo!("body not yet translated")

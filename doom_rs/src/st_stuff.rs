@@ -58,7 +58,61 @@ pub const GetChatState: std::ffi::c_int = WaitDestState + 1;
 
 pub type st_chatstateenum_t = std::ffi::c_int;
 
-static mut rcsid: *mut std::ffi::c_char /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut rcsid: [std::ffi::c_char; 51] = unsafe {
+    [
+        36 as std::ffi::c_char,
+        73 as std::ffi::c_char,
+        100 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        115 as std::ffi::c_char,
+        116 as std::ffi::c_char,
+        95 as std::ffi::c_char,
+        115 as std::ffi::c_char,
+        116 as std::ffi::c_char,
+        117 as std::ffi::c_char,
+        102 as std::ffi::c_char,
+        102 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        99 as std::ffi::c_char,
+        44 as std::ffi::c_char,
+        118 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        46 as std::ffi::c_char,
+        54 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        57 as std::ffi::c_char,
+        55 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        47 as std::ffi::c_char,
+        48 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        50 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        52 as std::ffi::c_char,
+        53 as std::ffi::c_char,
+        58 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        51 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        98 as std::ffi::c_char,
+        49 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        69 as std::ffi::c_char,
+        120 as std::ffi::c_char,
+        112 as std::ffi::c_char,
+        32 as std::ffi::c_char,
+        36 as std::ffi::c_char,
+        0,
+    ]
+};
 
 pub const STARTREDPALS: std::ffi::c_int = 1;
 
@@ -374,26 +428,50 @@ static mut keyboxes: [std::ffi::c_int; (3) as usize] = unsafe { std::mem::zeroed
 
 static mut st_randomnumber: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
-pub static mut cheat_mus_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_mus_seq: [std::ffi::c_uchar; 9] =
+    unsafe { [0xb2, 0x26, 0xb6, 0xae, 0xea, 1, 0, 0, 0xff] };
 
-pub static mut cheat_choppers_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_choppers_seq: [std::ffi::c_uchar; 11] = unsafe {
+    [
+        0xb2, 0x26, 0xe2, 0x32, 0xf6, 0x2a, 0x2a, 0xa6, 0x6a, 0xea, 0xff,
+    ]
+};
 
-pub static mut cheat_god_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_god_seq: [std::ffi::c_uchar; 6] =
+    unsafe { [0xb2, 0x26, 0x26, 0xaa, 0x26, 0xff] };
 
-pub static mut cheat_ammo_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_ammo_seq: [std::ffi::c_uchar; 6] =
+    unsafe { [0xb2, 0x26, 0xf2, 0x66, 0xa2, 0xff] };
 
-pub static mut cheat_ammonokey_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_ammonokey_seq: [std::ffi::c_uchar; 5] =
+    unsafe { [0xb2, 0x26, 0x66, 0xa2, 0xff] };
 
-pub static mut cheat_noclip_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_noclip_seq: [std::ffi::c_uchar; 11] = unsafe {
+    [
+        0xb2, 0x26, 0xea, 0x2a, 0xb2, 0xea, 0x2a, 0xf6, 0x2a, 0x26, 0xff,
+    ]
+};
 
-pub static mut cheat_commercial_noclip_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_commercial_noclip_seq: [std::ffi::c_uchar; 7] =
+    unsafe { [0xb2, 0x26, 0xe2, 0x36, 0xb2, 0x2a, 0xff] };
 
-pub static mut cheat_powerup_seq: [[std::ffi::c_uchar; (10) as usize]; (7) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_powerup_seq: [[std::ffi::c_uchar; (10) as usize]; (7) as usize] = unsafe {
+    [
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x6e, 0xff],
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xea, 0xff],
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xb2, 0xff],
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x6a, 0xff],
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xa2, 0xff],
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x36, 0xff],
+        [0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xff],
+    ]
+};
 
-pub static mut cheat_clev_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_clev_seq: [std::ffi::c_uchar; 10] =
+    unsafe { [0xb2, 0x26, 0xe2, 0x36, 0xa6, 0x6e, 1, 0, 0, 0xff] };
 
-pub static mut cheat_mypos_seq: *mut std::ffi::c_uchar /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_mypos_seq: [std::ffi::c_uchar; 8] =
+    unsafe { [0xb2, 0x26, 0xb6, 0xba, 0x2a, 0xf6, 0xea, 0xff] };
 
 pub static mut cheat_mus: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
