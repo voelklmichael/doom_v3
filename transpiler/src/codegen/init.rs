@@ -52,7 +52,28 @@ pub fn render_scalar_init(
     known_globals: &HashMap<String, Type>,
 ) -> Option<String> {
     let expr = parse_init_expr(text, known);
-    let rendered = render_expr(&expr, known_globals)?;
+    render_scalar_init_expr(&expr, ty, known_typedefs, known_functions, known_globals)
+}
+
+/// Same as `render_scalar_init`, but takes an already-parsed `Expr` instead
+/// of raw text - shared with `codegen::stmt`'s local-variable-initializer
+/// rendering, whose `LocalInit::Expr` (unlike this module's own `Init`)
+/// already carries a real parsed `Expr` (no re-parsing needed/possible -
+/// `parser::stmt::decl`'s `LocalInit` never keeps raw text at all). Holds
+/// every one of `render_scalar_init`'s fixups (null pointer, array decay,
+/// string-literal-against-pointer, function-pointer arity, float
+/// truncation, `sizeof` cast) - none of that logic is type-specific to
+/// module scope, it all depends only on the target `Type` and the parsed
+/// `Expr` shape, which a function-local declarator's initializer has
+/// exactly as much of as a module-level one does.
+pub fn render_scalar_init_expr(
+    expr: &Expr,
+    ty: &Type,
+    known_typedefs: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
+    known_globals: &HashMap<String, Type>,
+) -> Option<String> {
+    let rendered = render_expr(expr, known_globals)?;
     // A target spelled via a typedef name (real corpus case: `info.h`'s
     // `state_t.action` field is `Named("actionf_t")`, itself a *union* of
     // further typedef'd function-pointer types - `actionf_p1`/`actionf_v`/
@@ -60,7 +81,7 @@ pub fn render_scalar_init(
     // one level of aliasing to recognize the real shape, not just a literal
     // `Type::FunctionPointer` spelled directly).
     let resolved_ty = resolve_typedef(ty, known_typedefs);
-    Some(match (resolved_ty, &expr) {
+    Some(match (resolved_ty, expr) {
         // A bare `0` used as a null pointer - C's untyped-null-constant
         // idiom has no Rust equivalent via a plain integer literal (`*mut T
         // = 0` doesn't compile; needs an explicit null-pointer
@@ -180,7 +201,7 @@ pub fn render_scalar_init(
         _ if !matches!(
             map_type(resolved_ty).as_str(),
             "std::ffi::c_float" | "std::ffi::c_double"
-        ) && is_float_expr(&expr) =>
+        ) && is_float_expr(expr) =>
         {
             format!("({rendered}) as {}", map_type(resolved_ty))
         }
@@ -193,7 +214,7 @@ pub fn render_scalar_init(
         // int-typed field without an explicit cast - same reasoning as the
         // float case above, mirrored for `codegen::macros::
         // emit_define_object`'s identical fixup for a bare macro const.
-        _ if map_type(resolved_ty) != "usize" && is_sizeof_shaped(&expr) => {
+        _ if map_type(resolved_ty) != "usize" && is_sizeof_shaped(expr) => {
             format!("({rendered}) as {}", map_type(resolved_ty))
         }
         _ => rendered,
