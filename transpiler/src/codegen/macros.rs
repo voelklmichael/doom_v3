@@ -6,7 +6,7 @@
 //! exact same lex/parse pipeline `parser::stmt::mod::parse_function_body`
 //! already uses for real function bodies.
 
-use super::expr::{is_float_expr, render_expr};
+use super::expr::{is_float_expr, is_sizeof_shaped, render_expr};
 use super::ident::ident;
 use crate::parser::ast::Type;
 use crate::parser::scan;
@@ -91,6 +91,21 @@ pub fn emit_define_object(name: &str, value: &str, known: &KnownTypeNames) -> St
     match render_expr(&expr) {
         Some(rendered) => {
             let ty = infer_scalar_type(&expr);
+            // `sizeof`/`sizeof_val` always render as `usize` (see
+            // `render_expr`'s `Sizeof` case), but a bare `sizeof(a)/
+            // sizeof(b)`-shaped macro with no explicit cast (real corpus
+            // case: `am_map.c`'s `NUMPLYRLINES`) infers - correctly, since
+            // real C consumes it as a plain int count - as
+            // `std::ffi::c_int` here, leaving a `usize`-vs-`i32` mismatch at
+            // the assignment itself. A macro whose own `Cast` already named
+            // a different target type renders through `Expr::Cast`'s own
+            // wrapping instead (see `render_expr`), so this only ever needs
+            // to fire for the no-cast, defaulted-to-`c_int` case.
+            let rendered = if ty == "std::ffi::c_int" && is_sizeof_shaped(&expr) {
+                format!("({rendered}) as std::ffi::c_int")
+            } else {
+                rendered
+            };
             format!("pub const {}: {ty} = {rendered};\n\n", ident(name))
         }
         // Block comment, not `//` - `value` can be multi-line (a real

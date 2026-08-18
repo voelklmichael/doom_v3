@@ -21,7 +21,7 @@
 //! branch, more initializer values than a struct has fields, an
 //! `Expr::Raw` leaf) on the existing `zeroed()` stub, never a guess.
 
-use super::expr::{is_float_expr, render_expr, unescape_c_string};
+use super::expr::{is_float_expr, is_sizeof_shaped, render_expr, unescape_c_string};
 use super::ident::ident;
 use super::types::{
     format_return_suffix, map_type, normalize, strip_tag_keyword, type_is_malformed,
@@ -182,6 +182,18 @@ pub fn render_scalar_init(
             "std::ffi::c_float" | "std::ffi::c_double"
         ) && is_float_expr(&expr) =>
         {
+            format!("({rendered}) as {}", map_type(resolved_ty))
+        }
+        // A `sizeof`-shaped expression (see `codegen::expr::is_sizeof_shaped`)
+        // against a non-`usize` scalar target - real corpus case:
+        // `wi_stuff.c`'s `NUMANIMS`-style table rows (`sizeof(epsd0animinfo)
+        // /sizeof(anim_t)`), whose target field is `std::ffi::c_int`.
+        // `std::mem::size_of[_val]` always produces a `usize` (see
+        // `render_expr`'s `Sizeof` case), which doesn't typecheck against an
+        // int-typed field without an explicit cast - same reasoning as the
+        // float case above, mirrored for `codegen::macros::
+        // emit_define_object`'s identical fixup for a bare macro const.
+        _ if map_type(resolved_ty) != "usize" && is_sizeof_shaped(&expr) => {
             format!("({rendered}) as {}", map_type(resolved_ty))
         }
         _ => rendered,
