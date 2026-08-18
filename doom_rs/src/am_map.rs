@@ -250,24 +250,293 @@ pub struct islope_t {
     pub islp: fixed_t,
 }
 
-pub static mut player_arrow: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut player_arrow: [mline_t; 7] = unsafe {
+    [
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: 0,
+            },
+            b: mpoint_t { x: R, y: 0 },
+        },
+        mline_t {
+            a: mpoint_t { x: R, y: 0 },
+            b: mpoint_t {
+                x: (R - (R / 2)),
+                y: (R / 4),
+            },
+        },
+        mline_t {
+            a: mpoint_t { x: R, y: 0 },
+            b: mpoint_t {
+                x: (R - (R / 2)),
+                y: ((-(R)) / 4),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) - (R / 8)),
+                y: (R / 4),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) - (R / 8)),
+                y: ((-(R)) / 4),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + ((3 * R) / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: (R / 4),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + ((3 * R) / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: ((-(R)) / 4),
+            },
+        },
+    ]
+};
 
 pub const NUMPLYRLINES: std::ffi::c_int =
     (std::mem::size_of_val(&(player_arrow)) / std::mem::size_of::<mline_t>());
 
-pub static mut cheat_player_arrow: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut cheat_player_arrow: [mline_t; 16] = unsafe {
+    [
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: 0,
+            },
+            b: mpoint_t { x: R, y: 0 },
+        },
+        mline_t {
+            a: mpoint_t { x: R, y: 0 },
+            b: mpoint_t {
+                x: (R - (R / 2)),
+                y: (R / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t { x: R, y: 0 },
+            b: mpoint_t {
+                x: (R - (R / 2)),
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) - (R / 8)),
+                y: (R / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) - (R / 8)),
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + ((3 * R) / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: (R / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) + ((3 * R) / 8)),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) + (R / 8)),
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) / 2),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) / 2),
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) / 2),
+                y: ((-(R)) / 6),
+            },
+            b: mpoint_t {
+                x: (((-(R)) / 2) + (R / 6)),
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: (((-(R)) / 2) + (R / 6)),
+                y: ((-(R)) / 6),
+            },
+            b: mpoint_t {
+                x: (((-(R)) / 2) + (R / 6)),
+                y: (R / 4),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) / 6),
+                y: 0,
+            },
+            b: mpoint_t {
+                x: ((-(R)) / 6),
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(R)) / 6),
+                y: ((-(R)) / 6),
+            },
+            b: mpoint_t {
+                x: 0,
+                y: ((-(R)) / 6),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: 0,
+                y: ((-(R)) / 6),
+            },
+            b: mpoint_t { x: 0, y: (R / 4) },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: (R / 6),
+                y: (R / 4),
+            },
+            b: mpoint_t {
+                x: (R / 6),
+                y: ((-(R)) / 7),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: (R / 6),
+                y: ((-(R)) / 7),
+            },
+            b: mpoint_t {
+                x: ((R / 6) + (R / 32)),
+                y: (((-(R)) / 7) - (R / 32)),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((R / 6) + (R / 32)),
+                y: (((-(R)) / 7) - (R / 32)),
+            },
+            b: mpoint_t {
+                x: ((R / 6) + (R / 10)),
+                y: ((-(R)) / 7),
+            },
+        },
+    ]
+};
 
 pub const NUMCHEATPLYRLINES: std::ffi::c_int =
     (std::mem::size_of_val(&(cheat_player_arrow)) / std::mem::size_of::<mline_t>());
 
-pub static mut triangle_guy: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut triangle_guy: [mline_t; 3] = unsafe {
+    [
+        mline_t {
+            a: mpoint_t {
+                x: ((-(0.867)) * R),
+                y: ((-(0.5)) * R),
+            },
+            b: mpoint_t {
+                x: (0.867 * R),
+                y: ((-(0.5)) * R),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: (0.867 * R),
+                y: ((-(0.5)) * R),
+            },
+            b: mpoint_t { x: 0, y: R },
+        },
+        mline_t {
+            a: mpoint_t { x: 0, y: R },
+            b: mpoint_t {
+                x: ((-(0.867)) * R),
+                y: ((-(0.5)) * R),
+            },
+        },
+    ]
+};
 
 pub const NUMTRIANGLEGUYLINES: std::ffi::c_int =
     (std::mem::size_of_val(&(triangle_guy)) / std::mem::size_of::<mline_t>());
 
 pub const R: std::ffi::c_int = (FRACUNIT);
 
-pub static mut thintriangle_guy: *mut mline_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut thintriangle_guy: [mline_t; 3] = unsafe {
+    [
+        mline_t {
+            a: mpoint_t {
+                x: ((-(0.5)) * R),
+                y: ((-(0.7)) * R),
+            },
+            b: mpoint_t { x: R, y: 0 },
+        },
+        mline_t {
+            a: mpoint_t { x: R, y: 0 },
+            b: mpoint_t {
+                x: ((-(0.5)) * R),
+                y: (0.7 * R),
+            },
+        },
+        mline_t {
+            a: mpoint_t {
+                x: ((-(0.5)) * R),
+                y: (0.7 * R),
+            },
+            b: mpoint_t {
+                x: ((-(0.5)) * R),
+                y: ((-(0.7)) * R),
+            },
+        },
+    ]
+};
 
 pub const NUMTHINTRIANGLEGUYLINES: std::ffi::c_int =
     (std::mem::size_of_val(&(thintriangle_guy)) / std::mem::size_of::<mline_t>());
@@ -354,7 +623,12 @@ static mut followplayer: std::ffi::c_int = unsafe { 1 };
 
 static mut cheat_amap_seq: [std::ffi::c_uchar; 5] = unsafe { [0xb2, 0x26, 0x26, 0x2e, 0xff] };
 
-static mut cheat_amap: cheatseq_t = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut cheat_amap: cheatseq_t = unsafe {
+    cheatseq_t {
+        sequence: cheat_amap_seq,
+        p: std::ptr::null_mut(),
+    }
+};
 
 static mut stopped: boolean = unsafe { true_ };
 

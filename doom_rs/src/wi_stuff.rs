@@ -163,14 +163,242 @@ pub struct anim_t {
     pub state: std::ffi::c_int,
 }
 
-static mut lnodes: [[point_t; (NUMMAPS) as usize]; (NUMEPISODES) as usize] =
-    unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut lnodes: [[point_t; (NUMMAPS) as usize]; (NUMEPISODES) as usize] = unsafe {
+    [
+        [
+            point_t { x: 185, y: 164 },
+            point_t { x: 148, y: 143 },
+            point_t { x: 69, y: 122 },
+            point_t { x: 209, y: 102 },
+            point_t { x: 116, y: 89 },
+            point_t { x: 166, y: 55 },
+            point_t { x: 71, y: 56 },
+            point_t { x: 135, y: 29 },
+            point_t { x: 71, y: 24 },
+        ],
+        [
+            point_t { x: 254, y: 25 },
+            point_t { x: 97, y: 50 },
+            point_t { x: 188, y: 64 },
+            point_t { x: 128, y: 78 },
+            point_t { x: 214, y: 92 },
+            point_t { x: 133, y: 130 },
+            point_t { x: 208, y: 136 },
+            point_t { x: 148, y: 140 },
+            point_t { x: 235, y: 158 },
+        ],
+        [
+            point_t { x: 156, y: 168 },
+            point_t { x: 48, y: 154 },
+            point_t { x: 174, y: 95 },
+            point_t { x: 265, y: 75 },
+            point_t { x: 130, y: 48 },
+            point_t { x: 279, y: 23 },
+            point_t { x: 198, y: 48 },
+            point_t { x: 140, y: 25 },
+            point_t { x: 281, y: 136 },
+        ],
+    ]
+};
 
-static mut epsd0animinfo: *mut anim_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut epsd0animinfo: [anim_t; 10] = unsafe {
+    [
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 224, y: 104 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 184, y: 160 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 112, y: 136 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 72, y: 112 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 88, y: 96 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 64, y: 48 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 192, y: 40 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 136, y: 16 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 80, y: 16 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 64, y: 24 },
+            ..ZEROED_anim_t
+        },
+    ]
+};
 
-static mut epsd1animinfo: *mut anim_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut epsd1animinfo: [anim_t; 9] = unsafe {
+    [
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 1,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 2,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 3,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 4,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 5,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 6,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 7,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 192, y: 144 },
+            data1: 8,
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_LEVEL,
+            period: (TICRATE / 3),
+            nanims: 1,
+            loc: point_t { x: 128, y: 136 },
+            data1: 8,
+            ..ZEROED_anim_t
+        },
+    ]
+};
 
-static mut epsd2animinfo: *mut anim_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+static mut epsd2animinfo: [anim_t; 6] = unsafe {
+    [
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 104, y: 168 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 40, y: 136 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 160, y: 96 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 104, y: 80 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 3),
+            nanims: 3,
+            loc: point_t { x: 120, y: 32 },
+            ..ZEROED_anim_t
+        },
+        anim_t {
+            type_: ANIM_ALWAYS,
+            period: (TICRATE / 4),
+            nanims: 3,
+            loc: point_t { x: 40, y: 0 },
+            ..ZEROED_anim_t
+        },
+    ]
+};
 
 static mut NUMANIMS: [std::ffi::c_int; (NUMEPISODES) as usize] = unsafe {
     [
@@ -449,3 +677,5 @@ pub unsafe extern "C" fn WI_initVariables(wbstartstruct: *mut wbstartstruct_t) {
 pub unsafe extern "C" fn WI_Start(wbstartstruct: *mut wbstartstruct_t) {
     todo!("body not yet translated")
 }
+
+const ZEROED_anim_t: anim_t = unsafe { std::mem::zeroed() };

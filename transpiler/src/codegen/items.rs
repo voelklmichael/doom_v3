@@ -6,7 +6,7 @@
 //! module-assembly concern, not an item-emission one).
 
 use super::ident::{ident, synthesize_nested_name};
-use super::init::{render_array_init, render_scalar_init};
+use super::init::{render_array_init, render_scalar_init, render_struct_init};
 use super::macros::{emit_define_function, emit_define_object};
 use super::types::{
     format_return_suffix, looks_like_identifier, map_type, sanitize_int_literal, type_is_malformed,
@@ -17,6 +17,58 @@ use crate::parser::ast::{
 };
 use crate::parser::preproc::Directive;
 use crate::parser::stmt::expr::KnownTypeNames;
+use std::collections::{BTreeSet, HashMap};
+
+/// Emits Rust source text for every item in `items`, concatenated, plus (at
+/// the end) one `const ZEROED_{name}: {name} = unsafe { std::mem::zeroed()
+/// };` per struct/union type that any partial struct-typed initializer
+/// anywhere in `items` referenced via `..ZEROED_{name}` struct-update syntax
+/// (see `codegen::init::render_struct_literal`) - collected into a single
+/// `BTreeSet` shared across the *whole* walk (including every nested
+/// `Conditional` branch, via `emit_items_inner`) so each needed const is
+/// defined exactly once per module, regardless of how many rows/vars/branches
+/// reference the same struct type. Rust doesn't require a `const` to be
+/// declared before its use site, so appending them at the end (rather than
+/// the plan's originally-considered "emit before the main loop") needs no
+/// two-pass rendering - the accumulator naturally finishes filling by the
+/// time the single walk completes.
+pub fn emit_items(
+    items: &[(Item, crate::parser::ast::Trivia)],
+    known: &KnownTypeNames,
+    known_records: &HashMap<String, RecordDecl>,
+    known_typedefs: &HashMap<String, Type>,
+) -> String {
+    let mut needed_zeroed = BTreeSet::new();
+    let mut out = emit_items_inner(
+        items,
+        known,
+        known_records,
+        known_typedefs,
+        &mut needed_zeroed,
+    );
+    for type_name in &needed_zeroed {
+        out.push_str(&format!(
+            "const ZEROED_{type_name}: {type_name} = unsafe {{ std::mem::zeroed() }};\n"
+        ));
+    }
+    if !needed_zeroed.is_empty() {
+        out.push('\n');
+    }
+    out
+}
+
+fn emit_items_inner(
+    items: &[(Item, crate::parser::ast::Trivia)],
+    known: &KnownTypeNames,
+    known_records: &HashMap<String, RecordDecl>,
+    known_typedefs: &HashMap<String, Type>,
+    needed_zeroed: &mut BTreeSet<String>,
+) -> String {
+    items
+        .iter()
+        .map(|(item, _)| emit_item(item, known, known_records, known_typedefs, needed_zeroed))
+        .collect()
+}
 
 /// Emits Rust source text for one top-level `Item`. Never panics, never
 /// silently drops data: an unresolved conditional or an unparsed `Raw` item
@@ -24,16 +76,26 @@ use crate::parser::stmt::expr::KnownTypeNames;
 /// `known` is the emitting module's own `KnownTypeNames` (used only for
 /// `#define` bodies - see `codegen::macros` - since a macro's cast
 /// disambiguation needs the same corpus-derived type-name environment real
-/// function-body parsing already uses).
-pub fn emit_item(item: &Item, known: &KnownTypeNames) -> String {
+/// function-body parsing already uses). `known_records`/`known_typedefs`/
+/// `needed_zeroed` are only used by `Var` (see `emit_var`)/`Conditional`
+/// (which may recurse into a branch containing a `Var`).
+fn emit_item(
+    item: &Item,
+    known: &KnownTypeNames,
+    known_records: &HashMap<String, RecordDecl>,
+    known_typedefs: &HashMap<String, Type>,
+    needed_zeroed: &mut BTreeSet<String>,
+) -> String {
     match &item.kind {
         ItemKind::Typedef(td) => emit_typedef(td),
         ItemKind::Record(rd) => emit_record(rd),
         ItemKind::Enum(ed) => emit_enum(ed),
-        ItemKind::Var(vd) => emit_var(vd, known),
+        ItemKind::Var(vd) => emit_var(vd, known, known_records, known_typedefs, needed_zeroed),
         ItemKind::FunctionDecl(sig) => emit_function_decl(sig),
         ItemKind::FunctionDef(sig, _body) => emit_function_def(sig),
-        ItemKind::Conditional(group) => emit_conditional(group, known),
+        ItemKind::Conditional(group) => {
+            emit_conditional(group, known, known_records, known_typedefs, needed_zeroed)
+        }
         ItemKind::Raw => emit_raw(&item.raw),
         // #include has no Rust equivalent (cross-module refs are handled via
         // `use` imports at module-assembly time, see codegen::module).
@@ -299,7 +361,13 @@ fn is_static(storage: &[Storage]) -> bool {
     storage.contains(&Storage::Static)
 }
 
-fn emit_var(vd: &VarDecl, known: &KnownTypeNames) -> String {
+fn emit_var(
+    vd: &VarDecl,
+    known: &KnownTypeNames,
+    known_records: &HashMap<String, RecordDecl>,
+    known_typedefs: &HashMap<String, Type>,
+    needed_zeroed: &mut BTreeSet<String>,
+) -> String {
     if is_malformed(&vd.name) || type_is_malformed(&vd.ty) {
         // See `is_malformed`/`type_is_malformed` - real corpus example:
         // am_map.c's `fixed_t m_x2, m_y2;` (a multi-declarator top-level
@@ -334,17 +402,23 @@ fn emit_var(vd: &VarDecl, known: &KnownTypeNames) -> String {
             // initializer itself whenever the C declaration left the
             // dimension unsized (`Array(_, None)`, e.g. `char rcsid[]`/a
             // flat scalar table) - `render_array_init` returns the paired
-            // type text instead of the generic `ty` computed above. Still
-            // deferred: a struct/union-typed table row (`states[]`/
-            // `mobjinfo[]`/...), which needs a later phase's record-field-
-            // lookup infrastructure - falls through to the zeroed stub below.
-            if let Some((array_ty, rendered)) = render_array_init(init, &vd.ty, known) {
+            // type text instead of the generic `ty` computed above. Covers
+            // both a flat/2-D scalar array and an array of struct/union
+            // rows (`states[]`/`mobjinfo[]`/...).
+            if let Some((array_ty, rendered)) = render_array_init(
+                init,
+                &vd.ty,
+                known,
+                known_records,
+                known_typedefs,
+                needed_zeroed,
+            ) {
                 return format!(
                     "{vis}static mut {name}: {array_ty} = unsafe {{ {rendered} }};\n\n"
                 );
             }
         } else if let Init::Expr(text) = init
-            && let Some(rendered) = render_scalar_init(text, &vd.ty, known)
+            && let Some(rendered) = render_scalar_init(text, &vd.ty, known, known_typedefs)
         {
             // Always wrapped in `unsafe {}`, matching the zeroed-stub path
             // below - a plain literal doesn't need it, but a reference to
@@ -354,13 +428,29 @@ fn emit_var(vd: &VarDecl, known: &KnownTypeNames) -> String {
             // static-vs-const name lookup - an unnecessary `unsafe` block is
             // harmless, an omitted necessary one is a compile error.
             return format!("{vis}static mut {name}: {ty} = unsafe {{ {rendered} }};\n\n");
+        } else if matches!(init, Init::Braced(_))
+            && let Some(rendered) = render_struct_init(
+                init,
+                &vd.ty,
+                known,
+                known_records,
+                known_typedefs,
+                needed_zeroed,
+            )
+        {
+            // A bare struct/union-typed variable with its own brace-init
+            // (e.g. `m_menu.c`'s `MainDef`/`st_stuff.c`'s `cheat_god`) -
+            // `render_struct_init` returns `None` immediately for any
+            // non-record `vd.ty`, so this never fires for an ordinary
+            // scalar's own (invalid, but never seen in this corpus) brace-
+            // wrapped init.
+            return format!("{vis}static mut {name}: {ty} = unsafe {{ {rendered} }};\n\n");
         }
     }
     // Zero matches C's own implicit-zero-initialization for a tentative
     // definition, and stands in as a documented stub when a real explicit
-    // initializer exists but isn't translatable yet (a struct/union-typed
-    // table row, an `Init::Conditional` outside an array, or one this
-    // codegen genuinely can't parse).
+    // initializer exists but isn't translatable yet (an `Init::Conditional`
+    // outside an array, or one this codegen genuinely can't parse).
     format!(
         "{vis}static mut {name}: {ty} = unsafe {{ std::mem::zeroed() }}; // TODO: initializer not yet translated\n\n"
     )
@@ -422,13 +512,25 @@ fn emit_function_def(sig: &FnSig) -> String {
     )
 }
 
-fn emit_conditional(group: &CondGroup, known: &KnownTypeNames) -> String {
+fn emit_conditional(
+    group: &CondGroup,
+    known: &KnownTypeNames,
+    known_records: &HashMap<String, RecordDecl>,
+    known_typedefs: &HashMap<String, Type>,
+    needed_zeroed: &mut BTreeSet<String>,
+) -> String {
     match group.active {
-        ActiveBranch::Branch(n) => emit_items(&group.branches[n].body, known),
+        ActiveBranch::Branch(n) => emit_items_inner(
+            &group.branches[n].body,
+            known,
+            known_records,
+            known_typedefs,
+            needed_zeroed,
+        ),
         ActiveBranch::Else => group
             .else_body
             .as_ref()
-            .map(|b| emit_items(b, known))
+            .map(|b| emit_items_inner(b, known, known_records, known_typedefs, needed_zeroed))
             .unwrap_or_default(),
         ActiveBranch::None => String::new(),
         ActiveBranch::Unknown => {
@@ -446,16 +548,6 @@ fn emit_raw(raw: &str) -> String {
         return String::new();
     }
     format!("/* TODO: unparsed C construct, needs manual translation:\n{raw}\n*/\n\n")
-}
-
-/// Emits every item in `items` in order, concatenated - the driver both
-/// `main.rs`'s whole-module emission and `emit_conditional`'s recursive
-/// branch-body emission share.
-pub fn emit_items(items: &[(Item, crate::parser::ast::Trivia)], known: &KnownTypeNames) -> String {
-    items
-        .iter()
-        .map(|(item, _)| emit_item(item, known))
-        .collect()
 }
 
 #[cfg(test)]

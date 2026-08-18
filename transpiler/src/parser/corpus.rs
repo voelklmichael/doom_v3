@@ -23,7 +23,7 @@
 //! one of `paths` are ignored - they contribute no names (best-effort, not
 //! a real preprocessor).
 
-use super::ast::{CondGroup, File, FnSig, Item, ItemKind, Trivia, Type};
+use super::ast::{CondGroup, File, FnSig, Item, ItemKind, RecordDecl, Trivia, Type};
 use super::preproc::Directive;
 use super::stmt::expr::KnownTypeNames;
 use std::collections::{HashMap, HashSet};
@@ -153,6 +153,88 @@ pub fn compute_known_functions(paths: &[PathBuf]) -> HashMap<String, HashMap<Str
 /// processing items in their real file order.
 pub fn compute_known_defines(paths: &[PathBuf]) -> HashMap<String, HashMap<String, String>> {
     compute_per_file_env(paths, own_defines, merge_map)
+}
+
+/// Computes each file's own precise typedef environment (typedef name ->
+/// its underlying `Type`), same `#include`-graph machinery again. Needed
+/// alongside `compute_known_records`: a struct/union field's own type is
+/// often a typedef *name*, not the underlying shape directly (real corpus
+/// case: `info.h`'s `state_t.action` field is `Named("actionf_t")` -
+/// itself a union of further typedef'd function-pointer types,
+/// `actionf_p1`/`actionf_v`/`actionf_p2` - resolving one level through a
+/// typedef is what lets array/braced-initializer codegen recognize a
+/// function-pointer-typed *value* position even when it's spelled via an
+/// alias rather than a literal `Type::FunctionPointer`).
+pub fn compute_known_typedefs(paths: &[PathBuf]) -> HashMap<String, HashMap<String, Type>> {
+    compute_per_file_env(paths, own_typedefs, merge_map)
+}
+
+fn own_typedefs(items: &[(Item, Trivia)]) -> HashMap<String, Type> {
+    let mut typedefs = HashMap::new();
+    collect_typedefs(items, &mut typedefs);
+    typedefs
+}
+
+fn collect_typedefs(items: &[(Item, Trivia)], typedefs: &mut HashMap<String, Type>) {
+    for (item, _) in items {
+        match &item.kind {
+            ItemKind::Typedef(td) => {
+                typedefs.insert(td.name.clone(), td.underlying.clone());
+            }
+            ItemKind::Conditional(cg) => {
+                for branch in &cg.branches {
+                    collect_typedefs(&branch.body, typedefs);
+                }
+                if let Some(else_body) = &cg.else_body {
+                    collect_typedefs(else_body, typedefs);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Computes each file's own precise struct/union-layout environment (type
+/// name -> `RecordDecl`), same `#include`-graph machinery again - keyed by
+/// *both* a record's `tag` and its `typedef_name` when both exist (mirrors
+/// `codegen::types::map_type`'s own "resolve via either spelling" rule, e.g.
+/// a self-referential field declared via the tag before its own typedef is
+/// complete). Needed so array/braced-initializer codegen can look up a
+/// struct/union-typed table row's field order (`states[]`/`mobjinfo[]`/...),
+/// something nothing before this needed - only that a name referred to
+/// *some* type (`KnownTypeNames`).
+pub fn compute_known_records(paths: &[PathBuf]) -> HashMap<String, HashMap<String, RecordDecl>> {
+    compute_per_file_env(paths, own_records, merge_map)
+}
+
+fn own_records(items: &[(Item, Trivia)]) -> HashMap<String, RecordDecl> {
+    let mut records = HashMap::new();
+    collect_records(items, &mut records);
+    records
+}
+
+fn collect_records(items: &[(Item, Trivia)], records: &mut HashMap<String, RecordDecl>) {
+    for (item, _) in items {
+        match &item.kind {
+            ItemKind::Record(rd) => {
+                if let Some(tag) = &rd.tag {
+                    records.insert(tag.clone(), rd.clone());
+                }
+                if let Some(name) = &rd.typedef_name {
+                    records.insert(name.clone(), rd.clone());
+                }
+            }
+            ItemKind::Conditional(cg) => {
+                for branch in &cg.branches {
+                    collect_records(&branch.body, records);
+                }
+                if let Some(else_body) = &cg.else_body {
+                    collect_records(else_body, records);
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 fn own_defines(items: &[(Item, Trivia)]) -> HashMap<String, String> {

@@ -4,7 +4,9 @@ use transpiler::codegen::{
     items as codegen_items, module as codegen_module, write as codegen_write,
 };
 use transpiler::parse_file_with_types;
-use transpiler::parser::corpus::{compute_known_defines, compute_known_type_names};
+use transpiler::parser::corpus::{
+    compute_known_defines, compute_known_records, compute_known_type_names, compute_known_typedefs,
+};
 use transpiler::parser::evidence::{collect_evidence, summarize};
 use transpiler::parser::stmt::expr::KnownTypeNames;
 use transpiler::parser::{ast, cond, preproc, trivia};
@@ -147,6 +149,8 @@ fn run_codegen() {
     let all = all_files();
     let known_types = compute_known_type_names(&all);
     let known_defines = compute_known_defines(&all);
+    let known_records = compute_known_records(&all);
+    let known_typedefs = compute_known_typedefs(&all);
     let predefined: HashMap<String, String> = PREDEFINED_MACROS
         .iter()
         .map(|m| (m.to_string(), String::new()))
@@ -211,12 +215,30 @@ fn run_codegen() {
         // its own cast disambiguation (see codegen::macros) needs the union
         // of both files' known-type environments, not just one.
         let mut module_known = KnownTypeNames::new();
+        // Same reasoning for struct/union layouts: a merged module's own
+        // struct-typed table (e.g. `info.c`'s `states[]`) may reference a
+        // record defined in either half of the pair, or transitively via
+        // either half's own `#include`s.
+        let mut module_records: HashMap<String, transpiler::parser::ast::RecordDecl> =
+            HashMap::new();
+        // Same reasoning again for typedefs: resolving a function-pointer
+        // value spelled via a typedef alias (e.g. `info.h`'s `actionf_t`
+        // union, whose own fields are typedef'd function pointers) needs to
+        // see typedefs from either half of the merged pair too.
+        let mut module_typedefs: HashMap<String, transpiler::parser::ast::Type> = HashMap::new();
         for name in &constituent_files {
             if let Some(k) = known_types.get(name) {
                 module_known.extend(k);
             }
+            if let Some(r) = known_records.get(name) {
+                module_records.extend(r.iter().map(|(k, v)| (k.clone(), v.clone())));
+            }
+            if let Some(t) = known_typedefs.get(name) {
+                module_typedefs.extend(t.iter().map(|(k, v)| (k.clone(), v.clone())));
+            }
         }
-        let body = codegen_items::emit_items(&merged, &module_known);
+        let body =
+            codegen_items::emit_items(&merged, &module_known, &module_records, &module_typedefs);
 
         let mut text = uses.concat();
         if !text.is_empty() {

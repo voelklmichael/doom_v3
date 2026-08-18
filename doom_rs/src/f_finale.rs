@@ -166,7 +166,82 @@ pub struct castinfo_t {
     pub type_: mobjtype_t,
 }
 
-pub static mut castorder: *mut castinfo_t /* TODO: was unsized array */ = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
+pub static mut castorder: [castinfo_t; 18] = unsafe {
+    [
+        castinfo_t {
+            name: CC_ZOMBIE,
+            type_: MT_POSSESSED,
+        },
+        castinfo_t {
+            name: CC_SHOTGUN,
+            type_: MT_SHOTGUY,
+        },
+        castinfo_t {
+            name: CC_HEAVY,
+            type_: MT_CHAINGUY,
+        },
+        castinfo_t {
+            name: CC_IMP,
+            type_: MT_TROOP,
+        },
+        castinfo_t {
+            name: CC_DEMON,
+            type_: MT_SERGEANT,
+        },
+        castinfo_t {
+            name: CC_LOST,
+            type_: MT_SKULL,
+        },
+        castinfo_t {
+            name: CC_CACO,
+            type_: MT_HEAD,
+        },
+        castinfo_t {
+            name: CC_HELL,
+            type_: MT_KNIGHT,
+        },
+        castinfo_t {
+            name: CC_BARON,
+            type_: MT_BRUISER,
+        },
+        castinfo_t {
+            name: CC_ARACH,
+            type_: MT_BABY,
+        },
+        castinfo_t {
+            name: CC_PAIN,
+            type_: MT_PAIN,
+        },
+        castinfo_t {
+            name: CC_REVEN,
+            type_: MT_UNDEAD,
+        },
+        castinfo_t {
+            name: CC_MANCU,
+            type_: MT_FATSO,
+        },
+        castinfo_t {
+            name: CC_ARCH,
+            type_: MT_VILE,
+        },
+        castinfo_t {
+            name: CC_SPIDER,
+            type_: MT_SPIDER,
+        },
+        castinfo_t {
+            name: CC_CYBER,
+            type_: MT_CYBORG,
+        },
+        castinfo_t {
+            name: CC_HERO,
+            type_: MT_PLAYER,
+        },
+        castinfo_t {
+            name: NULL,
+            type_: 0,
+        },
+    ]
+};
 
 pub static mut castnum: std::ffi::c_int = unsafe { std::mem::zeroed() }; // TODO: initializer not yet translated
 
