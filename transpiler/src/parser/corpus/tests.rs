@@ -267,6 +267,19 @@ fn harvests_valueless_define() {
 }
 
 #[test]
+fn macro_names_are_harvested_from_inside_conditional_branches() {
+    // m_swap.h's real `SHORT`/`LONG`: both defined only inside an
+    // `#ifdef __BIG_ENDIAN__`/`#else`/`#endif` pair - `compute_known_defines`
+    // (used for `#if` evaluation) deliberately never sees these, but
+    // `compute_known_macro_names` (used by codegen's dead-macro detection)
+    // must, from *both* branches, regardless of which would evaluate true.
+    let map = compute_known_macro_names(&[corpus_path("m_swap.h")]);
+    let names = defines_for(&map, "m_swap.h");
+    assert!(names.contains_key("SHORT"));
+    assert!(names.contains_key("LONG"));
+}
+
+#[test]
 fn sequential_define_undef_pairs_leave_nothing_behind() {
     // am_map.c: `#define R (...)` / `#undef R`, four times over, bracketing
     // four different mline_t array literals - by end of file `R` must be

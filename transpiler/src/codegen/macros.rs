@@ -8,7 +8,7 @@
 
 use super::expr::{is_float_expr, is_sizeof_shaped, render_expr};
 use super::ident::ident;
-use crate::parser::ast::Type;
+use crate::parser::ast::{FnSig, Type};
 use crate::parser::scan;
 use crate::parser::stmt::expr::{Expr, KnownTypeNames, UnaryOp, parse_expr};
 use crate::parser::stmt::lex::{CTok, Punct, lex_ctoks};
@@ -79,7 +79,9 @@ fn unwrap_paren(expr: &Expr) -> &Expr {
 /// Emits one object-like `#define` as a Rust `pub const`, or a flagged
 /// comment when it can't be (see `render_expr`'s doc comment for what
 /// "can't" means here - only an `Expr::Raw` leaf, this grammar's own
-/// genuine parse-failure marker). An empty value (a flag-only macro used
+/// genuine parse-failure marker, or an identifier the macro's body
+/// references that has no known definition anywhere the emitting module can
+/// see - see `has_unresolved_ident`). An empty value (a flag-only macro used
 /// purely for `#ifdef`/`#if` testing, e.g. `RANGECHECK`/`NORMALUNIX` - their
 /// conditionals are already resolved elsewhere, see `parser::cond`) has
 /// nothing to constantify and is skipped entirely, same as `#include`
@@ -89,11 +91,27 @@ pub fn emit_define_object(
     value: &str,
     known: &KnownTypeNames,
     known_globals: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
+    known_defines: &HashMap<String, String>,
 ) -> String {
     if value.trim().is_empty() {
         return String::new();
     }
     let expr = parse_expr(&lex_macro_text(value), known);
+    if has_unresolved_ident(&expr, known_globals, known_functions, known_defines) {
+        // Real corpus cases (`s_sound.c`'s `NORM_VOLUME`, `st_stuff.c`'s
+        // `ST_MAPTITLEX`, `wi_stuff.c`'s `SP_PAR`): a macro whose body
+        // references a genuinely undefined identifier - confirmed via a
+        // corpus-wide grep that none of these three macros are ever
+        // expanded anywhere. Real C never type/scope-checks an unused
+        // macro body (pure textual substitution), so the original source
+        // compiled fine despite this; unconditionally emitting a `const`
+        // for every `#define` regardless of use would force Rust to
+        // resolve identifiers C itself never needed to.
+        return format!(
+            "/* TODO: unparsed macro value, references an identifier with no known definition anywhere in this module's visible corpus (likely dead code never expanded in the original C):\n#define {name} {value}\n*/\n\n"
+        );
+    }
     match render_expr(&expr, known_globals) {
         Some(rendered) => {
             let ty = infer_scalar_type(&expr);
@@ -189,6 +207,32 @@ fn any_subexpr(expr: &Expr, pred: &dyn Fn(&Expr) -> bool) -> bool {
         | Expr::CharLit(_)
         | Expr::Raw(_) => false,
     }
+}
+
+/// True if `expr` (a parsed, successfully-*rendered* object-macro body)
+/// references any bare identifier not resolvable via the emitting module's
+/// own visible environment - a real global variable, a real function, or
+/// another `#define`d macro (the three ways an object macro's `render_expr`
+/// output can actually name-resolve once Rust's own glob imports run at the
+/// real `cargo build`). Deliberately does *not* attempt to also recognize
+/// enum-variant names (no corpus-wide harvester for those exists) - if that
+/// ever produces a false positive, the real `--emit-rust` + `cargo build
+/// -p doom_rs` run is what would surface it (same discipline as everywhere
+/// else in this codegen backend), not a theoretical soundness argument.
+fn has_unresolved_ident(
+    expr: &Expr,
+    known_globals: &HashMap<String, Type>,
+    known_functions: &HashMap<String, FnSig>,
+    known_defines: &HashMap<String, String>,
+) -> bool {
+    any_subexpr(expr, &|e| match e {
+        Expr::Ident(name) => {
+            !known_globals.contains_key(name)
+                && !known_functions.contains_key(name)
+                && !known_defines.contains_key(name)
+        }
+        _ => false,
+    })
 }
 
 fn expr_is_param(expr: &Expr, param: &str) -> bool {

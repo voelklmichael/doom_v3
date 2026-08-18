@@ -1,5 +1,5 @@
 use super::{emit_define_function, emit_define_object};
-use crate::parser::ast::Type;
+use crate::parser::ast::{FnSig, Type};
 use crate::parser::stmt::expr::KnownTypeNames;
 use std::collections::HashMap;
 
@@ -11,10 +11,39 @@ fn no_globals() -> HashMap<String, Type> {
     HashMap::new()
 }
 
+fn no_functions() -> HashMap<String, FnSig> {
+    HashMap::new()
+}
+
+fn no_defines() -> HashMap<String, String> {
+    HashMap::new()
+}
+
+fn defines_named(names: &[&str]) -> HashMap<String, String> {
+    names
+        .iter()
+        .map(|n| (n.to_string(), String::new()))
+        .collect()
+}
+
+fn globals_named(names: &[&str]) -> HashMap<String, Type> {
+    names
+        .iter()
+        .map(|n| (n.to_string(), Type::Named("std::ffi::c_int".to_string())))
+        .collect()
+}
+
 #[test]
 fn empty_value_flag_macro_emits_nothing() {
     assert_eq!(
-        emit_define_object("RANGECHECK", "", &known(), &no_globals()),
+        emit_define_object(
+            "RANGECHECK",
+            "",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         ""
     );
 }
@@ -22,7 +51,14 @@ fn empty_value_flag_macro_emits_nothing() {
 #[test]
 fn simple_int_const() {
     assert_eq!(
-        emit_define_object("MAXPLAYERS", "4", &known(), &no_globals()),
+        emit_define_object(
+            "MAXPLAYERS",
+            "4",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         "pub const MAXPLAYERS: std::ffi::c_int = 4;\n\n"
     );
 }
@@ -30,7 +66,14 @@ fn simple_int_const() {
 #[test]
 fn hex_const_with_suffix() {
     assert_eq!(
-        emit_define_object("NCMD_KILL", "0x10000000", &known(), &no_globals()),
+        emit_define_object(
+            "NCMD_KILL",
+            "0x10000000",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         "pub const NCMD_KILL: std::ffi::c_int = 0x10000000;\n\n"
     );
 }
@@ -38,7 +81,14 @@ fn hex_const_with_suffix() {
 #[test]
 fn float_const_gets_double_type() {
     assert_eq!(
-        emit_define_object("INV_ASPECT_RATIO", "0.625", &known(), &no_globals()),
+        emit_define_object(
+            "INV_ASPECT_RATIO",
+            "0.625",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         "pub const INV_ASPECT_RATIO: std::ffi::c_double = 0.625;\n\n"
     );
 }
@@ -51,7 +101,14 @@ fn bare_float_arithmetic_infers_double_not_int() {
     // via the usual arithmetic conversions (mixing float and int promotes
     // the whole expression to float) - must not default to c_int.
     assert_eq!(
-        emit_define_object("INITSCALEMTOF", "(.2*FRACUNIT)", &known(), &no_globals()),
+        emit_define_object(
+            "INITSCALEMTOF",
+            "(.2*FRACUNIT)",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &defines_named(&["FRACUNIT"])
+        ),
         "pub const INITSCALEMTOF: std::ffi::c_double = ((0.2 * ((FRACUNIT) as f64)));\n\n"
     );
 }
@@ -73,7 +130,9 @@ fn bare_sizeof_division_gets_a_truncating_cast() {
             "NUMPLYRLINES",
             "(sizeof(player_arrow)/sizeof(mline_t))",
             &k,
-            &no_globals()
+            &globals_named(&["player_arrow"]),
+            &no_functions(),
+            &no_defines()
         ),
         "pub const NUMPLYRLINES: std::ffi::c_int = (((std::mem::size_of_val(&((player_arrow))) / std::mem::size_of::<mline_t>()))) as std::ffi::c_int;\n\n"
     );
@@ -84,7 +143,14 @@ fn char_const_gets_c_int_type() {
     // A C char literal is int-typed, not char-typed (integer promotion
     // applies to the literal itself) - see `render_expr`'s `CharLit` case.
     assert_eq!(
-        emit_define_object("AM_ZOOMINKEY", "'='", &known(), &no_globals()),
+        emit_define_object(
+            "AM_ZOOMINKEY",
+            "'='",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         "pub const AM_ZOOMINKEY: std::ffi::c_int = (b'=' as std::ffi::c_int);\n\n"
     );
 }
@@ -92,7 +158,14 @@ fn char_const_gets_c_int_type() {
 #[test]
 fn string_const_gets_c_char_ptr_type() {
     assert_eq!(
-        emit_define_object("STSTR_FAADDED", "\"Ammo Added\"", &known(), &no_globals()),
+        emit_define_object(
+            "STSTR_FAADDED",
+            "\"Ammo Added\"",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         "pub const STSTR_FAADDED: *const std::ffi::c_char = (c\"Ammo Added\").as_ptr();\n\n"
     );
 }
@@ -101,7 +174,14 @@ fn string_const_gets_c_char_ptr_type() {
 fn cast_shaped_value_uses_cast_target_type() {
     // Mirrors am_map.c's M_ZOOMIN: `((int) (1.02*FRACUNIT))`.
     assert_eq!(
-        emit_define_object("M_ZOOMIN", "((int) (1*FRACUNIT))", &known(), &no_globals()),
+        emit_define_object(
+            "M_ZOOMIN",
+            "((int) (1*FRACUNIT))",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &defines_named(&["FRACUNIT"])
+        ),
         "pub const M_ZOOMIN: std::ffi::c_int = (((((1 * FRACUNIT))) as std::ffi::c_int));\n\n"
     );
 }
@@ -114,16 +194,62 @@ fn arithmetic_referencing_other_macros() {
             "GRIDCOLORS",
             "(GRAYS + GRAYSRANGE/2)",
             &known(),
-            &no_globals()
+            &no_globals(),
+            &no_functions(),
+            &defines_named(&["GRAYS", "GRAYSRANGE"])
         ),
         "pub const GRIDCOLORS: std::ffi::c_int = ((GRAYS + (GRAYSRANGE / 2)));\n\n"
     );
 }
 
 #[test]
+fn macro_referencing_an_undefined_identifier_degrades_to_a_comment() {
+    // Real corpus cases: s_sound.c's `#define NORM_VOLUME snd_MaxVolume`,
+    // st_stuff.c's `#define ST_MAPTITLEX (SCREENWIDTH - ST_MAPWIDTH *
+    // ST_CHATFONTWIDTH)`, wi_stuff.c's `#define SP_PAR ST_TIME` - all three
+    // reference an identifier that's genuinely never defined anywhere in
+    // the corpus (dead macros, never expanded - confirmed via corpus-wide
+    // grep). Must degrade rather than emit a `const` referencing a name
+    // that will never resolve.
+    let out = emit_define_object(
+        "NORM_VOLUME",
+        "snd_MaxVolume",
+        &known(),
+        &no_globals(),
+        &no_functions(),
+        &no_defines(),
+    );
+    assert!(!out.contains("pub const"), "got: {out}");
+    assert!(out.contains("snd_MaxVolume"), "got: {out}");
+}
+
+#[test]
+fn macro_referencing_a_known_global_still_emits() {
+    let out = emit_define_object(
+        "NORM_VOLUME",
+        "snd_MaxVolume",
+        &known(),
+        &globals_named(&["snd_MaxVolume"]),
+        &no_functions(),
+        &no_defines(),
+    );
+    assert_eq!(
+        out,
+        "pub const NORM_VOLUME: std::ffi::c_int = snd_MaxVolume;\n\n"
+    );
+}
+
+#[test]
 fn keyword_colliding_name_gets_escaped() {
     assert_eq!(
-        emit_define_object("type", "1", &known(), &no_globals()),
+        emit_define_object(
+            "type",
+            "1",
+            &known(),
+            &no_globals(),
+            &no_functions(),
+            &no_defines()
+        ),
         "pub const type_: std::ffi::c_int = 1;\n\n"
     );
 }

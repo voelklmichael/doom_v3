@@ -32,6 +32,7 @@ use std::collections::{BTreeSet, HashMap};
 /// the plan's originally-considered "emit before the main loop") needs no
 /// two-pass rendering - the accumulator naturally finishes filling by the
 /// time the single walk completes.
+#[allow(clippy::too_many_arguments)]
 pub fn emit_items(
     items: &[(Item, crate::parser::ast::Trivia)],
     known: &KnownTypeNames,
@@ -39,6 +40,7 @@ pub fn emit_items(
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
     known_globals: &HashMap<String, Type>,
+    known_defines: &HashMap<String, String>,
 ) -> String {
     let mut needed_zeroed = BTreeSet::new();
     let mut out = emit_items_inner(
@@ -48,6 +50,7 @@ pub fn emit_items(
         known_typedefs,
         known_functions,
         known_globals,
+        known_defines,
         &mut needed_zeroed,
     );
     for type_name in &needed_zeroed {
@@ -61,6 +64,7 @@ pub fn emit_items(
     out
 }
 
+#[allow(clippy::too_many_arguments)]
 fn emit_items_inner(
     items: &[(Item, crate::parser::ast::Trivia)],
     known: &KnownTypeNames,
@@ -68,6 +72,7 @@ fn emit_items_inner(
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
     known_globals: &HashMap<String, Type>,
+    known_defines: &HashMap<String, String>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     items
@@ -80,6 +85,7 @@ fn emit_items_inner(
                 known_typedefs,
                 known_functions,
                 known_globals,
+                known_defines,
                 needed_zeroed,
             )
         })
@@ -103,6 +109,7 @@ fn emit_item(
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
     known_globals: &HashMap<String, Type>,
+    known_defines: &HashMap<String, String>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     match &item.kind {
@@ -132,14 +139,20 @@ fn emit_item(
             known_typedefs,
             known_functions,
             known_globals,
+            known_defines,
             needed_zeroed,
         ),
         ItemKind::Raw => emit_raw(&item.raw),
         // #include has no Rust equivalent (cross-module refs are handled via
         // `use` imports at module-assembly time, see codegen::module).
-        ItemKind::Preproc(Directive::DefineObject { name, value }) => {
-            emit_define_object(name, value, known, known_globals)
-        }
+        ItemKind::Preproc(Directive::DefineObject { name, value }) => emit_define_object(
+            name,
+            value,
+            known,
+            known_globals,
+            known_functions,
+            known_defines,
+        ),
         ItemKind::Preproc(Directive::DefineFunction { name, params, body }) => {
             emit_define_function(name, params, body, known, known_globals)
         }
@@ -572,6 +585,7 @@ fn emit_conditional(
     known_typedefs: &HashMap<String, Type>,
     known_functions: &HashMap<String, FnSig>,
     known_globals: &HashMap<String, Type>,
+    known_defines: &HashMap<String, String>,
     needed_zeroed: &mut BTreeSet<String>,
 ) -> String {
     match group.active {
@@ -582,6 +596,7 @@ fn emit_conditional(
             known_typedefs,
             known_functions,
             known_globals,
+            known_defines,
             needed_zeroed,
         ),
         ActiveBranch::Else => group
@@ -595,6 +610,7 @@ fn emit_conditional(
                     known_typedefs,
                     known_functions,
                     known_globals,
+                    known_defines,
                     needed_zeroed,
                 )
             })

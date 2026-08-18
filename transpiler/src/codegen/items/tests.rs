@@ -719,6 +719,7 @@ fn emit_items_appends_one_deduped_zeroed_const_per_module() {
         &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
     );
     assert_eq!(
         out.matches("const ZEROED_point_t: point_t = unsafe { std::mem::zeroed() };")
@@ -886,6 +887,7 @@ fn conditional_emits_only_the_active_branch() {
         &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert!(out.contains(" a:"));
@@ -921,6 +923,7 @@ fn conditional_none_emits_nothing() {
             &HashMap::new(),
             &HashMap::new(),
             &HashMap::new(),
+            &HashMap::new(),
             &mut BTreeSet::new()
         ),
         ""
@@ -942,6 +945,7 @@ fn conditional_unknown_is_flagged_not_silently_dropped() {
     let out = emit_conditional(
         &group,
         &KnownTypeNames::new(),
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
@@ -984,6 +988,7 @@ fn bare_preproc_item_emits_nothing() {
         &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
+        &HashMap::new(),
         &mut BTreeSet::new(),
     );
     assert_eq!(out, "");
@@ -1001,6 +1006,7 @@ fn define_object_item_emits_a_const() {
             value: "1".to_string(),
         })),
         &known,
+        &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),

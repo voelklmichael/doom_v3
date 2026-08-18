@@ -155,6 +155,60 @@ pub fn compute_known_defines(paths: &[PathBuf]) -> HashMap<String, HashMap<Strin
     compute_per_file_env(paths, own_defines, merge_map)
 }
 
+/// Computes each file's own `#define`d *names* (values not needed, hence
+/// the same `HashMap<String, String>` shape with always-empty values - kept
+/// so it can share `merge_map`/`compute_per_file_env` with every other
+/// harvester here), same `#include`-graph machinery again - but *unlike*
+/// `compute_known_defines`, deliberately does recurse into every
+/// `ItemKind::Conditional` branch (all of them, not just whichever one
+/// would evaluate true), mirroring `collect_typedefs`/`collect_records`'s
+/// existing recursion rather than `own_defines`'s narrower one. Needed by
+/// `codegen::macros::has_unresolved_ident`: telling apart a macro that
+/// references genuinely dead code (never `#define`d anywhere, e.g.
+/// `s_sound.c`'s real `NORM_VOLUME -> snd_MaxVolume`) from one that
+/// references another macro that just happens to be defined inside an
+/// `#ifdef` (e.g. `m_swap.h`'s real `SHORT`, wrapped in
+/// `#ifdef __BIG_ENDIAN__`/`#else`/`#endif` - referenced by `hu_stuff.c`'s
+/// `HU_TITLEY`) needs "was this name `#define`d *anywhere* reachable",
+/// not "which branch is the real one" - the codegen check only cares
+/// whether a same-named Rust item will exist for `use`-glob-import
+/// resolution to find, not which C preprocessor branch produced it.
+/// `#undef` is deliberately not tracked (unlike `own_defines`) - overly
+/// conservative in the safe direction: a name `#undef`'d and never
+/// redefined still counts as "known" here, which can only ever cause a
+/// false negative (fail to skip an actually-dead macro, same as before
+/// this check existed at all), never a false positive (wrongly skip a
+/// live one).
+pub fn compute_known_macro_names(paths: &[PathBuf]) -> HashMap<String, HashMap<String, String>> {
+    compute_per_file_env(paths, own_macro_names, merge_map)
+}
+
+fn own_macro_names(items: &[(Item, Trivia)]) -> HashMap<String, String> {
+    let mut names = HashMap::new();
+    collect_macro_names(items, &mut names);
+    names
+}
+
+fn collect_macro_names(items: &[(Item, Trivia)], names: &mut HashMap<String, String>) {
+    for (item, _) in items {
+        match &item.kind {
+            ItemKind::Preproc(Directive::DefineObject { name, .. })
+            | ItemKind::Preproc(Directive::DefineFunction { name, .. }) => {
+                names.insert(name.clone(), String::new());
+            }
+            ItemKind::Conditional(cg) => {
+                for branch in &cg.branches {
+                    collect_macro_names(&branch.body, names);
+                }
+                if let Some(else_body) = &cg.else_body {
+                    collect_macro_names(else_body, names);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 /// Computes each file's own precise typedef environment (typedef name ->
 /// its underlying `Type`), same `#include`-graph machinery again. Needed
 /// alongside `compute_known_records`: a struct/union field's own type is
