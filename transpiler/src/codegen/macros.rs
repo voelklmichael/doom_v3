@@ -12,6 +12,7 @@ use crate::parser::ast::Type;
 use crate::parser::scan;
 use crate::parser::stmt::expr::{Expr, KnownTypeNames, UnaryOp, parse_expr};
 use crate::parser::stmt::lex::{CTok, Punct, lex_ctoks};
+use std::collections::HashMap;
 
 /// Joins a C line-continuation (`\` immediately followed by a newline,
 /// possibly with a trailing `\r`) by deleting both bytes - exactly what a
@@ -83,12 +84,17 @@ fn unwrap_paren(expr: &Expr) -> &Expr {
 /// conditionals are already resolved elsewhere, see `parser::cond`) has
 /// nothing to constantify and is skipped entirely, same as `#include`
 /// already is in `codegen::items::emit_item`.
-pub fn emit_define_object(name: &str, value: &str, known: &KnownTypeNames) -> String {
+pub fn emit_define_object(
+    name: &str,
+    value: &str,
+    known: &KnownTypeNames,
+    known_globals: &HashMap<String, Type>,
+) -> String {
     if value.trim().is_empty() {
         return String::new();
     }
     let expr = parse_expr(&lex_macro_text(value), known);
-    match render_expr(&expr) {
+    match render_expr(&expr, known_globals) {
         Some(rendered) => {
             let ty = infer_scalar_type(&expr);
             // `sizeof`/`sizeof_val` always render as `usize` (see
@@ -240,6 +246,7 @@ pub fn emit_define_function(
     params: &[String],
     body: &str,
     known: &KnownTypeNames,
+    known_globals: &HashMap<String, Type>,
 ) -> String {
     let ctoks = lex_macro_text(body);
     // Block comments, not `//` - see `emit_define_object`'s matching note;
@@ -250,7 +257,7 @@ pub fn emit_define_function(
         );
     }
     let expr = parse_expr(&ctoks, known);
-    let Some(rendered) = render_expr(&expr) else {
+    let Some(rendered) = render_expr(&expr, known_globals) else {
         return format!(
             "/* TODO: unparsed macro body, needs manual translation:\n#define {name}(...) {body}\n*/\n\n"
         );

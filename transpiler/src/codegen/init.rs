@@ -52,7 +52,7 @@ pub fn render_scalar_init(
     known_globals: &HashMap<String, Type>,
 ) -> Option<String> {
     let expr = parse_init_expr(text, known);
-    let rendered = render_expr(&expr)?;
+    let rendered = render_expr(&expr, known_globals)?;
     // A target spelled via a typedef name (real corpus case: `info.h`'s
     // `state_t.action` field is `Named("actionf_t")`, itself a *union* of
     // further typedef'd function-pointer types - `actionf_p1`/`actionf_v`/

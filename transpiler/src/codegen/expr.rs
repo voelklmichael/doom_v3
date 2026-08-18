@@ -17,7 +17,9 @@
 
 use super::ident::ident;
 use super::types::{map_type, sanitize_int_literal};
+use crate::parser::ast::Type;
 use crate::parser::stmt::expr::{AssignOp, BinaryOp, Expr, PostfixOp, SizeofArg, UnaryOp};
+use std::collections::HashMap;
 
 /// Renders `expr` as Rust expression text, or `None` if it (or any
 /// subexpression) contains an `Expr::Raw` leaf - the grammar's own
@@ -25,8 +27,11 @@ use crate::parser::stmt::expr::{AssignOp, BinaryOp, Expr, PostfixOp, SizeofArg, 
 /// Rust equivalent to fall back to here either. `None` propagates outward
 /// through any containing subtree; callers decide the final fallback
 /// (flag the whole containing declaration, matching `codegen::items`'
-/// `is_malformed`/`type_is_malformed` precedent).
-pub fn render_expr(expr: &Expr) -> Option<String> {
+/// `is_malformed`/`type_is_malformed` precedent). `known_globals` (a global
+/// var name -> its declared `Type`) is only consulted by `Expr::Index` (see
+/// there) - every other case ignores it, threaded through purely so a
+/// nested `Index` anywhere in the tree can still reach it.
+pub fn render_expr(expr: &Expr, known_globals: &HashMap<String, Type>) -> Option<String> {
     Some(match expr {
         Expr::Ident(name) => render_ident(name),
         Expr::IntLit(text) => sanitize_int_literal(text),
@@ -51,12 +56,12 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
         // amounts, other macro consts), so it's cast right where it's
         // produced rather than left for every call site to remember.
         Expr::CharLit(text) => format!("(b{text} as std::ffi::c_int)"),
-        Expr::Paren(inner) => format!("({})", render_expr(inner)?),
-        Expr::Unary { op, expr } => render_unary(*op, expr)?,
-        Expr::Postfix { op, expr } => render_postfix(*op, expr)?,
+        Expr::Paren(inner) => format!("({})", render_expr(inner, known_globals)?),
+        Expr::Unary { op, expr } => render_unary(*op, expr, known_globals)?,
+        Expr::Postfix { op, expr } => render_postfix(*op, expr, known_globals)?,
         Expr::Binary { op, lhs, rhs } => {
-            let lhs_text = render_expr(lhs)?;
-            let rhs_text = render_expr(rhs)?;
+            let lhs_text = render_expr(lhs, known_globals)?;
+            let rhs_text = render_expr(rhs, known_globals)?;
             // C's "usual arithmetic conversions": mixing a floating-point
             // operand with an integer one implicitly promotes the integer
             // side to floating-point before the operation - real corpus
@@ -86,9 +91,9 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
         Expr::Assign { op, lhs, rhs } => {
             format!(
                 "{} {} {}",
-                render_expr(lhs)?,
+                render_expr(lhs, known_globals)?,
                 assign_op_text(*op),
-                render_expr(rhs)?
+                render_expr(rhs, known_globals)?
             )
         }
         Expr::Ternary {
@@ -97,41 +102,76 @@ pub fn render_expr(expr: &Expr) -> Option<String> {
             else_expr,
         } => format!(
             "(if ({}) != 0 {{ {} }} else {{ {} }})",
-            render_expr(cond)?,
-            render_expr(then_expr)?,
-            render_expr(else_expr)?
+            render_expr(cond, known_globals)?,
+            render_expr(then_expr, known_globals)?,
+            render_expr(else_expr, known_globals)?
         ),
         Expr::Comma(items) => {
             let mut parts = Vec::with_capacity(items.len());
             for e in items {
-                parts.push(render_expr(e)?);
+                parts.push(render_expr(e, known_globals)?);
             }
             format!("{{ {} }}", parts.join("; "))
         }
         Expr::Call { callee, args } => {
-            let callee = render_expr(callee)?;
+            let callee = render_expr(callee, known_globals)?;
             let mut rendered_args = Vec::with_capacity(args.len());
             for a in args {
-                rendered_args.push(render_expr(a)?);
+                rendered_args.push(render_expr(a, known_globals)?);
             }
             format!("{callee}({})", rendered_args.join(", "))
         }
-        // Direct Rust indexing syntax - correct whenever `base` mapped to a
+        // Direct Rust indexing syntax whenever `base` mapped to a
         // fixed-size array (the common case for corpus globals, via
-        // `codegen::types::map_type`'s `Array` case); when `base` is
-        // actually a raw pointer (`*mut T` doesn't implement `Index`), this
-        // is the accepted-compile-error case, same as everywhere else here.
+        // `codegen::types::map_type`'s `Array` case). When `base` is a bare
+        // identifier known (via `known_globals`) to be an *unsized* array
+        // (`Type::Array(_, None)`, which `map_type` always maps to a raw
+        // pointer, never a real Rust array/slice - real corpus case:
+        // `m_misc.c`'s `extern char* chat_macros[];`, whose real sized
+        // definition lives in a *different* module, `hu_stuff.c` - see
+        // `codegen::module`'s own documented "extern declarations never
+        // reconcile types across modules" gap) - `[]` doesn't compile
+        // (`*mut T` isn't `Index`-able) - pointer-arithmetic indexing
+        // (`*base.add(i)`, a dereferenced place expression) is the real
+        // Rust equivalent, and composes correctly both as a plain value
+        // read and under `&`/`AddrOf` (`&*base.add(i)` is exactly "address
+        // of the i-th element", matching a real corpus case:
+        // `m_misc.c`'s `&chat_macros[i]`). Any other `base` shape (a known
+        // *sized* array, an unresolvable expression, or simply not found in
+        // `known_globals`) keeps the ordinary subscript syntax unchanged -
+        // the safe default this whole codebase already uses elsewhere.
         Expr::Index { base, index } => {
-            format!("{}[({}) as usize]", render_expr(base)?, render_expr(index)?)
+            let base_text = render_expr(base, known_globals)?;
+            let index_text = render_expr(index, known_globals)?;
+            if let Expr::Ident(name) = base.as_ref()
+                && matches!(known_globals.get(name.as_str()), Some(Type::Array(_, None)))
+            {
+                format!("(*{base_text}.add(({index_text}) as usize))")
+            } else {
+                format!("{base_text}[({index_text}) as usize]")
+            }
         }
-        Expr::Member { base, name } => format!("{}.{}", render_expr(base)?, ident(name)),
+        Expr::Member { base, name } => {
+            format!("{}.{}", render_expr(base, known_globals)?, ident(name))
+        }
         // `base` is a raw pointer (this codebase's transliteration keeps
         // every C pointer a raw `*mut T`), so `->` becomes deref-then-field.
-        Expr::Arrow { base, name } => format!("(*{}).{}", render_expr(base)?, ident(name)),
-        Expr::Cast { ty, expr } => format!("(({}) as {})", render_expr(expr)?, map_type(ty)),
+        Expr::Arrow { base, name } => {
+            format!("(*{}).{}", render_expr(base, known_globals)?, ident(name))
+        }
+        Expr::Cast { ty, expr } => {
+            format!(
+                "(({}) as {})",
+                render_expr(expr, known_globals)?,
+                map_type(ty)
+            )
+        }
         Expr::Sizeof(SizeofArg::Type(ty)) => format!("std::mem::size_of::<{}>()", map_type(ty)),
         Expr::Sizeof(SizeofArg::Expr(e)) => {
-            format!("std::mem::size_of_val(&({}))", render_expr(e)?)
+            format!(
+                "std::mem::size_of_val(&({}))",
+                render_expr(e, known_globals)?
+            )
         }
         Expr::Raw(_) => return None,
     })
@@ -271,8 +311,29 @@ fn render_float_lit(text: &str) -> String {
     t
 }
 
-fn render_unary(op: UnaryOp, expr: &Expr) -> Option<String> {
-    let e = render_expr(expr)?;
+fn render_unary(op: UnaryOp, expr: &Expr, known_globals: &HashMap<String, Type>) -> Option<String> {
+    // `&arr[i]` where `arr` is a known unsized-array identifier (real
+    // corpus case: `m_misc.c`'s `&chat_macros[i]`) - `Expr::Index` already
+    // renders this shape as a dereferenced place expression
+    // (`*arr.add(i)`), so the generic `AddrOf` handling below would produce
+    // `&(*arr.add(i)) as *const _ as *mut _` (deref, then re-reference,
+    // then a two-step cast) - confirmed via the actual `--emit-rust` +
+    // build run to hit a real rustc type-inference limitation (`E0641
+    // cannot cast to a pointer of an unknown kind`) that a plain
+    // identifier's `AddrOf` never hits. `arr.add(i)` alone already has
+    // exactly the needed `*mut T` type - no deref, no re-reference, no cast
+    // round-trip needed at all, and it's the more direct rendering anyway
+    // (`&*p` round-trips back to `p` for any raw pointer `p`).
+    if op == UnaryOp::AddrOf
+        && let Expr::Index { base, index } = expr
+        && let Expr::Ident(name) = base.as_ref()
+        && matches!(known_globals.get(name.as_str()), Some(Type::Array(_, None)))
+    {
+        let base_text = render_expr(base, known_globals)?;
+        let index_text = render_expr(index, known_globals)?;
+        return Some(format!("{base_text}.add(({index_text}) as usize)"));
+    }
+    let e = render_expr(expr, known_globals)?;
     Some(match op {
         // See this module's doc comment - `!` is C logical-not (yields
         // 0/1), not Rust's bitwise-not look-alike.
@@ -284,16 +345,43 @@ fn render_unary(op: UnaryOp, expr: &Expr) -> Option<String> {
         // A shared reference can't cast directly to `*mut _` (E0606, real
         // corpus example: g_game.c's `mousebuttons = &mousearray[1]`) -
         // must go through `*const _` first, matching how `map_type` already
-        // always emits `*mut` for every C pointer.
-        UnaryOp::AddrOf => format!("(&({e}) as *const _ as *mut _)"),
+        // always emits `*mut` for every C pointer. The placeholder `_`
+        // normally infers fine from the surrounding context, but real
+        // corpus proof it sometimes can't: `m_misc.c`'s `defaults[]` config
+        // table has dozens of `location: &(SOMEVAR)`-shaped rows sharing one
+        // generic pointer-typed struct field, and once enough neighboring
+        // rows in the *same* array literal exercise other inference paths
+        // (confirmed via the actual `--emit-rust` + build run), a handful of
+        // otherwise-unrelated plain-identifier rows (`sndserver_filename`,
+        // `mousedev`, `mousetype`) started failing with `E0641 cannot cast
+        // to a pointer of an unknown kind` - spelling out the identifier's
+        // own already-known declared type (via `known_globals`) instead of
+        // `_`, when available, sidesteps the inference dependency entirely;
+        // falls back to the placeholder unchanged when the identifier isn't
+        // a known global (a local, a param, or an expression more complex
+        // than a bare identifier).
+        UnaryOp::AddrOf => {
+            let pointee = match expr {
+                Expr::Ident(name) => known_globals.get(name.as_str()).map(map_type),
+                _ => None,
+            };
+            match pointee {
+                Some(ty) => format!("(&({e}) as *const {ty} as *mut {ty})"),
+                None => format!("(&({e}) as *const _ as *mut _)"),
+            }
+        }
         UnaryOp::Deref => format!("(*({e}))"),
         UnaryOp::PreInc => format!("{{ {e} += 1; {e} }}"),
         UnaryOp::PreDec => format!("{{ {e} -= 1; {e} }}"),
     })
 }
 
-fn render_postfix(op: PostfixOp, expr: &Expr) -> Option<String> {
-    let e = render_expr(expr)?;
+fn render_postfix(
+    op: PostfixOp,
+    expr: &Expr,
+    known_globals: &HashMap<String, Type>,
+) -> Option<String> {
+    let e = render_expr(expr, known_globals)?;
     Some(match op {
         PostfixOp::PostInc => format!("{{ let __macro_tmp = {e}; {e} += 1; __macro_tmp }}"),
         PostfixOp::PostDec => format!("{{ let __macro_tmp = {e}; {e} -= 1; __macro_tmp }}"),

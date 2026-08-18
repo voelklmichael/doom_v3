@@ -138,10 +138,10 @@ fn emit_item(
         // #include has no Rust equivalent (cross-module refs are handled via
         // `use` imports at module-assembly time, see codegen::module).
         ItemKind::Preproc(Directive::DefineObject { name, value }) => {
-            emit_define_object(name, value, known)
+            emit_define_object(name, value, known, known_globals)
         }
         ItemKind::Preproc(Directive::DefineFunction { name, params, body }) => {
-            emit_define_function(name, params, body, known)
+            emit_define_function(name, params, body, known, known_globals)
         }
         // #undef/#pragma/#error/#other: no Rust equivalent, out of scope
         // (any downstream use becomes a visible compile error, an
